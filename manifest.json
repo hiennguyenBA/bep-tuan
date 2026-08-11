@@ -1,0 +1,14 @@
+{
+  "name": "Bếp Tuần",
+  "short_name": "Bếp Tuần",
+  "description": "Lên thực đơn tuần, theo dõi đồ dùng cần refill, và tự động gộp thành danh sách đi chợ.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F9F8F3",
+  "theme_color": "#3F6B49",
+  "lang": "vi",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

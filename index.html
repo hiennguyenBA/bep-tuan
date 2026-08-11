@@ -1,4 +1,18 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bếp Tuần — Kế hoạch bữa ăn & danh sách đi chợ</title>
+<meta name="description" content="Lên thực đơn tuần, theo dõi đồ dùng cần refill, và tự động gộp thành danh sách đi chợ.">
+<meta name="theme-color" content="#3F6B49" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15140F" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bếp Tuần">
 <style>
   :root{
     --bg:#F9F8F3;
@@ -254,6 +268,8 @@
     .app-header h1{font-size:2rem;}
   }
 </style>
+</head>
+<body>
 
 <div id="app">
   <div class="app-header">
@@ -1289,3 +1305,22 @@
   renderAll();
 })();
 </script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("service-worker.js").then(function (reg) {
+        reg.addEventListener("updatefound", function () {
+          var newWorker = reg.installing;
+          newWorker.addEventListener("statechange", function () {
+            if (newWorker.state === "activated") {
+              window.location.reload();
+            }
+          });
+        });
+      }).catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>
