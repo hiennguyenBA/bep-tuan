@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bếp Tuần — Kế hoạch bữa ăn & danh sách đi chợ</title>
 <meta name="description" content="Lên thực đơn tuần, theo dõi đồ dùng cần refill, và tự động gộp thành danh sách đi chợ.">
-<meta name="theme-color" content="#3F6B49" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#15140F" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#6E9B37" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12160D" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -15,28 +15,28 @@
 <meta name="apple-mobile-web-app-title" content="Bếp Tuần">
 <style>
   :root{
-    --bg:#F9F8F3;
+    --bg:#FAFBF3;
     --surface:#FFFFFF;
-    --surface-2:#F1EEE4;
-    --border:#E3DFD2;
-    --text:#252318;
-    --text-muted:#726F5E;
-    --accent:#3F6B49;
-    --accent-strong:#2C4E34;
-    --accent-soft:#E4EEE0;
+    --surface-2:#EFF3E3;
+    --border:#DEE6CD;
+    --text:#20241A;
+    --text-muted:#65735A;
+    --accent:#6E9B37;
+    --accent-strong:#4F7526;
+    --accent-soft:#E6EFD5;
     --accent-contrast:#FFFFFF;
-    --clay:#B4592B;
-    --clay-soft:#F5E4D8;
-    --rose:#A6484B;
-    --rose-soft:#F3E2E1;
-    --ocean:#356E86;
-    --ocean-soft:#DEEBF0;
-    --amber:#A9741F;
-    --amber-soft:#F3E7CF;
-    --slate:#5B6570;
-    --slate-soft:#E7E9EA;
-    --plum:#7A5AA8;
-    --plum-soft:#EDE6F5;
+    --clay:#C6672E;
+    --clay-soft:#FBE7D6;
+    --rose:#C15458;
+    --rose-soft:#FBE4E3;
+    --ocean:#2E86A6;
+    --ocean-soft:#DBF0F7;
+    --amber:#BF8A1E;
+    --amber-soft:#FBF0D3;
+    --slate:#67736A;
+    --slate-soft:#EAEFE4;
+    --plum:#8863B8;
+    --plum-soft:#F1E7FA;
     --shadow-card:0 1px 2px rgba(40,35,15,.06), 0 3px 10px rgba(40,35,15,.05);
     --radius-card:12px;
     --radius-control:8px;
@@ -46,47 +46,47 @@
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --bg:#15140F;
-      --surface:#1D1C15;
-      --surface-2:#26251C;
-      --border:#38362A;
-      --text:#ECE8DB;
-      --text-muted:#A6A18C;
-      --accent:#7FB585;
-      --accent-strong:#9CCB9F;
-      --accent-soft:#233024;
-      --accent-contrast:#122016;
-      --clay:#E2905C;
-      --clay-soft:#332216;
-      --rose:#D98F91;
-      --rose-soft:#332120;
-      --ocean:#87BFD6;
-      --ocean-soft:#1C2C31;
-      --amber:#DDB463;
-      --amber-soft:#332A15;
-      --slate:#A6AEB6;
-      --slate-soft:#26282B;
-      --plum:#C3A6E8;
-      --plum-soft:#2B2436;
+      --bg:#12160D;
+      --surface:#1B2114;
+      --surface-2:#242C1B;
+      --border:#37402A;
+      --text:#EDF1E3;
+      --text-muted:#A9B49A;
+      --accent:#A6D468;
+      --accent-strong:#C3E896;
+      --accent-soft:#26331A;
+      --accent-contrast:#15200D;
+      --clay:#F0A26C;
+      --clay-soft:#3A2717;
+      --rose:#E79A9C;
+      --rose-soft:#3A2323;
+      --ocean:#8AD0EA;
+      --ocean-soft:#1D2E33;
+      --amber:#EAC873;
+      --amber-soft:#382C15;
+      --slate:#B4BFA8;
+      --slate-soft:#2B3123;
+      --plum:#CBADEA;
+      --plum-soft:#332845;
       --shadow-card:0 1px 2px rgba(0,0,0,.3);
     }
   }
   :root[data-theme="dark"]{
-    --bg:#15140F; --surface:#1D1C15; --surface-2:#26251C; --border:#38362A;
-    --text:#ECE8DB; --text-muted:#A6A18C; --accent:#7FB585; --accent-strong:#9CCB9F;
-    --accent-soft:#233024; --accent-contrast:#122016; --clay:#E2905C; --clay-soft:#332216;
-    --rose:#D98F91; --rose-soft:#332120; --ocean:#87BFD6; --ocean-soft:#1C2C31;
-    --amber:#DDB463; --amber-soft:#332A15; --slate:#A6AEB6; --slate-soft:#26282B;
-    --plum:#C3A6E8; --plum-soft:#2B2436;
+    --bg:#12160D; --surface:#1B2114; --surface-2:#242C1B; --border:#37402A;
+    --text:#EDF1E3; --text-muted:#A9B49A; --accent:#A6D468; --accent-strong:#C3E896;
+    --accent-soft:#26331A; --accent-contrast:#15200D; --clay:#F0A26C; --clay-soft:#3A2717;
+    --rose:#E79A9C; --rose-soft:#3A2323; --ocean:#8AD0EA; --ocean-soft:#1D2E33;
+    --amber:#EAC873; --amber-soft:#382C15; --slate:#B4BFA8; --slate-soft:#2B3123;
+    --plum:#CBADEA; --plum-soft:#332845;
     --shadow-card:0 1px 2px rgba(0,0,0,.3);
   }
   :root[data-theme="light"]{
-    --bg:#F9F8F3; --surface:#FFFFFF; --surface-2:#F1EEE4; --border:#E3DFD2;
-    --text:#252318; --text-muted:#726F5E; --accent:#3F6B49; --accent-strong:#2C4E34;
-    --accent-soft:#E4EEE0; --accent-contrast:#FFFFFF; --clay:#B4592B; --clay-soft:#F5E4D8;
-    --rose:#A6484B; --rose-soft:#F3E2E1; --ocean:#356E86; --ocean-soft:#DEEBF0;
-    --amber:#A9741F; --amber-soft:#F3E7CF; --slate:#5B6570; --slate-soft:#E7E9EA;
-    --plum:#7A5AA8; --plum-soft:#EDE6F5;
+    --bg:#FAFBF3; --surface:#FFFFFF; --surface-2:#EFF3E3; --border:#DEE6CD;
+    --text:#20241A; --text-muted:#65735A; --accent:#6E9B37; --accent-strong:#4F7526;
+    --accent-soft:#E6EFD5; --accent-contrast:#FFFFFF; --clay:#C6672E; --clay-soft:#FBE7D6;
+    --rose:#C15458; --rose-soft:#FBE4E3; --ocean:#2E86A6; --ocean-soft:#DBF0F7;
+    --amber:#BF8A1E; --amber-soft:#FBF0D3; --slate:#67736A; --slate-soft:#EAEFE4;
+    --plum:#8863B8; --plum-soft:#F1E7FA;
     --shadow-card:0 1px 2px rgba(40,35,15,.06), 0 3px 10px rgba(40,35,15,.05);
   }
   *{box-sizing:border-box;}
