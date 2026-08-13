@@ -885,10 +885,14 @@
     var delBtn = e.target.closest("[data-del]");
     if(delBtn){
       var rid = delBtn.dataset.del;
-      state.recipes = state.recipes.filter(function(r){ return r.id !== rid; });
-      state.plan = state.plan.filter(function(p){ return p.recipeId !== rid; });
-      save(); renderAll();
-      toast("Đã xoá món khỏi thư viện");
+      var delRecipe = recipeById(rid);
+      var delName = delRecipe ? delRecipe.name : "món này";
+      showConfirm("Xoá món khỏi thư viện", 'Xoá hẳn "'+delName+'" cùng công thức của nó? Không thể hoàn tác.', "Xoá món", function(){
+        state.recipes = state.recipes.filter(function(r){ return r.id !== rid; });
+        state.plan = state.plan.filter(function(p){ return p.recipeId !== rid; });
+        save(); renderAll();
+        toast("Đã xoá món khỏi thư viện");
+      });
       return;
     }
   });
