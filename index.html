@@ -118,6 +118,7 @@
   .tag-canh{background:var(--ocean-soft);color:var(--ocean);}
   .tag-sang{background:var(--gold-soft);color:var(--gold-strong);}
   .tag-trang{background:var(--plum-soft);color:var(--plum);}
+  .tag-hoa{background:var(--rose-soft);color:var(--rose);}
 
   #recipeList{display:flex;flex-direction:column;gap:10px;}
   .recipe-card{padding:13px 14px;display:flex;flex-direction:column;gap:8px;}
@@ -128,6 +129,7 @@
   .recipe-media.ph-canh{background:var(--ocean-soft);color:var(--ocean);}
   .recipe-media.ph-sang{background:var(--gold-soft);color:var(--gold-strong);}
   .recipe-media.ph-trang{background:var(--plum-soft);color:var(--plum);}
+  .recipe-media.ph-hoa{background:var(--rose-soft);color:var(--rose);}
   .recipe-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;cursor:pointer;}
   .recipe-card-title{display:flex;flex-direction:column;gap:5px;}
   .recipe-card-title strong{font-size:1rem;}
@@ -340,7 +342,7 @@
         Thêm món
       </button>
     </div>
-    <p class="hint">Món mặn, Canh &amp; rau, Ăn sáng, Tráng miệng có sẵn — bấm vào món để xem nguyên liệu, hoặc sửa/xoá theo khẩu vị nhà bạn.</p>
+    <p class="hint">Món mặn, Canh &amp; rau, Ăn sáng, Tráng miệng, Hoa tươi có sẵn — bấm vào món để xem nguyên liệu, hoặc sửa/xoá theo khẩu vị nhà bạn.</p>
     <div class="search-row">
       <input type="text" id="librarySearch" placeholder="Tìm món…" />
     </div>
@@ -350,6 +352,7 @@
       <button class="chip" data-filter="canh">Canh & rau</button>
       <button class="chip" data-filter="sang">Ăn sáng</button>
       <button class="chip" data-filter="trang">Tráng miệng</button>
+      <button class="chip" data-filter="hoa">Hoa tươi</button>
     </div>
     <div id="recipeList"></div>
   </div>
@@ -462,15 +465,17 @@
 
   var RECIPE_PACK_VERSION = 3;
   var CAT_FIX_VERSION = 1;
+  var FLOWER_ADD_VERSION = 1;
   var FRUIT_INGREDIENT_NAMES = ["Chuối","Quả na","Táo","Trái cây tươi (chuối/berry)"];
 
   var TAGS = {
     man:   {label:"Món mặn",      cls:"tag-man"},
     canh:  {label:"Canh & rau",   cls:"tag-canh"},
     sang:  {label:"Ăn sáng",      cls:"tag-sang"},
-    trang: {label:"Tráng miệng",  cls:"tag-trang"}
+    trang: {label:"Tráng miệng",  cls:"tag-trang"},
+    hoa:   {label:"Hoa tươi",     cls:"tag-hoa"}
   };
-  var TAG_ORDER = ["man","canh","sang","trang"];
+  var TAG_ORDER = ["man","canh","sang","trang","hoa"];
 
   var CATS = {
     rau:     {label:"Rau củ",            color:"var(--forest)", soft:"var(--forest-soft)", dot:"var(--forest)"},
@@ -633,7 +638,8 @@
       {id:uid(), name:"Kem", tag:"trang", base:3, ingredients:[ I("Kem (hộp)",1,"hộp","khac") ]},
       {id:uid(), name:"Sữa chua", tag:"trang", base:3, ingredients:[ I("Sữa chua",6,"hộp","khac") ]},
       {id:uid(), name:"Quả na", tag:"trang", base:3, ingredients:[ I("Quả na",3,"quả","traicay") ]},
-      {id:uid(), name:"Táo", tag:"trang", base:3, ingredients:[ I("Táo",3,"quả","traicay") ]}
+      {id:uid(), name:"Táo", tag:"trang", base:3, ingredients:[ I("Táo",3,"quả","traicay") ]},
+      {id:uid(), name:"Hoa tươi", tag:"hoa", base:3, ingredients:[ I("Hoa tươi",1,"bó","khac") ]}
     ];
   }
 
@@ -642,7 +648,7 @@
 
   function normalizeState(parsed){
     if(!parsed || !Array.isArray(parsed.recipes) || !parsed.recipes.length){
-      return { people:3, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", search:"", recipePackVersion:RECIPE_PACK_VERSION, catFixVersion:CAT_FIX_VERSION };
+      return { people:3, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", search:"", recipePackVersion:RECIPE_PACK_VERSION, catFixVersion:CAT_FIX_VERSION, flowerAddVersion:FLOWER_ADD_VERSION };
     }
     var OLD_TAG_MAP = {"Việt":"man","Âu":"man"};
     parsed.recipes.forEach(function(r){ if(!TAGS[r.tag]) r.tag = OLD_TAG_MAP[r.tag] || "man"; });
@@ -669,6 +675,14 @@
         });
       });
       parsed.catFixVersion = CAT_FIX_VERSION;
+    }
+    if(!parsed.flowerAddVersion || parsed.flowerAddVersion < FLOWER_ADD_VERSION){
+      var existingNames = {};
+      parsed.recipes.forEach(function(r){ existingNames[r.name] = true; });
+      seedRecipes().filter(function(r){ return r.tag === "hoa"; }).forEach(function(r){
+        if(!existingNames[r.name]) parsed.recipes.push(r);
+      });
+      parsed.flowerAddVersion = FLOWER_ADD_VERSION;
     }
     return parsed;
   }
@@ -757,7 +771,8 @@
     man: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/></svg>',
     canh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16a8 6.5 0 0 1-16 0Z"/><path d="M9 4c0 1-1 1-1 2s1 1 1 2M14 4c0 1-1 1-1 2s1 1 1 2"/></svg>',
     sang: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h16M5 17a7 7 0 0 1 14 0"/><path d="M2.5 20.5h19" stroke-opacity=".45"/></svg>',
-    trang: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="16" r="4"/><circle cx="16" cy="15" r="3.2"/><path d="M9 12 12.5 4M15 12 13 7"/></svg>'
+    trang: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="16" r="4"/><circle cx="16" cy="15" r="3.2"/><path d="M9 12 12.5 4M15 12 13 7"/></svg>',
+    hoa: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="1.6"/><circle cx="9" cy="6" r="1.8"/><circle cx="15" cy="6" r="1.8"/><circle cx="9" cy="10" r="1.8"/><circle cx="15" cy="10" r="1.8"/><path d="M12 11.5V20"/></svg>'
   };
   function recipeMediaHtml(r){
     if(r.image){
