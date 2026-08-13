@@ -1005,8 +1005,14 @@
     }
     var rm = e.target.closest("[data-remove-plan]");
     if(rm){
-      state.plan = state.plan.filter(function(p){ return p.id !== rm.dataset.removePlan; });
-      save(); renderAll();
+      var rmId = rm.dataset.removePlan;
+      var rmEntry = state.plan.find(function(p){ return p.id === rmId; });
+      var rmRecipe = rmEntry ? recipeById(rmEntry.recipeId) : null;
+      var rmName = rmRecipe ? rmRecipe.name : "món này";
+      showConfirm('Bỏ khỏi tuần', 'Bỏ "'+rmName+'" khỏi thực đơn tuần này?', "Bỏ khỏi tuần", function(){
+        state.plan = state.plan.filter(function(p){ return p.id !== rmId; });
+        save(); renderAll();
+      });
       return;
     }
     var toggle = e.target.closest("[data-plan-toggle]");
