@@ -171,7 +171,14 @@
   .tag-canh{background:var(--ocean-soft);color:var(--ocean);}
   .tag-sang{background:var(--gold-soft);color:var(--gold-strong);}
 
+  #recipeList{display:flex;flex-direction:column;gap:10px;}
   .recipe-card{padding:13px 14px;display:flex;flex-direction:column;gap:8px;}
+  .recipe-media{margin:-13px -14px 2px;border-radius:16px 16px 0 0;overflow:hidden;background:var(--surface-2);aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;}
+  .recipe-media img{width:100%;height:100%;object-fit:cover;display:block;}
+  .recipe-media svg{width:30%;height:30%;opacity:.5;}
+  .recipe-media.ph-man{background:var(--forest-soft);color:var(--forest);}
+  .recipe-media.ph-canh{background:var(--ocean-soft);color:var(--ocean);}
+  .recipe-media.ph-sang{background:var(--gold-soft);color:var(--gold-strong);}
   .recipe-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;cursor:pointer;}
   .recipe-card-title{display:flex;flex-direction:column;gap:5px;}
   .recipe-card-title strong{font-size:1rem;}
@@ -267,6 +274,9 @@
   .field label{font-size:.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.03em;}
   .field-row{display:flex;gap:10px;}
   .field-row .field{flex:1;}
+  .photo-picker{width:100%;aspect-ratio:16/10;border:1.5px dashed var(--border);border-radius:var(--radius-control);background:var(--surface-2);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;}
+  .photo-picker img{width:100%;height:100%;object-fit:cover;display:block;}
+  .photo-picker-empty{color:var(--text-muted);font-size:.85rem;font-weight:600;}
   .ing-edit-row{display:grid;grid-template-columns:1.6fr .8fr .7fr 1fr auto;gap:6px;align-items:center;}
   .ing-edit-row input,.ing-edit-row select{width:100%;font-size:.85rem;padding:7px 8px;}
   .ing-rows{display:flex;flex-direction:column;gap:6px;}
@@ -280,6 +290,44 @@
   @media (min-width:640px){
     #app{padding-top:32px;}
     .app-header h1{font-size:2rem;}
+  }
+
+  @media (min-width:960px){
+    #app{
+      max-width:1200px;
+      display:grid;
+      grid-template-columns:250px 1fr;
+      grid-template-areas:
+        "header main"
+        "sync   main"
+        "nav    main";
+      align-content:start;
+      column-gap:36px;
+      padding-top:44px;
+    }
+    .app-header{grid-area:header;}
+    .sync-row{grid-area:sync;flex-direction:column;align-items:stretch;}
+    .sync-row .btn{justify-content:flex-start;}
+    .tabs{
+      grid-area:nav;
+      flex-direction:column;
+      align-items:stretch;
+      background:transparent;
+      border:none;
+      padding:0;
+      gap:2px;
+      margin-bottom:0;
+      position:sticky;
+      top:44px;
+    }
+    .tab-btn{justify-content:flex-start;padding:10px 14px;border-radius:var(--radius-control);font-size:.88rem;}
+    .tab-btn svg{width:17px;height:17px;}
+    .tab-btn.active{box-shadow:none;}
+    .tab-badge{margin-left:auto;}
+    .panel{grid-area:main;}
+    #panel-plan, #panel-household, #panel-shopping{max-width:640px;}
+    #recipeList{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;align-items:start;}
+    #recipeList .empty-state{grid-column:1/-1;}
   }
 </style>
 </head>
@@ -343,7 +391,7 @@
       <button class="chip" data-filter="canh">Canh & rau</button>
       <button class="chip" data-filter="sang">Ăn sáng</button>
     </div>
-    <div id="recipeList" style="display:flex;flex-direction:column;gap:10px;"></div>
+    <div id="recipeList"></div>
   </div>
 
   <!-- PLAN -->
@@ -664,6 +712,18 @@
   var recipeListEl = document.getElementById("recipeList");
   var librarySearchEl = document.getElementById("librarySearch");
 
+  var PLACEHOLDER_ICONS = {
+    man: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/></svg>',
+    canh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16a8 6.5 0 0 1-16 0Z"/><path d="M9 4c0 1-1 1-1 2s1 1 1 2M14 4c0 1-1 1-1 2s1 1 1 2"/></svg>',
+    sang: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h16M5 17a7 7 0 0 1 14 0"/><path d="M2.5 20.5h19" stroke-opacity=".45"/></svg>'
+  };
+  function recipeMediaHtml(r){
+    if(r.image){
+      return '<div class="recipe-media"><img src="'+r.image+'" alt=""></div>';
+    }
+    return '<div class="recipe-media ph-'+r.tag+'">'+PLACEHOLDER_ICONS[r.tag]+'</div>';
+  }
+
   function renderLibrary(){
     librarySearchEl.value = state.search || "";
     document.querySelectorAll("#libraryFilter .chip").forEach(function(c){ c.classList.toggle("active", c.dataset.filter === (state.filter||"all")); });
@@ -686,6 +746,7 @@
         return '<li><span>'+escapeHtml(ing.name)+'</span><span>'+formatQty(ing.qty, ing.unit)+'</span></li>';
       }).join("");
       card.innerHTML =
+        recipeMediaHtml(r)+
         '<div class="recipe-card-top" data-toggle="'+r.id+'">'+
           '<div class="recipe-card-title">'+
             '<span class="tag '+TAGS[r.tag].cls+'">'+TAGS[r.tag].label+'</span>'+
@@ -1136,12 +1197,36 @@
   document.body.appendChild(modalRoot);
   var editingId = null;
   var draftIngredients = [];
+  var draftImage = null;
+
+  function compressImage(file, maxDim, quality){
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(){
+        var img = new Image();
+        img.onload = function(){
+          var scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+          var w = Math.max(1, Math.round(img.width*scale));
+          var h = Math.max(1, Math.round(img.height*scale));
+          var canvas = document.createElement("canvas");
+          canvas.width = w; canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.onerror = function(){ reject(new Error("bad image")); };
+        img.src = reader.result;
+      };
+      reader.onerror = function(){ reject(new Error("read error")); };
+      reader.readAsDataURL(file);
+    });
+  }
 
   function openRecipeModal(recipe){
     editingId = recipe ? recipe.id : null;
     draftIngredients = recipe ? recipe.ingredients.map(function(i){ return Object.assign({},i); }) : [
       {name:"",qty:"",unit:"g",cat:"rau"}
     ];
+    draftImage = recipe ? (recipe.image || null) : null;
     renderModal(recipe);
   }
 
@@ -1163,11 +1248,23 @@
       }).join("");
     }
 
+    function photoFieldHtml(){
+      return '<div class="field">'+
+        '<label>Ảnh món ăn</label>'+
+        '<div class="photo-picker" id="mPhotoPicker">'+
+          (draftImage ? '<img src="'+draftImage+'" alt="">' : '<span class="photo-picker-empty">+ Thêm ảnh</span>')+
+        '</div>'+
+        (draftImage ? '<button type="button" class="btn btn-sm btn-danger-text" id="mPhotoRemove" style="align-self:flex-start;">Xoá ảnh</button>' : '')+
+        '<input type="file" accept="image/*" id="mPhotoInput" style="display:none;">'+
+      '</div>';
+    }
+
     overlay.innerHTML =
       '<div class="modal">'+
         '<div class="modal-head"><h3>'+(recipe?"Sửa món":"Thêm món mới")+'</h3>'+
           '<button class="icon-btn" id="mClose" aria-label="Đóng">'+
             '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 5L15 15M15 5L5 15"/></svg></button></div>'+
+        '<div id="mPhotoField">'+photoFieldHtml()+'</div>'+
         '<div class="field"><label for="mName">Tên món</label><input type="text" id="mName" value="'+(recipe?escapeHtml(recipe.name):"")+'" placeholder="Ví dụ: Canh chua cá lóc"></div>'+
         '<div class="field-row">'+
           '<div class="field"><label for="mTag">Loại</label><select id="mTag">'+TAG_ORDER.map(function(tg){ return '<option value="'+tg+'"'+((recipe?recipe.tag:"man")===tg?" selected":"")+'>'+TAGS[tg].label+'</option>'; }).join("")+'</select></div>'+
@@ -1209,6 +1306,30 @@
       ingRowsEl.innerHTML = ingRowsHtml();
     });
 
+    var photoFieldEl = overlay.querySelector("#mPhotoField");
+    function wirePhotoField(){
+      var input = overlay.querySelector("#mPhotoInput");
+      overlay.querySelector("#mPhotoPicker").addEventListener("click", function(){ input.click(); });
+      input.addEventListener("change", function(){
+        var file = input.files[0];
+        if(!file) return;
+        compressImage(file, 640, .72).then(function(dataUrl){
+          draftImage = dataUrl;
+          photoFieldEl.innerHTML = photoFieldHtml();
+          wirePhotoField();
+        }).catch(function(){ toast("Không đọc được ảnh này"); });
+      });
+      var removeBtn = overlay.querySelector("#mPhotoRemove");
+      if(removeBtn){
+        removeBtn.addEventListener("click", function(){
+          draftImage = null;
+          photoFieldEl.innerHTML = photoFieldHtml();
+          wirePhotoField();
+        });
+      }
+    }
+    wirePhotoField();
+
     overlay.querySelector("#mSave").addEventListener("click", function(){
       var name = overlay.querySelector("#mName").value.trim();
       if(!name){ toast("Vui lòng nhập tên món"); return; }
@@ -1221,9 +1342,9 @@
 
       if(editingId){
         var r = recipeById(editingId);
-        r.name = name; r.tag = tag; r.base = base; r.ingredients = cleanIngredients;
+        r.name = name; r.tag = tag; r.base = base; r.ingredients = cleanIngredients; r.image = draftImage;
       } else {
-        state.recipes.push({id:uid(), name:name, tag:tag, base:base, ingredients:cleanIngredients});
+        state.recipes.push({id:uid(), name:name, tag:tag, base:base, ingredients:cleanIngredients, image:draftImage});
       }
       save(); renderAll();
       closeModal();
