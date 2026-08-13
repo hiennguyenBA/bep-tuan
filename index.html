@@ -212,6 +212,10 @@
   .manual-item .item-name{flex:1;}
 
   .list-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .shopping-layout{display:flex;flex-direction:column;gap:14px;}
+  .shopping-main{display:flex;flex-direction:column;gap:14px;}
+  .shopping-side{display:flex;flex-direction:column;gap:14px;}
+  .shopping-side-card:empty{display:none;}
 
   .modal-overlay{position:fixed;inset:0;background:rgba(20,18,10,.45);display:flex;align-items:flex-end;justify-content:center;z-index:50;padding:0;}
   @media (min-width:640px){ .modal-overlay{align-items:center;padding:20px;} }
@@ -244,21 +248,24 @@
   @media (min-width:960px){
     #app{
       max-width:1200px;
-      display:grid;
-      grid-template-columns:250px 1fr;
-      grid-template-areas:
-        "header main"
-        "sync   main"
-        "nav    main";
-      align-content:start;
-      column-gap:36px;
+      display:flex;
+      align-items:flex-start;
+      gap:36px;
       padding-top:44px;
     }
-    .app-header{grid-area:header;}
-    .sync-row{grid-area:sync;flex-direction:column;align-items:stretch;}
+    .app-sidebar{
+      width:250px;
+      flex:none;
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+      position:sticky;
+      top:44px;
+    }
+    .app-main{flex:1;min-width:0;}
+    .sync-row{flex-direction:column;align-items:stretch;margin-bottom:0;}
     .sync-row .btn{justify-content:flex-start;}
     .tabs{
-      grid-area:nav;
       flex-direction:column;
       align-items:stretch;
       background:transparent;
@@ -266,23 +273,24 @@
       padding:0;
       gap:2px;
       margin-bottom:0;
-      position:sticky;
-      top:44px;
     }
     .tab-btn{justify-content:flex-start;padding:10px 14px;border-radius:var(--radius-control);font-size:.88rem;}
     .tab-btn svg{width:17px;height:17px;}
     .tab-btn.active{box-shadow:none;}
     .tab-badge{margin-left:auto;}
-    .panel{grid-area:main;}
-    #panel-plan, #panel-household, #panel-shopping{max-width:640px;}
+    #panel-plan, #panel-household{max-width:640px;}
     #recipeList{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;align-items:start;}
     #recipeList .empty-state{grid-column:1/-1;}
+    .shopping-layout{flex-direction:row;align-items:flex-start;gap:24px;}
+    .shopping-main{flex:1;min-width:0;max-width:640px;}
+    .shopping-side{width:290px;flex:none;}
   }
 </style>
 </head>
 <body>
 
 <div id="app">
+ <div class="app-sidebar">
   <div class="app-header">
     <h1>Chip Kitchen</h1>
     <p>Lên thực đơn cả tuần, tự động gộp thành danh sách đi chợ.</p>
@@ -320,7 +328,9 @@
       <span class="tab-badge" id="shoppingBadge">0</span>
     </button>
   </div>
+ </div>
 
+ <div class="app-main">
   <!-- LIBRARY -->
   <div class="panel" id="panel-library">
     <div class="section-title">
@@ -401,38 +411,47 @@
   <!-- SHOPPING -->
   <div class="panel" id="panel-shopping">
     <div class="section-title"><h2>Danh sách đi chợ</h2></div>
-    <div class="card progress-wrap">
-      <div class="progress-top">
-        <strong id="progressLabel">Đã mua 0/0</strong>
-        <span id="progressPct">0%</span>
+    <div class="shopping-layout">
+      <div class="shopping-main">
+        <div class="card progress-wrap">
+          <div class="progress-top">
+            <strong id="progressLabel">Đã mua 0/0</strong>
+            <span id="progressPct">0%</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        </div>
+
+        <div class="list-actions">
+          <button class="btn" id="btnCopyList">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="10" height="11" rx="1.5"/><path d="M14 6V4.5C14 3.67 13.33 3 12.5 3H5.5C4.67 3 4 3.67 4 4.5V13.5C4 14.33 4.67 15 5.5 15H6"/></svg>
+            Sao chép danh sách
+          </button>
+          <button class="btn" id="btnNewWeek">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10a6 6 0 1 1 1.8 4.3M4 10V6M4 10h4"/></svg>
+            Bắt đầu tuần mới
+          </button>
+        </div>
+
+        <div id="shoppingGroups" style="display:flex;flex-direction:column;gap:14px;"></div>
+
+        <p class="bottom-note">Danh sách được tính từ thực đơn ở tab "Tuần này". Bấm vào từng mục khi đã bỏ vào giỏ.</p>
       </div>
-      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-    </div>
 
-    <div class="list-actions">
-      <button class="btn" id="btnCopyList">
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="10" height="11" rx="1.5"/><path d="M14 6V4.5C14 3.67 13.33 3 12.5 3H5.5C4.67 3 4 3.67 4 4.5V13.5C4 14.33 4.67 15 5.5 15H6"/></svg>
-        Sao chép danh sách
-      </button>
-      <button class="btn" id="btnNewWeek">
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10a6 6 0 1 1 1.8 4.3M4 10V6M4 10h4"/></svg>
-        Bắt đầu tuần mới
-      </button>
-    </div>
+      <div class="shopping-side">
+        <div class="card shopping-side-card" id="shoppingHousehold"></div>
 
-    <div id="shoppingGroups" style="display:flex;flex-direction:column;gap:14px;"></div>
-
-    <div class="manual-section">
-      <strong style="font-size:.85rem;">Tự thêm mục khác</strong>
-      <div class="manual-add-row">
-        <input type="text" id="manualInput" placeholder="Ví dụ: giấy ăn, trái cây tráng miệng…" />
-        <button class="btn btn-sm" id="btnAddManual">Thêm</button>
+        <div class="manual-section">
+          <strong style="font-size:.85rem;">Tự thêm mục khác</strong>
+          <div class="manual-add-row">
+            <input type="text" id="manualInput" placeholder="Ví dụ: giấy ăn, trái cây tráng miệng…" />
+            <button class="btn btn-sm" id="btnAddManual">Thêm</button>
+          </div>
+          <div id="manualList" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
       </div>
-      <div id="manualList" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
-
-    <p class="bottom-note">Danh sách được tính từ thực đơn ở tab "Tuần này". Bấm vào từng mục khi đã bỏ vào giỏ.</p>
   </div>
+ </div>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -1046,6 +1065,7 @@
 
   // ---------- SHOPPING ----------
   var shoppingGroupsEl = document.getElementById("shoppingGroups");
+  var shoppingHouseholdEl = document.getElementById("shoppingHousehold");
   var manualListEl = document.getElementById("manualList");
 
   function renderShopping(){
@@ -1095,13 +1115,20 @@
           '<span>'+items.length+' món</span></div>'+ rows;
       shoppingGroupsEl.appendChild(group);
     });
-    HCAT_ORDER.forEach(function(c){
-      var items = hhNeeded.filter(function(h){ return h.cat===c; }).sort(function(a,b){ return a.name.localeCompare(b.name,"vi"); });
-      if(!items.length) return;
-      anyItems = true;
-      var group2 = document.createElement("div");
-      group2.className = "card cat-group";
-      var rows2 = items.map(function(h){
+    if(!anyItems){
+      shoppingGroupsEl.innerHTML = '<div class="card empty-state">'+
+        '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4H6L8.2 14.2C8.35 14.95 9.01 15.5 9.78 15.5H17.3C18.05 15.5 18.7 14.98 18.87 14.25L20.4 7.5H6.4"/><circle cx="10" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/></svg>'+
+        '<p>Chưa có nguyên liệu nào. Thêm món ăn vào tab "Tuần này" để tạo danh sách.</p></div>';
+    }
+
+    var hhSorted = hhNeeded.slice().sort(function(a,b){ return a.name.localeCompare(b.name,"vi"); });
+    if(!hhSorted.length){
+      shoppingHouseholdEl.innerHTML =
+        '<div class="cat-head"><span class="cat-dot" style="background:var(--forest);"></span>'+
+          '<strong style="color:var(--forest);">Cần mua thêm</strong></div>'+
+        '<p style="margin:0;padding:14px;color:var(--text-muted);font-size:.85rem;">Chưa có đồ dùng nào sắp hết.</p>';
+    } else {
+      var hhRows = hhSorted.map(function(h){
         var key = "hh||"+h.id;
         var isChecked = !!state.checked[key];
         var reason = hhStatus(h)==="het" ? "đã hết" : "sắp hết";
@@ -1111,14 +1138,9 @@
           '<span class="item-qty">'+formatQty(h.size.qty, h.size.unit)+'</span>'+
         '</div>';
       }).join("");
-      group2.innerHTML = '<div class="cat-head"><span class="cat-dot" style="background:'+HCATS[c].dot+'"></span>'+
-        '<strong style="color:'+HCATS[c].dot+'">'+HCATS[c].label+'</strong><span>'+items.length+' món</span></div>'+rows2;
-      shoppingGroupsEl.appendChild(group2);
-    });
-    if(!anyItems){
-      shoppingGroupsEl.innerHTML = '<div class="card empty-state">'+
-        '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4H6L8.2 14.2C8.35 14.95 9.01 15.5 9.78 15.5H17.3C18.05 15.5 18.7 14.98 18.87 14.25L20.4 7.5H6.4"/><circle cx="10" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/></svg>'+
-        '<p>Chưa có nguyên liệu nào. Thêm món ăn vào tab "Tuần này" để tạo danh sách.</p></div>';
+      shoppingHouseholdEl.innerHTML =
+        '<div class="cat-head"><span class="cat-dot" style="background:var(--rose);"></span>'+
+          '<strong style="color:var(--rose);">Cần mua thêm</strong><span>'+hhSorted.length+' món</span></div>'+hhRows;
     }
 
     manualListEl.innerHTML = state.manual.map(function(m){
@@ -1132,13 +1154,15 @@
     }).join("");
   }
 
-  shoppingGroupsEl.addEventListener("click", function(e){
+  function handleShoppingCheckClick(e){
     var row = e.target.closest("[data-check]");
     if(!row) return;
     var key = row.dataset.check;
     state.checked[key] = !state.checked[key];
     save(); renderShopping();
-  });
+  }
+  shoppingGroupsEl.addEventListener("click", handleShoppingCheckClick);
+  shoppingHouseholdEl.addEventListener("click", handleShoppingCheckClick);
   manualListEl.addEventListener("click", function(e){
     var del = e.target.closest("[data-mdel]");
     if(del){
