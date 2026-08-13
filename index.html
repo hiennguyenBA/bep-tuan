@@ -130,6 +130,14 @@
   .recipe-media.ph-sang{background:var(--gold-soft);color:var(--gold-strong);}
   .recipe-media.ph-trang{background:var(--plum-soft);color:var(--plum);}
   .recipe-media.ph-hoa{background:var(--rose-soft);color:var(--rose);}
+
+  .banner{position:relative;border-radius:var(--radius-card);overflow:hidden;margin-bottom:18px;box-shadow:var(--shadow-card);}
+  .banner-media{width:100%;aspect-ratio:16/5;background:linear-gradient(135deg,var(--forest-soft),var(--gold-soft));display:flex;align-items:center;justify-content:center;}
+  .banner-media img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.82) saturate(.92) blur(.3px);}
+  .banner-empty-text{color:var(--text-muted);font-size:.85rem;font-weight:600;}
+  .banner-edit-btn{position:absolute;right:10px;bottom:10px;background:rgba(42,32,19,.55);color:#fff;backdrop-filter:blur(2px);}
+  .banner-edit-btn:hover{background:rgba(42,32,19,.75);color:#fff;}
+
   .recipe-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;cursor:pointer;}
   .recipe-card-title{display:flex;flex-direction:column;gap:5px;}
   .recipe-card-title strong{font-size:1rem;}
@@ -150,6 +158,16 @@
   .stepper{display:flex;align-items:center;gap:0;border:1px solid var(--border);border-radius:var(--radius-control);overflow:hidden;flex:none;}
   .stepper button{width:28px;height:28px;border:none;background:var(--surface-2);color:var(--text);font-size:1rem;line-height:1;}
   .stepper output{min-width:26px;text-align:center;font-variant-numeric:tabular-nums;font-weight:700;font-size:.85rem;}
+
+  .plan-group{overflow:hidden;border-top-width:4px;border-top-style:solid;}
+  .plan-group-head{padding:12px 14px 2px;}
+  .plan-group-head strong{font-size:.95rem;}
+  .plan-hero{position:relative;aspect-ratio:16/9;background:var(--surface-2);display:flex;align-items:center;justify-content:center;margin-top:10px;}
+  .plan-hero img{width:100%;height:100%;object-fit:cover;display:block;}
+  .plan-hero svg{width:24%;height:24%;opacity:.5;}
+  .plan-hero-label{position:absolute;left:0;right:0;bottom:0;padding:10px 12px;background:linear-gradient(to top, rgba(20,15,8,.65), transparent);color:#fff;font-weight:700;font-size:.92rem;}
+  .plan-hero-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;}
+  .plan-sub-row{border-top:1px solid var(--border);}
 
   .people-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;}
   .people-row .label{display:flex;flex-direction:column;gap:1px;}
@@ -333,6 +351,14 @@
  </div>
 
  <div class="app-main">
+  <div class="banner">
+    <div class="banner-media" id="bannerMedia"></div>
+    <button class="icon-btn banner-edit-btn" id="btnBannerEdit" aria-label="Đổi ảnh banner">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5.5l1.2-2h5.6l1.2 2H17a1 1 0 0 1 1 1V15a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6.5a1 1 0 0 1 1-1h3Z"/><circle cx="10" cy="10.5" r="3"/></svg>
+    </button>
+    <input type="file" id="bannerInput" accept="image/*" style="display:none;">
+  </div>
+
   <!-- LIBRARY -->
   <div class="panel" id="panel-library">
     <div class="section-title">
@@ -372,9 +398,7 @@
       </div>
     </div>
 
-    <div class="card" id="planListCard">
-      <div id="planList"></div>
-    </div>
+    <div id="planGroups" style="display:flex;flex-direction:column;gap:14px;"></div>
 
     <div class="card card-pad" style="display:flex;flex-direction:column;gap:10px;">
       <label for="addRecipeSelect" style="font-size:.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.03em;">Thêm món vào tuần</label>
@@ -464,7 +488,7 @@
   "use strict";
 
   var RECIPE_PACK_VERSION = 3;
-  var CAT_FIX_VERSION = 1;
+  var CAT_FIX_VERSION = 2;
   var FLOWER_ADD_VERSION = 1;
   var FRUIT_INGREDIENT_NAMES = ["Chuối","Quả na","Táo","Trái cây tươi (chuối/berry)"];
 
@@ -480,12 +504,13 @@
   var CATS = {
     rau:     {label:"Rau củ",            color:"var(--forest)", soft:"var(--forest-soft)", dot:"var(--forest)"},
     traicay: {label:"Trái cây",          soft:"var(--plum-soft)",  dot:"var(--plum)"},
+    hoa:     {label:"Hoa tươi",          soft:"var(--gold-soft)",  dot:"var(--gold)"},
     thit:    {label:"Thịt",              soft:"var(--rose-soft)",  dot:"var(--rose)"},
     ca:      {label:"Cá & hải sản",      soft:"var(--ocean-soft)", dot:"var(--ocean)"},
     khac:    {label:"Trứng, sữa & khác", soft:"var(--slate-soft)", dot:"var(--slate)"},
     kho:     {label:"Gia vị & đồ khô",   soft:"var(--amber-soft)", dot:"var(--amber)"}
   };
-  var CAT_ORDER = ["thit","ca","rau","traicay","khac","kho"];
+  var CAT_ORDER = ["thit","ca","rau","traicay","hoa","khac","kho"];
   var COUNT_UNITS = ["quả","trái","miếng","củ","lá","cây","muỗng"];
 
   var HCATS = {
@@ -639,7 +664,7 @@
       {id:uid(), name:"Sữa chua", tag:"trang", base:3, ingredients:[ I("Sữa chua",6,"hộp","khac") ]},
       {id:uid(), name:"Quả na", tag:"trang", base:3, ingredients:[ I("Quả na",3,"quả","traicay") ]},
       {id:uid(), name:"Táo", tag:"trang", base:3, ingredients:[ I("Táo",3,"quả","traicay") ]},
-      {id:uid(), name:"Hoa tươi", tag:"hoa", base:3, ingredients:[ I("Hoa tươi",1,"bó","khac") ]}
+      {id:uid(), name:"Hoa tươi", tag:"hoa", base:3, ingredients:[ I("Hoa tươi",1,"bó","hoa") ]}
     ];
   }
 
@@ -648,7 +673,7 @@
 
   function normalizeState(parsed){
     if(!parsed || !Array.isArray(parsed.recipes) || !parsed.recipes.length){
-      return { people:3, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", search:"", recipePackVersion:RECIPE_PACK_VERSION, catFixVersion:CAT_FIX_VERSION, flowerAddVersion:FLOWER_ADD_VERSION };
+      return { people:3, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", search:"", bannerImage:null, recipePackVersion:RECIPE_PACK_VERSION, catFixVersion:CAT_FIX_VERSION, flowerAddVersion:FLOWER_ADD_VERSION };
     }
     var OLD_TAG_MAP = {"Việt":"man","Âu":"man"};
     parsed.recipes.forEach(function(r){ if(!TAGS[r.tag]) r.tag = OLD_TAG_MAP[r.tag] || "man"; });
@@ -659,6 +684,7 @@
     if(!parsed.manual) parsed.manual = [];
     if(!parsed.filter) parsed.filter = "all";
     if(typeof parsed.search !== "string") parsed.search = "";
+    if(typeof parsed.bannerImage === "undefined") parsed.bannerImage = null;
     if(!parsed.people) parsed.people = 4;
     if(!parsed.recipePackVersion || parsed.recipePackVersion < RECIPE_PACK_VERSION){
       parsed.recipes = seedRecipes();
@@ -672,6 +698,7 @@
       parsed.recipes.forEach(function(r){
         r.ingredients.forEach(function(ing){
           if(ing.cat === "rau" && FRUIT_INGREDIENT_NAMES.indexOf(ing.name) !== -1) ing.cat = "traicay";
+          if(ing.name === "Hoa tươi") ing.cat = "hoa";
         });
       });
       parsed.catFixVersion = CAT_FIX_VERSION;
@@ -880,38 +907,63 @@
     toast('Đã thêm "'+(r?r.name:"")+'" vào tuần này');
   }
 
-  var planListEl = document.getElementById("planList");
+  var planGroupsEl = document.getElementById("planGroups");
+  var PLAN_GROUP_COLOR = { man:"var(--forest)", canh:"var(--ocean)", sang:"var(--gold-strong)", trang:"var(--plum)", hoa:"var(--rose)" };
+
   function renderPlan(){
     document.getElementById("peopleValue").textContent = state.people;
 
+    planGroupsEl.innerHTML = "";
     if(!state.plan.length){
-      planListEl.innerHTML = '<div class="empty-state">'+
+      planGroupsEl.innerHTML = '<div class="card empty-state">'+
         '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="14" height="13" rx="1.8"/><path d="M3 8H17"/></svg>'+
         '<p>Chưa có món nào trong tuần. Thêm món từ thư viện hoặc chọn ở ô bên dưới.</p></div>';
     } else {
-      planListEl.innerHTML = "";
-      state.plan.forEach(function(p){
-        var r = recipeById(p.recipeId);
-        if(!r) return;
-        var row = document.createElement("div");
-        row.className = "plan-row";
-        row.style.borderBottom = "1px solid var(--border)";
-        row.innerHTML =
-          '<div class="plan-row-info">'+
-            '<strong>'+escapeHtml(r.name)+'</strong>'+
-            '<span>'+TAGS[r.tag].label+' · cho '+state.people+' người mỗi lần nấu</span>'+
+      TAG_ORDER.forEach(function(tag){
+        var entries = state.plan
+          .map(function(p){ return {p:p, r:recipeById(p.recipeId)}; })
+          .filter(function(x){ return x.r && x.r.tag === tag; });
+        if(!entries.length) return;
+
+        var hero = entries[0];
+        var rest = entries.slice(1);
+        var group = document.createElement("div");
+        group.className = "card plan-group";
+        group.style.borderTopColor = PLAN_GROUP_COLOR[tag];
+
+        var heroImage = hero.r.image
+          ? '<img src="'+hero.r.image+'" alt="">'
+          : PLACEHOLDER_ICONS[tag];
+        var heroHtml =
+          '<div class="plan-group-head"><strong style="color:'+PLAN_GROUP_COLOR[tag]+';">'+TAGS[tag].label+'</strong></div>'+
+          '<div class="plan-hero'+(hero.r.image?'':' ph-'+tag)+'">'+heroImage+
+            '<div class="plan-hero-label">'+escapeHtml(hero.r.name)+'</div>'+
           '</div>'+
-          '<div class="stepper" data-plan="'+p.id+'">'+
-            '<button data-delta="-1" aria-label="Giảm lần nấu">−</button>'+
-            '<output>'+p.times+'</output>'+
-            '<button data-delta="1" aria-label="Tăng lần nấu">+</button>'+
-          '</div>'+
-          '<button class="icon-btn btn-danger-text" data-remove-plan="'+p.id+'" aria-label="Bỏ khỏi tuần">'+
-            '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6H16M8 6V4.5C8 4 8.4 3.5 9 3.5H11C11.6 3.5 12 4 12 4.5V6M6 6L6.6 16C6.65 16.8 7.3 17.5 8.1 17.5H11.9C12.7 17.5 13.35 16.8 13.4 16L14 6"/></svg></button>';
-        planListEl.appendChild(row);
+          '<div class="plan-hero-controls">'+
+            '<span class="hint" style="margin:0;">Cho '+state.people+' người mỗi lần nấu</span>'+
+            '<div class="stepper" data-plan="'+hero.p.id+'">'+
+              '<button data-delta="-1" aria-label="Giảm lần nấu">−</button>'+
+              '<output>'+hero.p.times+'</output>'+
+              '<button data-delta="1" aria-label="Tăng lần nấu">+</button>'+
+            '</div>'+
+            '<button class="icon-btn btn-danger-text" data-remove-plan="'+hero.p.id+'" aria-label="Bỏ khỏi tuần">'+TRASH_SVG+'</button>'+
+          '</div>';
+
+        var subRows = rest.map(function(x){
+          return '<div class="plan-row plan-sub-row">'+
+            '<div class="plan-row-info"><strong>'+escapeHtml(x.r.name)+'</strong></div>'+
+            '<div class="stepper" data-plan="'+x.p.id+'">'+
+              '<button data-delta="-1" aria-label="Giảm lần nấu">−</button>'+
+              '<output>'+x.p.times+'</output>'+
+              '<button data-delta="1" aria-label="Tăng lần nấu">+</button>'+
+            '</div>'+
+            '<button class="icon-btn btn-danger-text" data-remove-plan="'+x.p.id+'" aria-label="Bỏ khỏi tuần">'+TRASH_SVG+'</button>'+
+          '</div>';
+        }).join("");
+
+        group.innerHTML = heroHtml + subRows;
+        planGroupsEl.appendChild(group);
       });
-      var last = planListEl.lastElementChild;
-      if(last) last.style.borderBottom = "none";
     }
 
     var select = document.getElementById("addRecipeSelect");
@@ -922,7 +974,7 @@
     if(prevVal && recipeById(prevVal)) select.value = prevVal;
   }
 
-  planListEl.addEventListener("click", function(e){
+  planGroupsEl.addEventListener("click", function(e){
     var stepBtn = e.target.closest("[data-delta]");
     if(stepBtn && stepBtn.closest("[data-plan]")){
       var pid = stepBtn.closest("[data-plan]").dataset.plan;
@@ -1482,9 +1534,33 @@
     e.target.value = "";
   });
 
+  // ---------- BANNER ----------
+  var bannerMediaEl = document.getElementById("bannerMedia");
+  function renderBanner(){
+    if(state.bannerImage){
+      bannerMediaEl.innerHTML = '<img src="'+state.bannerImage+'" alt="">';
+    } else {
+      bannerMediaEl.innerHTML = '<span class="banner-empty-text">Thêm ảnh không gian bếp/khu vườn của bạn</span>';
+    }
+  }
+  document.getElementById("btnBannerEdit").addEventListener("click", function(){
+    document.getElementById("bannerInput").click();
+  });
+  document.getElementById("bannerInput").addEventListener("change", function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    compressImage(file, 1280, .75).then(function(dataUrl){
+      state.bannerImage = dataUrl;
+      save(); renderBanner();
+      toast("Đã cập nhật ảnh banner");
+    }).catch(function(){ toast("Không đọc được ảnh này"); });
+    e.target.value = "";
+  });
+
   // ---------- INIT ----------
   function renderAll(){
     renderTabs();
+    renderBanner();
     renderLibrary();
     renderPlan();
     renderHousehold();
