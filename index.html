@@ -442,6 +442,8 @@
   "use strict";
 
   var RECIPE_PACK_VERSION = 3;
+  var CAT_FIX_VERSION = 1;
+  var FRUIT_INGREDIENT_NAMES = ["Chuối","Quả na","Táo","Trái cây tươi (chuối/berry)"];
 
   var TAGS = {
     man:   {label:"Món mặn",      cls:"tag-man"},
@@ -452,13 +454,14 @@
   var TAG_ORDER = ["man","canh","sang","trang"];
 
   var CATS = {
-    rau:  {label:"Rau củ quả",        color:"var(--forest)", soft:"var(--forest-soft)", dot:"var(--forest)"},
-    thit: {label:"Thịt",              soft:"var(--rose-soft)",  dot:"var(--rose)"},
-    ca:   {label:"Cá & hải sản",      soft:"var(--ocean-soft)", dot:"var(--ocean)"},
-    khac: {label:"Trứng, sữa & khác", soft:"var(--slate-soft)", dot:"var(--slate)"},
-    kho:  {label:"Gia vị & đồ khô",   soft:"var(--amber-soft)", dot:"var(--amber)"}
+    rau:     {label:"Rau củ",            color:"var(--forest)", soft:"var(--forest-soft)", dot:"var(--forest)"},
+    traicay: {label:"Trái cây",          soft:"var(--plum-soft)",  dot:"var(--plum)"},
+    thit:    {label:"Thịt",              soft:"var(--rose-soft)",  dot:"var(--rose)"},
+    ca:      {label:"Cá & hải sản",      soft:"var(--ocean-soft)", dot:"var(--ocean)"},
+    khac:    {label:"Trứng, sữa & khác", soft:"var(--slate-soft)", dot:"var(--slate)"},
+    kho:     {label:"Gia vị & đồ khô",   soft:"var(--amber-soft)", dot:"var(--amber)"}
   };
-  var CAT_ORDER = ["thit","ca","rau","khac","kho"];
+  var CAT_ORDER = ["thit","ca","rau","traicay","khac","kho"];
   var COUNT_UNITS = ["quả","trái","miếng","củ","lá","cây","muỗng"];
 
   var HCATS = {
@@ -599,7 +602,7 @@
       ]},
       {id:uid(), name:"Yến mạch ngâm sữa chua", tag:"sang", base:3, ingredients:[
         I("Yến mạch",150,"g","khac"), I("Sữa chua",300,"g","khac"), I("Sữa tươi",150,"ml","khac"),
-        I("Mật ong",30,"g","kho"), I("Trái cây tươi (chuối/berry)",150,"g","rau")
+        I("Mật ong",30,"g","kho"), I("Trái cây tươi (chuối/berry)",150,"g","traicay")
       ]},
       {id:uid(), name:"Trứng ốp", tag:"sang", base:3, ingredients:[
         I("Trứng gà",6,"quả","khac"), I("Bơ",15,"g","khac"), I("Muối tiêu",5,"g","kho")
@@ -607,11 +610,11 @@
       {id:uid(), name:"Bánh mỳ nướng bơ", tag:"sang", base:3, ingredients:[
         I("Bánh mì sandwich",6,"lát","khac"), I("Bơ",45,"g","khac"), I("Mứt hoặc mật ong",30,"g","kho")
       ]},
-      {id:uid(), name:"Chuối", tag:"trang", base:3, ingredients:[ I("Chuối",6,"quả","rau") ]},
+      {id:uid(), name:"Chuối", tag:"trang", base:3, ingredients:[ I("Chuối",6,"quả","traicay") ]},
       {id:uid(), name:"Kem", tag:"trang", base:3, ingredients:[ I("Kem (hộp)",1,"hộp","khac") ]},
       {id:uid(), name:"Sữa chua", tag:"trang", base:3, ingredients:[ I("Sữa chua",6,"hộp","khac") ]},
-      {id:uid(), name:"Quả na", tag:"trang", base:3, ingredients:[ I("Quả na",3,"quả","rau") ]},
-      {id:uid(), name:"Táo", tag:"trang", base:3, ingredients:[ I("Táo",3,"quả","rau") ]}
+      {id:uid(), name:"Quả na", tag:"trang", base:3, ingredients:[ I("Quả na",3,"quả","traicay") ]},
+      {id:uid(), name:"Táo", tag:"trang", base:3, ingredients:[ I("Táo",3,"quả","traicay") ]}
     ];
   }
 
@@ -620,7 +623,7 @@
 
   function normalizeState(parsed){
     if(!parsed || !Array.isArray(parsed.recipes) || !parsed.recipes.length){
-      return { people:3, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", search:"", recipePackVersion:RECIPE_PACK_VERSION };
+      return { people:3, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", search:"", recipePackVersion:RECIPE_PACK_VERSION, catFixVersion:CAT_FIX_VERSION };
     }
     var OLD_TAG_MAP = {"Việt":"man","Âu":"man"};
     parsed.recipes.forEach(function(r){ if(!TAGS[r.tag]) r.tag = OLD_TAG_MAP[r.tag] || "man"; });
@@ -639,6 +642,14 @@
       parsed.recipes.forEach(function(r){ validIds[r.id] = true; });
       parsed.plan = (parsed.plan||[]).filter(function(p){ return validIds[p.recipeId]; });
       parsed.recipePackVersion = RECIPE_PACK_VERSION;
+    }
+    if(!parsed.catFixVersion || parsed.catFixVersion < CAT_FIX_VERSION){
+      parsed.recipes.forEach(function(r){
+        r.ingredients.forEach(function(ing){
+          if(ing.cat === "rau" && FRUIT_INGREDIENT_NAMES.indexOf(ing.name) !== -1) ing.cat = "traicay";
+        });
+      });
+      parsed.catFixVersion = CAT_FIX_VERSION;
     }
     return parsed;
   }
