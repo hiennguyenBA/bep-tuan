@@ -570,27 +570,35 @@
   var STORE_KEY = "bepTuan.v1";
   var state = null;
 
+  function normalizeState(parsed){
+    if(!parsed || !Array.isArray(parsed.recipes) || !parsed.recipes.length){
+      return { people:4, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", search:"" };
+    }
+    var OLD_TAG_MAP = {"Việt":"man","Âu":"man"};
+    parsed.recipes.forEach(function(r){ if(!TAGS[r.tag]) r.tag = OLD_TAG_MAP[r.tag] || "man"; });
+    if(!parsed.household || !parsed.household.length) parsed.household = seedHousehold();
+    parsed.household.forEach(function(h){ if(!h.size) h.size = {qty:1, unit:"phần"}; });
+    if(!parsed.openCards) parsed.openCards = {};
+    if(!parsed.checked) parsed.checked = {};
+    if(!parsed.manual) parsed.manual = [];
+    if(!parsed.filter) parsed.filter = "all";
+    if(typeof parsed.search !== "string") parsed.search = "";
+    if(!parsed.people) parsed.people = 4;
+    return parsed;
+  }
   function load(){
     try{
       var raw = localStorage.getItem(STORE_KEY);
       if(raw){
         var parsed = JSON.parse(raw);
-        if(parsed && parsed.recipes && parsed.recipes.length){
-          var OLD_TAG_MAP = {"Việt":"man","Âu":"man"};
-          parsed.recipes.forEach(function(r){ if(!TAGS[r.tag]) r.tag = OLD_TAG_MAP[r.tag] || "man"; });
-          if(!parsed.household || !parsed.household.length) parsed.household = seedHousehold();
-          parsed.household.forEach(function(h){ if(!h.size) h.size = {qty:1, unit:"phần"}; });
-          if(!parsed.openCards) parsed.openCards = {};
-          if(!parsed.checked) parsed.checked = {};
-          if(!parsed.manual) parsed.manual = [];
-          return parsed;
-        }
+        if(parsed && parsed.recipes && parsed.recipes.length) return normalizeState(parsed);
       }
     }catch(e){}
-    return { people:4, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", search:"" };
+    return normalizeState(null);
   }
   function save(){
     try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+    if(window.ChipKitchenSync && window.ChipKitchenSync.push) window.ChipKitchenSync.push();
   }
 
   state = load();
@@ -1358,16 +1366,7 @@
       try{ data = JSON.parse(reader.result); }catch(err){ toast("Không đọc được file — sai định dạng"); return; }
       if(!data || !Array.isArray(data.recipes)){ toast("File không đúng định dạng dữ liệu Chip Kitchen"); return; }
       showConfirm("Nhập dữ liệu", "Dữ liệu hiện tại trên thiết bị này sẽ bị thay thế bằng nội dung trong file đã chọn. Tiếp tục?", "Ghi đè", function(){
-        state = data;
-        if(!state.household || !state.household.length) state.household = seedHousehold();
-        state.household.forEach(function(h){ if(!h.size) h.size = {qty:1, unit:"phần"}; });
-        if(!state.openCards) state.openCards = {};
-        if(!state.checked) state.checked = {};
-        if(!state.manual) state.manual = [];
-        if(!state.filter) state.filter = "all";
-        if(typeof state.search !== "string") state.search = "";
-        if(!state.people) state.people = 4;
-        state.recipes.forEach(function(r){ if(!TAGS[r.tag]) r.tag = "man"; });
+        state = normalizeState(data);
         save(); renderAll();
         toast("Đã nhập dữ liệu thành công");
       });
@@ -1385,6 +1384,15 @@
     renderShopping();
   }
   renderAll();
+
+  window.ChipKitchenApp = {
+    getState: function(){ return state; },
+    applyRemoteState: function(remote){
+      state = normalizeState(remote);
+      try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+      renderAll();
+    }
+  };
 })();
 </script>
 
@@ -1403,6 +1411,62 @@
       }).catch(function () {});
     });
   }
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+  import { getFirestore, doc, setDoc, onSnapshot, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+  var firebaseConfig = {
+    apiKey: "AIzaSyAVL56Fyvwd76uk9FAFt0_EfwvBNgUTnjw",
+    authDomain: "chip-kitchen.firebaseapp.com",
+    projectId: "chip-kitchen",
+    storageBucket: "chip-kitchen.firebasestorage.app",
+    messagingSenderId: "1078230698529",
+    appId: "1:1078230698529:web:194c1f305eebc195ea3160"
+  };
+
+  var fbApp = initializeApp(firebaseConfig);
+  var auth = getAuth(fbApp);
+  var db = getFirestore(fbApp);
+  var householdRef = doc(db, "households", "shared");
+
+  try{ enableIndexedDbPersistence(db); }catch(e){}
+
+  var applyingRemote = false;
+  var pushTimer = null;
+
+  function pushToCloud(){
+    if(applyingRemote || !window.ChipKitchenApp) return;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(function(){
+      setDoc(householdRef, {
+        data: JSON.stringify(window.ChipKitchenApp.getState()),
+        updatedAt: Date.now()
+      }).catch(function(err){ console.warn("Chip Kitchen: cloud sync failed", err); });
+    }, 800);
+  }
+
+  window.ChipKitchenSync = { push: pushToCloud };
+
+  signInAnonymously(auth).catch(function(err){ console.warn("Chip Kitchen: sign-in failed", err); });
+
+  onAuthStateChanged(auth, function(user){
+    if(!user) return;
+    onSnapshot(householdRef, function(snap){
+      if(!snap.exists()){ pushToCloud(); return; }
+      if(snap.metadata.hasPendingWrites) return;
+      var payload = snap.data();
+      if(!payload || !payload.data) return;
+      try{
+        var remoteState = JSON.parse(payload.data);
+        applyingRemote = true;
+        window.ChipKitchenApp.applyRemoteState(remoteState);
+      }catch(e){}
+      finally{ applyingRemote = false; }
+    }, function(err){ console.warn("Chip Kitchen: sync listener error", err); });
+  });
 </script>
 </body>
 </html>
