@@ -1,12 +1,12 @@
 {
-  "name": "Bếp Tuần",
-  "short_name": "Bếp Tuần",
+  "name": "Chip Kitchen",
+  "short_name": "Chip Kitchen",
   "description": "Lên thực đơn tuần, theo dõi đồ dùng cần refill, và tự động gộp thành danh sách đi chợ.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#FAFBF3",
-  "theme_color": "#6E9B37",
+  "background_color": "#F4F0D6",
+  "theme_color": "#A0451F",
   "lang": "vi",
   "icons": [
     { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }

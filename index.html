@@ -3,91 +3,105 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bếp Tuần — Kế hoạch bữa ăn & danh sách đi chợ</title>
+<title>Chip Kitchen — Kế hoạch bữa ăn & danh sách đi chợ</title>
 <meta name="description" content="Lên thực đơn tuần, theo dõi đồ dùng cần refill, và tự động gộp thành danh sách đi chợ.">
-<meta name="theme-color" content="#6E9B37" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#12160D" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#A0451F" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1C160D" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon.svg">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Bếp Tuần">
+<meta name="apple-mobile-web-app-title" content="Chip Kitchen">
 <style>
   :root{
-    --bg:#FAFBF3;
+    --bg:#F4F0D6;
     --surface:#FFFFFF;
-    --surface-2:#EFF3E3;
-    --border:#DEE6CD;
-    --text:#20241A;
-    --text-muted:#65735A;
-    --accent:#6E9B37;
-    --accent-strong:#4F7526;
-    --accent-soft:#E6EFD5;
+    --surface-2:#ECE6C6;
+    --border:#E1D8AE;
+    --text:#2A2013;
+    --text-muted:#78694A;
+    --accent:#A0451F;
+    --accent-strong:#7A3216;
+    --accent-soft:#F2DDCD;
     --accent-contrast:#FFFFFF;
-    --clay:#C6672E;
-    --clay-soft:#FBE7D6;
-    --rose:#C15458;
-    --rose-soft:#FBE4E3;
-    --ocean:#2E86A6;
-    --ocean-soft:#DBF0F7;
-    --amber:#BF8A1E;
-    --amber-soft:#FBF0D3;
-    --slate:#67736A;
-    --slate-soft:#EAEFE4;
-    --plum:#8863B8;
-    --plum-soft:#F1E7FA;
-    --shadow-card:0 1px 2px rgba(40,35,15,.06), 0 3px 10px rgba(40,35,15,.05);
-    --radius-card:12px;
+    --gold:#DA9F2E;
+    --gold-strong:#A8781E;
+    --gold-soft:#FBEBC4;
+    --gold-contrast:#2A2013;
+    --forest:#3F5C33;
+    --forest-soft:#DEE8D2;
+    --clay:#C25A2C;
+    --clay-soft:#F8E1CF;
+    --rose:#B7534F;
+    --rose-soft:#F5E0DD;
+    --ocean:#3E7C8A;
+    --ocean-soft:#DCE9E9;
+    --amber:#A8781E;
+    --amber-soft:#FBEBC4;
+    --slate:#6B6552;
+    --slate-soft:#EAE5CC;
+    --plum:#7C5C8C;
+    --plum-soft:#EAE0EE;
+    --shadow-card:0 1px 2px rgba(42,32,19,.07), 0 3px 10px rgba(42,32,19,.06);
+    --radius-card:16px;
     --radius-control:8px;
     --radius-pill:999px;
-    --font-display:Cambria,Georgia,"Noto Serif","Times New Roman",serif;
+    --font-display:"Palatino Linotype",Palatino,Georgia,"Noto Serif","Times New Roman",serif;
     --font-body:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --bg:#12160D;
-      --surface:#1B2114;
-      --surface-2:#242C1B;
-      --border:#37402A;
-      --text:#EDF1E3;
-      --text-muted:#A9B49A;
-      --accent:#A6D468;
-      --accent-strong:#C3E896;
-      --accent-soft:#26331A;
-      --accent-contrast:#15200D;
-      --clay:#F0A26C;
-      --clay-soft:#3A2717;
-      --rose:#E79A9C;
-      --rose-soft:#3A2323;
-      --ocean:#8AD0EA;
-      --ocean-soft:#1D2E33;
-      --amber:#EAC873;
-      --amber-soft:#382C15;
-      --slate:#B4BFA8;
-      --slate-soft:#2B3123;
-      --plum:#CBADEA;
-      --plum-soft:#332845;
-      --shadow-card:0 1px 2px rgba(0,0,0,.3);
+      --bg:#1C160D;
+      --surface:#241C11;
+      --surface-2:#2E2416;
+      --border:#4A3B23;
+      --text:#F3ECD9;
+      --text-muted:#C2B393;
+      --accent:#E08A57;
+      --accent-strong:#F2AE85;
+      --accent-soft:#3A2416;
+      --accent-contrast:#1C160D;
+      --gold:#F0C05C;
+      --gold-strong:#F7D98A;
+      --gold-soft:#3A2E14;
+      --gold-contrast:#1C160D;
+      --forest:#8FB37D;
+      --forest-soft:#243421;
+      --clay:#E3A26B;
+      --clay-soft:#3A2A16;
+      --rose:#E39B96;
+      --rose-soft:#3A2320;
+      --ocean:#7FC0CB;
+      --ocean-soft:#1E3336;
+      --amber:#F7D98A;
+      --amber-soft:#3A2E14;
+      --slate:#B7AE94;
+      --slate-soft:#2E2A1C;
+      --plum:#C6A9D6;
+      --plum-soft:#332639;
+      --shadow-card:0 1px 2px rgba(0,0,0,.35);
     }
   }
   :root[data-theme="dark"]{
-    --bg:#12160D; --surface:#1B2114; --surface-2:#242C1B; --border:#37402A;
-    --text:#EDF1E3; --text-muted:#A9B49A; --accent:#A6D468; --accent-strong:#C3E896;
-    --accent-soft:#26331A; --accent-contrast:#15200D; --clay:#F0A26C; --clay-soft:#3A2717;
-    --rose:#E79A9C; --rose-soft:#3A2323; --ocean:#8AD0EA; --ocean-soft:#1D2E33;
-    --amber:#EAC873; --amber-soft:#382C15; --slate:#B4BFA8; --slate-soft:#2B3123;
-    --plum:#CBADEA; --plum-soft:#332845;
-    --shadow-card:0 1px 2px rgba(0,0,0,.3);
+    --bg:#1C160D; --surface:#241C11; --surface-2:#2E2416; --border:#4A3B23;
+    --text:#F3ECD9; --text-muted:#C2B393; --accent:#E08A57; --accent-strong:#F2AE85;
+    --accent-soft:#3A2416; --accent-contrast:#1C160D; --gold:#F0C05C; --gold-strong:#F7D98A;
+    --gold-soft:#3A2E14; --gold-contrast:#1C160D; --forest:#8FB37D; --forest-soft:#243421;
+    --clay:#E3A26B; --clay-soft:#3A2A16; --rose:#E39B96; --rose-soft:#3A2320;
+    --ocean:#7FC0CB; --ocean-soft:#1E3336; --amber:#F7D98A; --amber-soft:#3A2E14;
+    --slate:#B7AE94; --slate-soft:#2E2A1C; --plum:#C6A9D6; --plum-soft:#332639;
+    --shadow-card:0 1px 2px rgba(0,0,0,.35);
   }
   :root[data-theme="light"]{
-    --bg:#FAFBF3; --surface:#FFFFFF; --surface-2:#EFF3E3; --border:#DEE6CD;
-    --text:#20241A; --text-muted:#65735A; --accent:#6E9B37; --accent-strong:#4F7526;
-    --accent-soft:#E6EFD5; --accent-contrast:#FFFFFF; --clay:#C6672E; --clay-soft:#FBE7D6;
-    --rose:#C15458; --rose-soft:#FBE4E3; --ocean:#2E86A6; --ocean-soft:#DBF0F7;
-    --amber:#BF8A1E; --amber-soft:#FBF0D3; --slate:#67736A; --slate-soft:#EAEFE4;
-    --plum:#8863B8; --plum-soft:#F1E7FA;
-    --shadow-card:0 1px 2px rgba(40,35,15,.06), 0 3px 10px rgba(40,35,15,.05);
+    --bg:#F4F0D6; --surface:#FFFFFF; --surface-2:#ECE6C6; --border:#E1D8AE;
+    --text:#2A2013; --text-muted:#78694A; --accent:#A0451F; --accent-strong:#7A3216;
+    --accent-soft:#F2DDCD; --accent-contrast:#FFFFFF; --gold:#DA9F2E; --gold-strong:#A8781E;
+    --gold-soft:#FBEBC4; --gold-contrast:#2A2013; --forest:#3F5C33; --forest-soft:#DEE8D2;
+    --clay:#C25A2C; --clay-soft:#F8E1CF; --rose:#B7534F; --rose-soft:#F5E0DD;
+    --ocean:#3E7C8A; --ocean-soft:#DCE9E9; --amber:#A8781E; --amber-soft:#FBEBC4;
+    --slate:#6B6552; --slate-soft:#EAE5CC; --plum:#7C5C8C; --plum-soft:#EAE0EE;
+    --shadow-card:0 1px 2px rgba(42,32,19,.07), 0 3px 10px rgba(42,32,19,.06);
   }
   *{box-sizing:border-box;}
   @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important;} }
@@ -109,7 +123,7 @@
   .tabs{display:flex;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-pill);padding:4px;margin-bottom:20px;}
   .tab-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:9px 4px;border:none;background:transparent;border-radius:var(--radius-pill);color:var(--text-muted);font:inherit;font-size:.76rem;font-weight:600;cursor:pointer;}
   .tab-btn svg{width:14px;height:14px;flex:none;}
-  .tab-btn.active{background:var(--surface);color:var(--accent-strong);box-shadow:var(--shadow-card);}
+  .tab-btn.active{background:var(--gold);color:var(--gold-contrast);box-shadow:var(--shadow-card);}
   .tab-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
   .tab-badge{background:var(--clay);color:#fff;font-size:.68rem;font-weight:700;border-radius:var(--radius-pill);padding:1px 6px;min-width:16px;text-align:center;font-variant-numeric:tabular-nums;}
 
@@ -153,9 +167,9 @@
   .chip.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-strong);}
 
   .tag{display:inline-flex;align-items:center;border-radius:var(--radius-pill);padding:2px 9px;font-size:.7rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase;}
-  .tag-man{background:var(--accent-soft);color:var(--accent-strong);}
+  .tag-man{background:var(--forest-soft);color:var(--forest);}
   .tag-canh{background:var(--ocean-soft);color:var(--ocean);}
-  .tag-sang{background:var(--amber-soft);color:var(--amber);}
+  .tag-sang{background:var(--gold-soft);color:var(--gold-strong);}
 
   .recipe-card{padding:13px 14px;display:flex;flex-direction:column;gap:8px;}
   .recipe-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;cursor:pointer;}
@@ -217,8 +231,8 @@
   .hh-row-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .hh-row-top .item-name{font-weight:600;}
   .status-pill{flex:none;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:var(--radius-pill);white-space:nowrap;font-variant-numeric:tabular-nums;}
-  .status-ok{background:var(--accent-soft);color:var(--accent-strong);}
-  .status-soon{background:var(--clay-soft);color:var(--clay);}
+  .status-ok{background:var(--forest-soft);color:var(--forest);}
+  .status-soon{background:var(--gold-soft);color:var(--gold-strong);}
   .status-het{background:var(--rose-soft);color:var(--rose);}
   .status-unused{background:var(--surface-2);color:var(--text-muted);}
   .hh-row-meta{display:flex;gap:16px;flex-wrap:wrap;}
@@ -273,7 +287,7 @@
 
 <div id="app">
   <div class="app-header">
-    <h1>Bếp Tuần</h1>
+    <h1>Chip Kitchen</h1>
     <p>Lên thực đơn cả tuần, tự động gộp thành danh sách đi chợ.</p>
   </div>
 
@@ -437,7 +451,7 @@
   var TAG_ORDER = ["man","canh","sang"];
 
   var CATS = {
-    rau:  {label:"Rau củ quả",        color:"var(--sage,var(--accent))", soft:"var(--accent-soft)", dot:"var(--accent)"},
+    rau:  {label:"Rau củ quả",        color:"var(--forest)", soft:"var(--forest-soft)", dot:"var(--forest)"},
     thit: {label:"Thịt",              soft:"var(--rose-soft)",  dot:"var(--rose)"},
     ca:   {label:"Cá & hải sản",      soft:"var(--ocean-soft)", dot:"var(--ocean)"},
     khac: {label:"Trứng, sữa & khác", soft:"var(--slate-soft)", dot:"var(--slate)"},
@@ -1070,7 +1084,7 @@
     var totals = computeShopping();
     var byCat = {}; CAT_ORDER.forEach(function(c){ byCat[c]=[]; });
     Object.keys(totals).forEach(function(k){ byCat[totals[k].cat].push(totals[k]); });
-    var lines = ["Danh sách đi chợ — Bếp Tuần"];
+    var lines = ["Danh sách đi chợ — Chip Kitchen"];
     CAT_ORDER.forEach(function(c){
       var items = byCat[c];
       if(!items.length) return;
@@ -1251,7 +1265,7 @@
 
   document.getElementById("btnExport").addEventListener("click", function(){
     var payload = JSON.stringify(state, null, 2);
-    var filename = "bep-tuan-"+new Date().toISOString().slice(0,10)+".json";
+    var filename = "chip-kitchen-"+new Date().toISOString().slice(0,10)+".json";
     if(window.claude && window.claude.downloads){
       window.claude.downloads.save({filename:filename, data:payload}).then(function(){
         toast("Đã tải file sao lưu");
@@ -1274,7 +1288,7 @@
     reader.onload = function(){
       var data;
       try{ data = JSON.parse(reader.result); }catch(err){ toast("Không đọc được file — sai định dạng"); return; }
-      if(!data || !Array.isArray(data.recipes)){ toast("File không đúng định dạng dữ liệu Bếp Tuần"); return; }
+      if(!data || !Array.isArray(data.recipes)){ toast("File không đúng định dạng dữ liệu Chip Kitchen"); return; }
       showConfirm("Nhập dữ liệu", "Dữ liệu hiện tại trên thiết bị này sẽ bị thay thế bằng nội dung trong file đã chọn. Tiếp tục?", "Ghi đè", function(){
         state = data;
         if(!state.household || !state.household.length) state.household = seedHousehold();
