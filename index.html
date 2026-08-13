@@ -132,11 +132,15 @@
   .recipe-media.ph-hoa{background:var(--rose-soft);color:var(--rose);}
 
   .banner{position:relative;border-radius:var(--radius-card);overflow:hidden;margin-bottom:18px;box-shadow:var(--shadow-card);}
-  .banner-media{width:100%;aspect-ratio:16/5;background:linear-gradient(135deg,var(--forest-soft),var(--gold-soft));display:flex;align-items:center;justify-content:center;}
+  .banner-media{width:100%;aspect-ratio:16/5;background:linear-gradient(135deg,var(--forest-soft),var(--gold-soft));display:flex;align-items:center;justify-content:center;position:relative;}
+  .banner-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(20,15,8,.12), rgba(20,15,8,.48));}
   .banner-media img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.82) saturate(.92) blur(.3px);}
-  .banner-empty-text{color:var(--text-muted);font-size:.85rem;font-weight:600;}
+  .banner-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:0 16px;pointer-events:none;}
+  .banner-title{font-family:var(--font-display);font-weight:800;font-size:1.5rem;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.4);margin:0;text-wrap:balance;}
+  .banner-week{background:rgba(255,255,255,.9);color:var(--text);font-weight:700;font-size:.82rem;padding:6px 16px;border-radius:var(--radius-pill);font-variant-numeric:tabular-nums;}
   .banner-edit-btn{position:absolute;right:10px;bottom:10px;background:rgba(42,32,19,.55);color:#fff;backdrop-filter:blur(2px);}
   .banner-edit-btn:hover{background:rgba(42,32,19,.75);color:#fff;}
+  @media (min-width:640px){ .banner-title{font-size:1.9rem;} }
 
   .recipe-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;cursor:pointer;}
   .recipe-card-title{display:flex;flex-direction:column;gap:5px;}
@@ -360,6 +364,10 @@
  <div class="app-main">
   <div class="banner">
     <div class="banner-media" id="bannerMedia"></div>
+    <div class="banner-overlay">
+      <h2 class="banner-title">Tuần này ăn gì</h2>
+      <span class="banner-week" id="bannerWeek"></span>
+    </div>
     <button class="icon-btn banner-edit-btn" id="btnBannerEdit" aria-label="Đổi ảnh banner">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5.5l1.2-2h5.6l1.2 2H17a1 1 0 0 1 1 1V15a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6.5a1 1 0 0 1 1-1h3Z"/><circle cx="10" cy="10.5" r="3"/></svg>
     </button>
@@ -1551,12 +1559,20 @@
 
   // ---------- BANNER ----------
   var bannerMediaEl = document.getElementById("bannerMedia");
+  function getWeekRangeLabel(){
+    var now = new Date();
+    var day = now.getDay();
+    var diffToMonday = (day===0 ? -6 : 1-day);
+    var monday = new Date(now.getFullYear(), now.getMonth(), now.getDate()+diffToMonday);
+    var sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate()+6);
+    var d1 = monday.getDate(), m1 = monday.getMonth()+1;
+    var d2 = sunday.getDate(), m2 = sunday.getMonth()+1;
+    if(m1 === m2) return d1+"-"+d2+" tháng "+m1;
+    return d1+" tháng "+m1+" - "+d2+" tháng "+m2;
+  }
   function renderBanner(){
-    if(state.bannerImage){
-      bannerMediaEl.innerHTML = '<img src="'+state.bannerImage+'" alt="">';
-    } else {
-      bannerMediaEl.innerHTML = '<span class="banner-empty-text">Thêm ảnh không gian bếp/khu vườn của bạn</span>';
-    }
+    bannerMediaEl.innerHTML = state.bannerImage ? '<img src="'+state.bannerImage+'" alt="">' : "";
+    document.getElementById("bannerWeek").textContent = getWeekRangeLabel();
   }
   document.getElementById("btnBannerEdit").addEventListener("click", function(){
     document.getElementById("bannerInput").click();
