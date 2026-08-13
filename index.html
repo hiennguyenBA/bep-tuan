@@ -151,7 +151,16 @@
   .ing-preview li span:last-child{font-variant-numeric:tabular-nums;color:var(--text);}
   .recipe-card-actions{display:flex;align-items:center;gap:6px;}
 
-  .plan-row{display:flex;align-items:center;gap:10px;padding:11px 14px;}
+  .plan-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-top:1px solid var(--border);}
+  .plan-row.first{border-top:none;}
+  .plan-row-thumb{width:44px;height:44px;border-radius:10px;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;background:var(--surface-2);}
+  .plan-row-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .plan-row-thumb svg{width:55%;height:55%;opacity:.5;}
+  .plan-row-thumb.ph-man{background:var(--forest-soft);color:var(--forest);}
+  .plan-row-thumb.ph-canh{background:var(--ocean-soft);color:var(--ocean);}
+  .plan-row-thumb.ph-sang{background:var(--gold-soft);color:var(--gold-strong);}
+  .plan-row-thumb.ph-trang{background:var(--plum-soft);color:var(--plum);}
+  .plan-row-thumb.ph-hoa{background:var(--rose-soft);color:var(--rose);}
   .plan-row-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;}
   .plan-row-info strong{font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .plan-row-info span{font-size:.76rem;color:var(--text-muted);}
@@ -160,15 +169,8 @@
   .stepper output{min-width:26px;text-align:center;font-variant-numeric:tabular-nums;font-weight:700;font-size:.85rem;}
 
   .plan-group{overflow:hidden;border-top-width:4px;border-top-style:solid;}
-  .plan-group-head{padding:12px 14px 2px;}
+  .plan-group-head{padding:12px 14px 8px;}
   .plan-group-head strong{font-size:.95rem;}
-  .plan-hero{position:relative;aspect-ratio:16/9;background:var(--surface-2);display:flex;align-items:center;justify-content:center;margin-top:10px;}
-  .plan-hero img{width:100%;height:100%;object-fit:cover;display:block;}
-  .plan-hero svg{width:24%;height:24%;opacity:.5;}
-  .plan-hero-label{position:absolute;left:0;right:0;bottom:0;padding:10px 12px;background:linear-gradient(to top, rgba(20,15,8,.65), transparent);color:#fff;font-weight:700;font-size:.92rem;}
-  .plan-hero-controls{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 10px;padding:10px 14px;}
-  .plan-hero-controls .hint{flex:1 1 auto;min-width:0;}
-  .plan-sub-row{border-top:1px solid var(--border);}
   .plan-ing-preview{border-top:1px dashed var(--border);padding:8px 14px 12px;}
   .plan-ing-preview ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;}
   .plan-ing-preview li{display:flex;justify-content:space-between;gap:10px;font-size:.83rem;color:var(--text-muted);}
@@ -941,38 +943,18 @@
           .filter(function(x){ return x.r && x.r.tag === tag; });
         if(!entries.length) return;
 
-        var hero = entries[0];
-        var rest = entries.slice(1);
         var group = document.createElement("div");
         group.className = "card plan-group";
         group.style.borderTopColor = PLAN_GROUP_COLOR[tag];
 
-        var heroImage = hero.r.image
-          ? '<img src="'+hero.r.image+'" alt="">'
-          : PLACEHOLDER_ICONS[tag];
-        var heroFactor = (state.people/hero.r.base) * hero.p.times;
-        var heroOpen = !!state.openCards[hero.r.id];
-        var heroHtml =
-          '<div class="plan-group-head"><strong style="color:'+PLAN_GROUP_COLOR[tag]+';">'+TAGS[tag].label+'</strong></div>'+
-          '<div class="plan-hero'+(hero.r.image?'':' ph-'+tag)+'">'+heroImage+
-            '<div class="plan-hero-label">'+escapeHtml(hero.r.name)+'</div>'+
-          '</div>'+
-          '<div class="plan-hero-controls">'+
-            '<span class="hint" style="margin:0;">Cho '+state.people+' người mỗi lần nấu</span>'+
-            '<div class="stepper" data-plan="'+hero.p.id+'">'+
-              '<button data-delta="-1" aria-label="Giảm lần nấu">−</button>'+
-              '<output>'+hero.p.times+'</output>'+
-              '<button data-delta="1" aria-label="Tăng lần nấu">+</button>'+
-            '</div>'+
-            planToggleBtnHtml(hero.r.id, heroOpen)+
-            '<button class="icon-btn btn-danger-text" data-remove-plan="'+hero.p.id+'" aria-label="Bỏ khỏi tuần">'+TRASH_SVG+'</button>'+
-          '</div>'+
-          (heroOpen ? planIngredientsHtml(hero.r, heroFactor) : '');
-
-        var subRows = rest.map(function(x){
+        var rowsHtml = entries.map(function(x, idx){
           var factor = (state.people/x.r.base) * x.p.times;
           var isOpen = !!state.openCards[x.r.id];
-          return '<div class="plan-row plan-sub-row">'+
+          var thumb = x.r.image
+            ? '<div class="plan-row-thumb"><img src="'+x.r.image+'" alt=""></div>'
+            : '<div class="plan-row-thumb ph-'+tag+'">'+PLACEHOLDER_ICONS[tag]+'</div>';
+          return '<div class="plan-row'+(idx===0?" first":"")+'">'+
+            thumb+
             '<div class="plan-row-info"><strong>'+escapeHtml(x.r.name)+'</strong></div>'+
             '<div class="stepper" data-plan="'+x.p.id+'">'+
               '<button data-delta="-1" aria-label="Giảm lần nấu">−</button>'+
@@ -985,7 +967,9 @@
           (isOpen ? planIngredientsHtml(x.r, factor) : '');
         }).join("");
 
-        group.innerHTML = heroHtml + subRows;
+        group.innerHTML =
+          '<div class="plan-group-head"><strong style="color:'+PLAN_GROUP_COLOR[tag]+';">'+TAGS[tag].label+'</strong></div>'+
+          rowsHtml;
         planGroupsEl.appendChild(group);
       });
     }
