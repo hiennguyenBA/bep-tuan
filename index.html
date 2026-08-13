@@ -117,6 +117,7 @@
   .tag-man{background:var(--forest-soft);color:var(--forest);}
   .tag-canh{background:var(--ocean-soft);color:var(--ocean);}
   .tag-sang{background:var(--gold-soft);color:var(--gold-strong);}
+  .tag-trang{background:var(--plum-soft);color:var(--plum);}
 
   #recipeList{display:flex;flex-direction:column;gap:10px;}
   .recipe-card{padding:13px 14px;display:flex;flex-direction:column;gap:8px;}
@@ -126,6 +127,7 @@
   .recipe-media.ph-man{background:var(--forest-soft);color:var(--forest);}
   .recipe-media.ph-canh{background:var(--ocean-soft);color:var(--ocean);}
   .recipe-media.ph-sang{background:var(--gold-soft);color:var(--gold-strong);}
+  .recipe-media.ph-trang{background:var(--plum-soft);color:var(--plum);}
   .recipe-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;cursor:pointer;}
   .recipe-card-title{display:flex;flex-direction:column;gap:5px;}
   .recipe-card-title strong{font-size:1rem;}
@@ -328,7 +330,7 @@
         Thêm món
       </button>
     </div>
-    <p class="hint">12 món mẫu (Món mặn, Canh &amp; rau, Ăn sáng) có sẵn — bấm vào món để xem nguyên liệu, hoặc sửa/xoá theo khẩu vị nhà bạn.</p>
+    <p class="hint">Món mặn, Canh &amp; rau, Ăn sáng, Tráng miệng có sẵn — bấm vào món để xem nguyên liệu, hoặc sửa/xoá theo khẩu vị nhà bạn.</p>
     <div class="search-row">
       <input type="text" id="librarySearch" placeholder="Tìm món…" />
     </div>
@@ -337,6 +339,7 @@
       <button class="chip" data-filter="man">Món mặn</button>
       <button class="chip" data-filter="canh">Canh & rau</button>
       <button class="chip" data-filter="sang">Ăn sáng</button>
+      <button class="chip" data-filter="trang">Tráng miệng</button>
     </div>
     <div id="recipeList"></div>
   </div>
@@ -438,12 +441,15 @@
 (function(){
   "use strict";
 
+  var RECIPE_PACK_VERSION = 2;
+
   var TAGS = {
-    man:  {label:"Món mặn",    cls:"tag-man"},
-    canh: {label:"Canh & rau", cls:"tag-canh"},
-    sang: {label:"Ăn sáng",    cls:"tag-sang"}
+    man:   {label:"Món mặn",      cls:"tag-man"},
+    canh:  {label:"Canh & rau",   cls:"tag-canh"},
+    sang:  {label:"Ăn sáng",      cls:"tag-sang"},
+    trang: {label:"Tráng miệng",  cls:"tag-trang"}
   };
-  var TAG_ORDER = ["man","canh","sang"];
+  var TAG_ORDER = ["man","canh","sang","trang"];
 
   var CATS = {
     rau:  {label:"Rau củ quả",        color:"var(--forest)", soft:"var(--forest-soft)", dot:"var(--forest)"},
@@ -513,35 +519,17 @@
   function seedRecipes(){
     function I(name, qty, unit, cat){ return {name:name, qty:qty, unit:unit, cat:cat}; }
     return [
-      {id:uid(), name:"Canh chua cá lóc", tag:"canh", base:4, ingredients:[
-        I("Cá lóc",500,"g","ca"), I("Dứa (thơm)",100,"g","rau"), I("Cà chua",150,"g","rau"),
-        I("Đậu bắp",100,"g","rau"), I("Giá đỗ",100,"g","rau"), I("Bạc hà (dọc mùng)",100,"g","rau"),
-        I("Me chua",30,"g","kho"), I("Ngò gai, ngò om",20,"g","rau"), I("Nước mắm",30,"ml","kho"),
-        I("Đường",20,"g","kho"), I("Ớt",2,"quả","rau")
+      {id:uid(), name:"Ức gà xào lá húng quế", tag:"man", base:4, ingredients:[
+        I("Ức gà",500,"g","thit"), I("Lá húng quế",50,"g","rau"), I("Tỏi",15,"g","rau"),
+        I("Ớt",2,"quả","rau"), I("Nước mắm",20,"ml","kho"), I("Dầu ăn",20,"ml","kho"), I("Đường",10,"g","kho")
       ]},
-      {id:uid(), name:"Thịt kho trứng", tag:"man", base:4, ingredients:[
-        I("Thịt ba chỉ",500,"g","thit"), I("Trứng gà",6,"quả","khac"), I("Nước dừa",300,"ml","kho"),
-        I("Nước mắm",40,"ml","kho"), I("Đường",30,"g","kho"), I("Tỏi, hành tím",30,"g","rau"), I("Tiêu",5,"g","kho")
+      {id:uid(), name:"Gà rang gừng nghệ", tag:"man", base:4, ingredients:[
+        I("Thịt gà (đùi/cánh)",600,"g","thit"), I("Gừng",40,"g","rau"), I("Nghệ tươi",20,"g","rau"),
+        I("Nước mắm",30,"ml","kho"), I("Đường",15,"g","kho"), I("Hành tím",20,"g","rau")
       ]},
-      {id:uid(), name:"Phở bò", tag:"sang", base:4, ingredients:[
-        I("Xương bò",1000,"g","thit"), I("Thịt bò (bắp/nạm)",400,"g","thit"), I("Bánh phở",600,"g","khac"),
-        I("Hành tây",150,"g","rau"), I("Gừng",50,"g","rau"), I("Quế, hồi, thảo quả",20,"g","kho"),
-        I("Hành lá, ngò",50,"g","rau"), I("Giá đỗ",200,"g","rau"), I("Chanh, ớt",100,"g","rau"), I("Nước mắm",30,"ml","kho")
-      ]},
-      {id:uid(), name:"Rau muống xào tỏi", tag:"canh", base:4, ingredients:[
-        I("Rau muống",500,"g","rau"), I("Tỏi",20,"g","rau"), I("Dầu ăn",20,"ml","kho"), I("Nước mắm",15,"ml","kho")
-      ]},
-      {id:uid(), name:"Canh bí đỏ nấu tôm", tag:"canh", base:4, ingredients:[
-        I("Bí đỏ",400,"g","rau"), I("Tôm tươi",200,"g","ca"), I("Hành lá",20,"g","rau"),
-        I("Nước mắm",15,"ml","kho"), I("Hạt nêm",10,"g","kho")
-      ]},
-      {id:uid(), name:"Gà kho gừng", tag:"man", base:4, ingredients:[
-        I("Đùi gà",600,"g","thit"), I("Gừng",50,"g","rau"), I("Nước mắm",30,"ml","kho"),
-        I("Đường",20,"g","kho"), I("Hành tím",30,"g","rau")
-      ]},
-      {id:uid(), name:"Cá kho tộ", tag:"man", base:4, ingredients:[
-        I("Cá basa hoặc cá lóc",500,"g","ca"), I("Nước màu (caramel)",30,"ml","kho"),
-        I("Nước mắm",30,"ml","kho"), I("Tiêu, ớt",10,"g","kho"), I("Hành lá",15,"g","rau")
+      {id:uid(), name:"Lòng gà xào mướp/dưa chuột", tag:"man", base:4, ingredients:[
+        I("Lòng gà",400,"g","thit"), I("Mướp hoặc dưa chuột",300,"g","rau"), I("Tỏi",15,"g","rau"),
+        I("Hành lá",15,"g","rau"), I("Nước mắm",15,"ml","kho"), I("Dầu ăn",15,"ml","kho")
       ]},
       {id:uid(), name:"Bò lúc lắc", tag:"man", base:4, ingredients:[
         I("Thịt bò thăn",500,"g","thit"), I("Hành tây",150,"g","rau"), I("Tỏi",20,"g","rau"),
@@ -552,18 +540,78 @@
         I("Tỏi",20,"g","rau"), I("Hương thảo (rosemary)",5,"g","kho"), I("Muối, tiêu đen",10,"g","kho"),
         I("Bông cải xanh",300,"g","rau")
       ]},
-      {id:uid(), name:"Cá hồi sốt chanh dây", tag:"man", base:4, ingredients:[
-        I("Phi lê cá hồi",600,"g","ca"), I("Chanh dây",4,"trái","rau"), I("Bơ",30,"g","khac"),
+      {id:uid(), name:"Thịt ba chỉ quay", tag:"man", base:4, ingredients:[
+        I("Thịt ba chỉ (nguyên miếng)",800,"g","thit"), I("Ngũ vị hương",10,"g","kho"),
+        I("Muối",15,"g","kho"), I("Giấm",20,"ml","kho"), I("Tỏi",20,"g","rau")
+      ]},
+      {id:uid(), name:"Thịt ba chỉ rang cháy cạnh", tag:"man", base:4, ingredients:[
+        I("Thịt ba chỉ",500,"g","thit"), I("Nước mắm",20,"ml","kho"), I("Đường",15,"g","kho"),
+        I("Tỏi",15,"g","rau"), I("Ớt",2,"quả","rau")
+      ]},
+      {id:uid(), name:"Lưỡi lợn luộc", tag:"man", base:4, ingredients:[
+        I("Lưỡi lợn",500,"g","thit"), I("Gừng",20,"g","rau"), I("Hành tím",20,"g","rau"),
+        I("Sả",20,"g","rau"), I("Nước mắm chấm",30,"ml","kho")
+      ]},
+      {id:uid(), name:"Thịt nọng lợn quay", tag:"man", base:4, ingredients:[
+        I("Thịt nọng lợn",600,"g","thit"), I("Ngũ vị hương",10,"g","kho"), I("Tỏi",20,"g","rau"), I("Muối",10,"g","kho")
+      ]},
+      {id:uid(), name:"Thịt lợn má đào luộc", tag:"man", base:4, ingredients:[
+        I("Thịt má đào",500,"g","thit"), I("Gừng",15,"g","rau"), I("Hành tím",15,"g","rau"), I("Muối",10,"g","kho")
+      ]},
+      {id:uid(), name:"Cá saba sốt teriyaki", tag:"man", base:4, ingredients:[
+        I("Cá saba",500,"g","ca"), I("Sốt teriyaki",60,"ml","kho"), I("Tỏi",10,"g","rau"),
+        I("Gừng",10,"g","rau"), I("Mè rang",10,"g","kho")
+      ]},
+      {id:uid(), name:"Cá hồi sốt chanh leo", tag:"man", base:4, ingredients:[
+        I("Phi lê cá hồi",600,"g","ca"), I("Chanh leo",4,"trái","rau"), I("Bơ",30,"g","khac"),
         I("Mật ong",20,"g","kho"), I("Tỏi",10,"g","rau"), I("Măng tây",300,"g","rau")
       ]},
-      {id:uid(), name:"Salad trộn dầu giấm", tag:"canh", base:4, ingredients:[
-        I("Xà lách",200,"g","rau"), I("Cà chua bi",150,"g","rau"), I("Dưa leo",150,"g","rau"),
-        I("Dầu olive",30,"ml","kho"), I("Giấm balsamic",15,"ml","kho"), I("Phô mai parmesan",30,"g","khac")
+      {id:uid(), name:"Cá thu rim tiêu", tag:"man", base:4, ingredients:[
+        I("Cá thu",500,"g","ca"), I("Tiêu",10,"g","kho"), I("Nước mắm",30,"ml","kho"),
+        I("Đường",20,"g","kho"), I("Hành tím",20,"g","rau"), I("Ớt",2,"quả","rau")
       ]},
-      {id:uid(), name:"Canh cải nấu thịt bằm", tag:"canh", base:4, ingredients:[
-        I("Cải ngọt hoặc cải xanh",400,"g","rau"), I("Thịt heo bằm",150,"g","thit"),
+      {id:uid(), name:"Canh mùng tơi nấu tôm khô", tag:"canh", base:4, ingredients:[
+        I("Rau mùng tơi",400,"g","rau"), I("Tôm khô",30,"g","ca"), I("Hành tím",15,"g","rau"), I("Nước mắm",15,"ml","kho")
+      ]},
+      {id:uid(), name:"Rau muống xào tỏi", tag:"canh", base:4, ingredients:[
+        I("Rau muống",500,"g","rau"), I("Tỏi",20,"g","rau"), I("Dầu ăn",20,"ml","kho"), I("Nước mắm",15,"ml","kho")
+      ]},
+      {id:uid(), name:"Canh chua nấu mực ống", tag:"canh", base:4, ingredients:[
+        I("Mực ống",400,"g","ca"), I("Dứa (thơm)",100,"g","rau"), I("Cà chua",150,"g","rau"),
+        I("Đậu bắp",100,"g","rau"), I("Giá đỗ",100,"g","rau"), I("Me chua",30,"g","kho"),
+        I("Ngò gai",15,"g","rau"), I("Nước mắm",20,"ml","kho")
+      ]},
+      {id:uid(), name:"Canh chua nấu hàu", tag:"canh", base:4, ingredients:[
+        I("Hàu (đã tách vỏ)",300,"g","ca"), I("Dứa (thơm)",100,"g","rau"), I("Cà chua",150,"g","rau"),
+        I("Đậu bắp",100,"g","rau"), I("Me chua",30,"g","kho"), I("Ngò gai",15,"g","rau")
+      ]},
+      {id:uid(), name:"Canh rau cải nấu thịt băm", tag:"canh", base:4, ingredients:[
+        I("Cải ngọt hoặc cải xanh",400,"g","rau"), I("Thịt heo băm",150,"g","thit"),
         I("Hành tím",15,"g","rau"), I("Nước mắm",15,"ml","kho"), I("Hạt nêm",10,"g","kho")
-      ]}
+      ]},
+      {id:uid(), name:"Canh bí đỏ nấu thịt băm", tag:"canh", base:4, ingredients:[
+        I("Bí đỏ",400,"g","rau"), I("Thịt heo băm",150,"g","thit"), I("Hành lá",20,"g","rau"),
+        I("Nước mắm",15,"ml","kho"), I("Hạt nêm",10,"g","kho")
+      ]},
+      {id:uid(), name:"Cà tím xào tỏi và thịt băm", tag:"canh", base:4, ingredients:[
+        I("Cà tím",400,"g","rau"), I("Thịt heo băm",150,"g","thit"), I("Tỏi",20,"g","rau"),
+        I("Hành lá",15,"g","rau"), I("Nước mắm",20,"ml","kho"), I("Dầu ăn",15,"ml","kho")
+      ]},
+      {id:uid(), name:"Yến mạch ngâm sữa chua", tag:"sang", base:4, ingredients:[
+        I("Yến mạch",200,"g","khac"), I("Sữa chua",400,"g","khac"), I("Sữa tươi",200,"ml","khac"),
+        I("Mật ong",40,"g","kho"), I("Trái cây tươi (chuối/berry)",200,"g","rau")
+      ]},
+      {id:uid(), name:"Trứng ốp", tag:"sang", base:4, ingredients:[
+        I("Trứng gà",8,"quả","khac"), I("Bơ",20,"g","khac"), I("Muối tiêu",5,"g","kho")
+      ]},
+      {id:uid(), name:"Bánh mỳ nướng bơ", tag:"sang", base:4, ingredients:[
+        I("Bánh mì sandwich",8,"lát","khac"), I("Bơ",60,"g","khac"), I("Mứt hoặc mật ong",40,"g","kho")
+      ]},
+      {id:uid(), name:"Chuối", tag:"trang", base:4, ingredients:[ I("Chuối",8,"quả","rau") ]},
+      {id:uid(), name:"Kem", tag:"trang", base:4, ingredients:[ I("Kem (hộp)",1,"hộp","khac") ]},
+      {id:uid(), name:"Sữa chua", tag:"trang", base:4, ingredients:[ I("Sữa chua",8,"hộp","khac") ]},
+      {id:uid(), name:"Quả na", tag:"trang", base:4, ingredients:[ I("Quả na",4,"quả","rau") ]},
+      {id:uid(), name:"Táo", tag:"trang", base:4, ingredients:[ I("Táo",4,"quả","rau") ]}
     ];
   }
 
@@ -572,7 +620,7 @@
 
   function normalizeState(parsed){
     if(!parsed || !Array.isArray(parsed.recipes) || !parsed.recipes.length){
-      return { people:4, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", search:"" };
+      return { people:4, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", search:"", recipePackVersion:RECIPE_PACK_VERSION };
     }
     var OLD_TAG_MAP = {"Việt":"man","Âu":"man"};
     parsed.recipes.forEach(function(r){ if(!TAGS[r.tag]) r.tag = OLD_TAG_MAP[r.tag] || "man"; });
@@ -584,6 +632,13 @@
     if(!parsed.filter) parsed.filter = "all";
     if(typeof parsed.search !== "string") parsed.search = "";
     if(!parsed.people) parsed.people = 4;
+    if(!parsed.recipePackVersion || parsed.recipePackVersion < RECIPE_PACK_VERSION){
+      parsed.recipes = seedRecipes();
+      var validIds = {};
+      parsed.recipes.forEach(function(r){ validIds[r.id] = true; });
+      parsed.plan = (parsed.plan||[]).filter(function(p){ return validIds[p.recipeId]; });
+      parsed.recipePackVersion = RECIPE_PACK_VERSION;
+    }
     return parsed;
   }
   function load(){
@@ -670,7 +725,8 @@
   var PLACEHOLDER_ICONS = {
     man: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/></svg>',
     canh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16a8 6.5 0 0 1-16 0Z"/><path d="M9 4c0 1-1 1-1 2s1 1 1 2M14 4c0 1-1 1-1 2s1 1 1 2"/></svg>',
-    sang: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h16M5 17a7 7 0 0 1 14 0"/><path d="M2.5 20.5h19" stroke-opacity=".45"/></svg>'
+    sang: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h16M5 17a7 7 0 0 1 14 0"/><path d="M2.5 20.5h19" stroke-opacity=".45"/></svg>',
+    trang: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="16" r="4"/><circle cx="16" cy="15" r="3.2"/><path d="M9 12 12.5 4M15 12 13 7"/></svg>'
   };
   function recipeMediaHtml(r){
     if(r.image){
