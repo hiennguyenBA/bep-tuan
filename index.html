@@ -1658,7 +1658,8 @@
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("service-worker.js").then(function (reg) {
+      navigator.serviceWorker.register("service-worker.js", { updateViaCache: "none" }).then(function (reg) {
+        reg.update();
         reg.addEventListener("updatefound", function () {
           var newWorker = reg.installing;
           newWorker.addEventListener("statechange", function () {
