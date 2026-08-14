@@ -1641,11 +1641,14 @@
       renderAll();
     },
     reportSyncError: function(err){
+      var code = err && err.code ? String(err.code) : "";
       var msg = err && err.message ? String(err.message) : "";
-      if(msg.indexOf("maximum") !== -1 || msg.indexOf("exceeds") !== -1 || msg.indexOf("1048576") !== -1){
-        toast("Không đồng bộ lên được — dữ liệu (ảnh) đang vượt giới hạn 1MB của đám mây. Đã lưu trên máy này.");
+      if(code === "invalid-argument" || msg.indexOf("maximum") !== -1 || msg.indexOf("exceeds") !== -1 || msg.indexOf("1048576") !== -1){
+        toast("Không đồng bộ — dữ liệu (ảnh) vượt giới hạn 1MB của đám mây. Đã lưu trên máy này.");
+      } else if(code === "permission-denied"){
+        toast("Không đồng bộ — bị từ chối quyền truy cập (permission-denied). Đã lưu trên máy này.");
       } else {
-        toast("Không đồng bộ lên đám mây được lúc này. Đã lưu trên máy này, sẽ tự thử lại.");
+        toast("Không đồng bộ lên đám mây được (mã: "+(code||"unknown")+"). Đã lưu trên máy này, sẽ tự thử lại.");
       }
     }
   };
@@ -1692,9 +1695,12 @@
 
   var applyingRemote = false;
   var pushTimer = null;
+  var authReady = false;
+  var pendingPush = false;
 
   function pushToCloud(){
     if(applyingRemote || !window.ChipKitchenApp) return;
+    if(!authReady){ pendingPush = true; return; }
     clearTimeout(pushTimer);
     pushTimer = setTimeout(function(){
       setDoc(householdRef, {
@@ -1709,10 +1715,15 @@
 
   window.ChipKitchenSync = { push: pushToCloud };
 
-  signInAnonymously(auth).catch(function(err){ console.warn("Chip Kitchen: sign-in failed", err); });
+  signInAnonymously(auth).catch(function(err){
+    console.warn("Chip Kitchen: sign-in failed", err);
+    if(window.ChipKitchenApp && window.ChipKitchenApp.reportSyncError) window.ChipKitchenApp.reportSyncError(err);
+  });
 
   onAuthStateChanged(auth, function(user){
     if(!user) return;
+    authReady = true;
+    if(pendingPush){ pendingPush = false; pushToCloud(); }
     onSnapshot(householdRef, function(snap){
       if(!snap.exists()){ pushToCloud(); return; }
       if(snap.metadata.hasPendingWrites) return;
