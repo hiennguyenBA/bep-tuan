@@ -742,7 +742,7 @@
     try{
       localStorage.setItem(STORE_KEY, JSON.stringify(state));
     }catch(e){
-      toast("Không lưu được vào bộ nhớ máy — có thể do ảnh quá lớn hoặc bộ nhớ đầy");
+      toast("Không lưu được vào bộ nhớ máy — có thể do ảnh quá lớn hoặc bộ nhớ đầy", 6000);
     }
     if(window.ChipKitchenSync && window.ChipKitchenSync.push) window.ChipKitchenSync.push();
   }
@@ -787,12 +787,12 @@
     return totals;
   }
 
-  function toast(msg){
+  function toast(msg, duration){
     var t = document.getElementById("toast");
     t.textContent = msg;
     t.classList.add("show");
     clearTimeout(toast._h);
-    toast._h = setTimeout(function(){ t.classList.remove("show"); }, 1800);
+    toast._h = setTimeout(function(){ t.classList.remove("show"); }, duration || 1800);
   }
 
   // ---------- TABS ----------
@@ -1644,11 +1644,11 @@
       var code = err && err.code ? String(err.code) : "";
       var msg = err && err.message ? String(err.message) : "";
       if(code === "invalid-argument" || msg.indexOf("maximum") !== -1 || msg.indexOf("exceeds") !== -1 || msg.indexOf("1048576") !== -1){
-        toast("Không đồng bộ — dữ liệu (ảnh) vượt giới hạn 1MB của đám mây. Đã lưu trên máy này.");
+        toast("Không đồng bộ — dữ liệu (ảnh) vượt giới hạn 1MB của đám mây. Đã lưu trên máy này. [invalid-argument]", 6000);
       } else if(code === "permission-denied"){
-        toast("Không đồng bộ — bị từ chối quyền truy cập (permission-denied). Đã lưu trên máy này.");
+        toast("Không đồng bộ — bị từ chối quyền truy cập. Đã lưu trên máy này. [permission-denied]", 6000);
       } else {
-        toast("Không đồng bộ lên đám mây được (mã: "+(code||"unknown")+"). Đã lưu trên máy này, sẽ tự thử lại.");
+        toast("Không đồng bộ lên đám mây được. Đã lưu trên máy này, sẽ tự thử lại. [mã: "+(code||"unknown")+"]", 6000);
       }
     }
   };
