@@ -739,7 +739,11 @@
     return normalizeState(null);
   }
   function save(){
-    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+    try{
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    }catch(e){
+      toast("Không lưu được vào bộ nhớ máy — có thể do ảnh quá lớn hoặc bộ nhớ đầy");
+    }
     if(window.ChipKitchenSync && window.ChipKitchenSync.push) window.ChipKitchenSync.push();
   }
 
@@ -1348,22 +1352,38 @@
 
   function compressImage(file, maxDim, quality){
     return new Promise(function(resolve, reject){
+      var settled = false;
+      var timer = setTimeout(function(){
+        if(settled) return;
+        settled = true;
+        reject(new Error("timeout"));
+      }, 15000);
+      function finish(fn, arg){
+        if(settled) return;
+        settled = true;
+        clearTimeout(timer);
+        fn(arg);
+      }
       var reader = new FileReader();
       reader.onload = function(){
         var img = new Image();
         img.onload = function(){
-          var scale = Math.min(1, maxDim / Math.max(img.width, img.height));
-          var w = Math.max(1, Math.round(img.width*scale));
-          var h = Math.max(1, Math.round(img.height*scale));
-          var canvas = document.createElement("canvas");
-          canvas.width = w; canvas.height = h;
-          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-          resolve(canvas.toDataURL("image/jpeg", quality));
+          try{
+            var scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+            var w = Math.max(1, Math.round(img.width*scale));
+            var h = Math.max(1, Math.round(img.height*scale));
+            var canvas = document.createElement("canvas");
+            canvas.width = w; canvas.height = h;
+            canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+            finish(resolve, canvas.toDataURL("image/jpeg", quality));
+          }catch(err){
+            finish(reject, err);
+          }
         };
-        img.onerror = function(){ reject(new Error("bad image")); };
+        img.onerror = function(){ finish(reject, new Error("bad image")); };
         img.src = reader.result;
       };
-      reader.onerror = function(){ reject(new Error("read error")); };
+      reader.onerror = function(){ finish(reject, new Error("read error")); };
       reader.readAsDataURL(file);
     });
   }
@@ -1460,11 +1480,13 @@
       input.addEventListener("change", function(){
         var file = input.files[0];
         if(!file) return;
-        compressImage(file, 640, .72).then(function(dataUrl){
+        compressImage(file, 480, .65).then(function(dataUrl){
           draftImage = dataUrl;
           photoFieldEl.innerHTML = photoFieldHtml();
           wirePhotoField();
-        }).catch(function(){ toast("Không đọc được ảnh này"); });
+        }).catch(function(err){
+          toast(err && err.message==="timeout" ? "Xử lý ảnh quá lâu — thử ảnh khác hoặc chụp lại ở độ phân giải thấp hơn" : "Không đọc được ảnh này");
+        });
       });
       var removeBtn = overlay.querySelector("#mPhotoRemove");
       if(removeBtn){
@@ -1590,11 +1612,13 @@
   document.getElementById("bannerInput").addEventListener("change", function(e){
     var file = e.target.files[0];
     if(!file) return;
-    compressImage(file, 1280, .75).then(function(dataUrl){
+    compressImage(file, 960, .7).then(function(dataUrl){
       state.bannerImage = dataUrl;
       save(); renderBanner();
       toast("Đã cập nhật ảnh banner");
-    }).catch(function(){ toast("Không đọc được ảnh này"); });
+    }).catch(function(err){
+      toast(err && err.message==="timeout" ? "Xử lý ảnh quá lâu — thử ảnh khác hoặc chụp lại ở độ phân giải thấp hơn" : "Không đọc được ảnh này");
+    });
     e.target.value = "";
   });
 
@@ -1615,6 +1639,14 @@
       state = normalizeState(remote);
       try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
       renderAll();
+    },
+    reportSyncError: function(err){
+      var msg = err && err.message ? String(err.message) : "";
+      if(msg.indexOf("maximum") !== -1 || msg.indexOf("exceeds") !== -1 || msg.indexOf("1048576") !== -1){
+        toast("Không đồng bộ lên được — dữ liệu (ảnh) đang vượt giới hạn 1MB của đám mây. Đã lưu trên máy này.");
+      } else {
+        toast("Không đồng bộ lên đám mây được lúc này. Đã lưu trên máy này, sẽ tự thử lại.");
+      }
     }
   };
 })();
@@ -1668,7 +1700,10 @@
       setDoc(householdRef, {
         data: JSON.stringify(window.ChipKitchenApp.getState()),
         updatedAt: Date.now()
-      }).catch(function(err){ console.warn("Chip Kitchen: cloud sync failed", err); });
+      }).catch(function(err){
+        console.warn("Chip Kitchen: cloud sync failed", err);
+        if(window.ChipKitchenApp && window.ChipKitchenApp.reportSyncError) window.ChipKitchenApp.reportSyncError(err);
+      });
     }, 800);
   }
 
