@@ -1696,12 +1696,16 @@
 
   var applyingRemote = false;
   var pushTimer = null;
-  var authReady = false;
-  var pendingPush = false;
+  // Never push to the cloud until we've reconciled with it at least once --
+  // otherwise a device that just cleared its local storage (fresh/seed
+  // state) could win a race against the real snapshot and overwrite
+  // everyone else's data. Any local edit made before that reconciliation
+  // is intentionally dropped rather than queued, to avoid re-introducing
+  // the same race in the other direction.
+  var readyToSync = false;
 
   function pushToCloud(){
-    if(applyingRemote || !window.ChipKitchenApp) return;
-    if(!authReady){ pendingPush = true; return; }
+    if(applyingRemote || !window.ChipKitchenApp || !readyToSync) return;
     clearTimeout(pushTimer);
     pushTimer = setTimeout(function(){
       setDoc(householdRef, {
@@ -1723,19 +1727,21 @@
 
   onAuthStateChanged(auth, function(user){
     if(!user) return;
-    authReady = true;
-    if(pendingPush){ pendingPush = false; pushToCloud(); }
     onSnapshot(householdRef, function(snap){
-      if(!snap.exists()){ pushToCloud(); return; }
+      if(!snap.exists()){
+        readyToSync = true;
+        pushToCloud();
+        return;
+      }
       if(snap.metadata.hasPendingWrites) return;
       var payload = snap.data();
-      if(!payload || !payload.data) return;
+      if(!payload || !payload.data){ readyToSync = true; return; }
       try{
         var remoteState = JSON.parse(payload.data);
         applyingRemote = true;
         window.ChipKitchenApp.applyRemoteState(remoteState);
       }catch(e){}
-      finally{ applyingRemote = false; }
+      finally{ applyingRemote = false; readyToSync = true; }
     }, function(err){ console.warn("Chip Kitchen: sync listener error", err); });
   });
 </script>
