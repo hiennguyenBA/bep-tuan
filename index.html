@@ -895,6 +895,7 @@
         state.recipes = state.recipes.filter(function(r){ return r.id !== rid; });
         state.plan = state.plan.filter(function(p){ return p.recipeId !== rid; });
         save(); renderAll();
+        if(window.ChipKitchenSync && window.ChipKitchenSync.deleteRecipe) window.ChipKitchenSync.deleteRecipe(rid);
         toast("Đã xoá món khỏi thư viện");
       });
       return;
@@ -1480,7 +1481,7 @@
       input.addEventListener("change", function(){
         var file = input.files[0];
         if(!file) return;
-        compressImage(file, 480, .65).then(function(dataUrl){
+        compressImage(file, 800, .75).then(function(dataUrl){
           draftImage = dataUrl;
           photoFieldEl.innerHTML = photoFieldHtml();
           wirePhotoField();
@@ -1509,13 +1510,17 @@
         .map(function(i){ return {name:i.name.trim(), qty:parseFloat(i.qty)||0, unit:(i.unit||"").trim()||"g", cat:i.cat||"rau"}; });
       if(!cleanIngredients.length){ toast("Thêm ít nhất một nguyên liệu"); return; }
 
+      var savedRecipe;
       if(editingId){
         var r = recipeById(editingId);
         r.name = name; r.tag = tag; r.base = base; r.ingredients = cleanIngredients; r.image = draftImage;
+        savedRecipe = r;
       } else {
-        state.recipes.push({id:uid(), name:name, tag:tag, base:base, ingredients:cleanIngredients, image:draftImage});
+        savedRecipe = {id:uid(), name:name, tag:tag, base:base, ingredients:cleanIngredients, image:draftImage};
+        state.recipes.push(savedRecipe);
       }
       save(); renderAll();
+      if(window.ChipKitchenSync && window.ChipKitchenSync.pushRecipe) window.ChipKitchenSync.pushRecipe(savedRecipe);
       closeModal();
       toast(editingId ? "Đã lưu thay đổi" : "Đã thêm món mới");
     });
@@ -1633,10 +1638,52 @@
   }
   renderAll();
 
+  var META_KEYS = ["people","plan","household","manual","checked","openCards","filter","search","bannerImage","recipePackVersion","catFixVersion","flowerAddVersion"];
+  function normalizeRecipe(r){
+    if(!TAGS[r.tag]){ var m={"Việt":"man","Âu":"man"}; r.tag = m[r.tag] || "man"; }
+    if(typeof r.image === "undefined") r.image = null;
+    if(!r.base) r.base = 3;
+    if(!Array.isArray(r.ingredients)) r.ingredients = [];
+    return r;
+  }
+
   window.ChipKitchenApp = {
+    // Full local state -- used for JSON export/import and as the source for
+    // the one-time migration into per-recipe cloud documents.
     getState: function(){ return state; },
+    getMetaState: function(){
+      var out = {};
+      META_KEYS.forEach(function(k){ out[k] = state[k]; });
+      return out;
+    },
+    getRecipes: function(){ return state.recipes; },
     applyRemoteState: function(remote){
       state = normalizeState(remote);
+      try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+      renderAll();
+    },
+    // Merges the shared "everything except recipes" document into state,
+    // leaving state.recipes untouched (that comes from applyRemoteRecipes).
+    applyRemoteMeta: function(remoteMeta){
+      META_KEYS.forEach(function(k){
+        if(Object.prototype.hasOwnProperty.call(remoteMeta, k)) state[k] = remoteMeta[k];
+      });
+      if(!state.household || !state.household.length) state.household = seedHousehold();
+      state.household.forEach(function(h){ if(!h.size) h.size = {qty:1, unit:"phần"}; });
+      if(!state.openCards) state.openCards = {};
+      if(!state.checked) state.checked = {};
+      if(!state.manual) state.manual = [];
+      if(!state.filter) state.filter = "all";
+      if(typeof state.search !== "string") state.search = "";
+      if(!state.people) state.people = 3;
+      try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+      renderAll();
+    },
+    // Replaces state.recipes with the recipes collection's current docs.
+    applyRemoteRecipes: function(recipesArray){
+      state.recipes = (recipesArray && recipesArray.length ? recipesArray : seedRecipes()).map(normalizeRecipe);
+      var validIds = {}; state.recipes.forEach(function(r){ validIds[r.id] = true; });
+      state.plan = (state.plan||[]).filter(function(p){ return validIds[p.recipeId]; });
       try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
       renderAll();
     },
@@ -1676,7 +1723,10 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
   import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-  import { getFirestore, doc, setDoc, onSnapshot, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+  import {
+    getFirestore, doc, collection, setDoc, deleteDoc, deleteField,
+    onSnapshot, enableIndexedDbPersistence
+  } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
   var firebaseConfig = {
     apiKey: "AIzaSyAVL56Fyvwd76uk9FAFt0_EfwvBNgUTnjw",
@@ -1690,35 +1740,71 @@
   var fbApp = initializeApp(firebaseConfig);
   var auth = getAuth(fbApp);
   var db = getFirestore(fbApp);
-  var householdRef = doc(db, "households", "shared");
+  var metaRef = doc(db, "households", "shared");
+  var recipesCol = collection(db, "households", "shared", "recipes");
 
   try{ enableIndexedDbPersistence(db); }catch(e){}
 
-  var applyingRemote = false;
-  var pushTimer = null;
-  // Never push to the cloud until we've reconciled with it at least once --
-  // otherwise a device that just cleared its local storage (fresh/seed
-  // state) could win a race against the real snapshot and overwrite
-  // everyone else's data. Any local edit made before that reconciliation
-  // is intentionally dropped rather than queued, to avoid re-introducing
-  // the same race in the other direction.
-  var readyToSync = false;
+  // Recipes now live one-per-document in `recipesCol` (each can use most of
+  // its own 1MB budget for a photo) instead of being embedded in the single
+  // "shared" meta document, which used to force every recipe's photo to
+  // share one combined 1MB ceiling with the rest of the app's data.
 
-  function pushToCloud(){
-    if(applyingRemote || !window.ChipKitchenApp || !readyToSync) return;
-    clearTimeout(pushTimer);
-    pushTimer = setTimeout(function(){
-      setDoc(householdRef, {
-        data: JSON.stringify(window.ChipKitchenApp.getState()),
-        updatedAt: Date.now()
-      }).catch(function(err){
-        console.warn("Chip Kitchen: cloud sync failed", err);
+  var applyingRemote = false;
+  var metaPushTimer = null;
+  // Same rule as before, per document: don't push until we've reconciled
+  // with that document's current cloud content at least once, so a device
+  // that just cleared local storage can't win a race and wipe shared data.
+  var metaReady = false;
+
+  function pushMeta(){
+    if(applyingRemote || !window.ChipKitchenApp || !metaReady) return;
+    clearTimeout(metaPushTimer);
+    metaPushTimer = setTimeout(function(){
+      var payload = window.ChipKitchenApp.getMetaState();
+      payload.updatedAt = Date.now();
+      payload.data = deleteField(); // opportunistically drop the old single-blob field if still present
+      setDoc(metaRef, payload, { merge: true }).catch(function(err){
+        console.warn("Chip Kitchen: meta sync failed", err);
         if(window.ChipKitchenApp && window.ChipKitchenApp.reportSyncError) window.ChipKitchenApp.reportSyncError(err);
       });
     }, 800);
   }
 
-  window.ChipKitchenSync = { push: pushToCloud };
+  // Single-recipe writes are always safe to fire immediately (gated only by
+  // being a deliberate save/delete click): they touch exactly one document
+  // and never risk overwriting anyone else's recipes.
+  function pushRecipe(recipe){
+    if(!recipe || !recipe.id) return;
+    setDoc(doc(recipesCol, recipe.id), recipe).catch(function(err){
+      console.warn("Chip Kitchen: recipe sync failed", err);
+      if(window.ChipKitchenApp && window.ChipKitchenApp.reportSyncError) window.ChipKitchenApp.reportSyncError(err);
+    });
+  }
+  function deleteRecipeCloud(recipeId){
+    if(!recipeId) return;
+    deleteDoc(doc(recipesCol, recipeId)).catch(function(err){
+      console.warn("Chip Kitchen: recipe delete failed", err);
+    });
+  }
+
+  window.ChipKitchenSync = { push: pushMeta, pushRecipe: pushRecipe, deleteRecipe: deleteRecipeCloud };
+
+  // ---- one-time migration from the old single-document shape ----
+  var legacyRecipesFromMeta = null;
+  var recipesEmptyOnFirstLoad = null;
+  var migrationDone = false;
+  function maybeMigrateLegacyRecipes(){
+    if(migrationDone) return;
+    if(!metaReady || recipesEmptyOnFirstLoad === null) return;
+    migrationDone = true;
+    if(!recipesEmptyOnFirstLoad) return; // subcollection already has real data -- nothing to do
+    var source = legacyRecipesFromMeta || (window.ChipKitchenApp && window.ChipKitchenApp.getRecipes());
+    if(!source || !source.length) return;
+    Promise.all(source.map(function(r){ return setDoc(doc(recipesCol, r.id), r); }))
+      .then(function(){ return setDoc(metaRef, { data: deleteField() }, { merge: true }); })
+      .catch(function(err){ console.warn("Chip Kitchen: recipe migration failed", err); });
+  }
 
   signInAnonymously(auth).catch(function(err){
     console.warn("Chip Kitchen: sign-in failed", err);
@@ -1727,22 +1813,39 @@
 
   onAuthStateChanged(auth, function(user){
     if(!user) return;
-    onSnapshot(householdRef, function(snap){
-      if(!snap.exists()){
-        readyToSync = true;
-        pushToCloud();
-        return;
-      }
-      if(snap.metadata.hasPendingWrites) return;
+
+    onSnapshot(metaRef, function(snap){
+      if(!snap.exists()){ metaReady = true; maybeMigrateLegacyRecipes(); pushMeta(); return; }
+      if(snap.metadata.hasPendingWrites){ metaReady = true; return; }
       var payload = snap.data();
-      if(!payload || !payload.data){ readyToSync = true; return; }
+      applyingRemote = true;
       try{
-        var remoteState = JSON.parse(payload.data);
-        applyingRemote = true;
-        window.ChipKitchenApp.applyRemoteState(remoteState);
+        if(payload && typeof payload.data === "string"){
+          // Legacy shape from before the per-recipe split: one JSON blob
+          // holding everything, including recipes. Apply it in full so the
+          // app renders correctly, and stash the recipes for migration.
+          var legacyState = JSON.parse(payload.data);
+          legacyRecipesFromMeta = legacyState.recipes || null;
+          window.ChipKitchenApp.applyRemoteState(legacyState);
+        } else if(payload){
+          window.ChipKitchenApp.applyRemoteMeta(payload);
+        }
       }catch(e){}
-      finally{ applyingRemote = false; readyToSync = true; }
-    }, function(err){ console.warn("Chip Kitchen: sync listener error", err); });
+      finally{ applyingRemote = false; metaReady = true; maybeMigrateLegacyRecipes(); }
+    }, function(err){ console.warn("Chip Kitchen: meta sync listener error", err); });
+
+    onSnapshot(recipesCol, function(snap){
+      var wasEmpty = snap.empty;
+      if(!wasEmpty){
+        var list = [];
+        snap.forEach(function(d){ list.push(d.data()); });
+        applyingRemote = true;
+        try{ window.ChipKitchenApp.applyRemoteRecipes(list); }catch(e){}
+        finally{ applyingRemote = false; }
+      }
+      if(recipesEmptyOnFirstLoad === null) recipesEmptyOnFirstLoad = wasEmpty;
+      maybeMigrateLegacyRecipes();
+    }, function(err){ console.warn("Chip Kitchen: recipes sync listener error", err); });
   });
 </script>
 </body>
