@@ -1587,6 +1587,7 @@
       showConfirm("Nhập dữ liệu", "Dữ liệu hiện tại trên thiết bị này sẽ bị thay thế bằng nội dung trong file đã chọn. Tiếp tục?", "Ghi đè", function(){
         state = normalizeState(data);
         save(); renderAll();
+        if(window.ChipKitchenSync && window.ChipKitchenSync.syncAllRecipes) window.ChipKitchenSync.syncAllRecipes(state.recipes);
         toast("Đã nhập dữ liệu thành công");
       });
     };
@@ -1788,7 +1789,30 @@
     });
   }
 
-  window.ChipKitchenSync = { push: pushMeta, pushRecipe: pushRecipe, deleteRecipe: deleteRecipeCloud };
+  // Full-replace sync used by "Nhập dữ liệu" (JSON import): writes every
+  // recipe in the given array to its own document, and removes any cloud
+  // recipe not present in that array, so the cloud ends up matching the
+  // imported file exactly -- matching what the import confirm dialog says
+  // it will do (replace, not merge).
+  var knownCloudRecipeIds = null;
+  function syncAllRecipes(recipesArray){
+    var incomingIds = {};
+    var ops = (recipesArray||[]).map(function(r){
+      incomingIds[r.id] = true;
+      return setDoc(doc(recipesCol, r.id), r);
+    });
+    if(knownCloudRecipeIds){
+      knownCloudRecipeIds.forEach(function(id){
+        if(!incomingIds[id]) ops.push(deleteDoc(doc(recipesCol, id)));
+      });
+    }
+    Promise.all(ops).catch(function(err){
+      console.warn("Chip Kitchen: full recipe sync failed", err);
+      if(window.ChipKitchenApp && window.ChipKitchenApp.reportSyncError) window.ChipKitchenApp.reportSyncError(err);
+    });
+  }
+
+  window.ChipKitchenSync = { push: pushMeta, pushRecipe: pushRecipe, deleteRecipe: deleteRecipeCloud, syncAllRecipes: syncAllRecipes };
 
   // ---- one-time migration from the old single-document shape ----
   var legacyRecipesFromMeta = null;
@@ -1836,9 +1860,11 @@
 
     onSnapshot(recipesCol, function(snap){
       var wasEmpty = snap.empty;
+      var list = [];
+      var ids = [];
+      snap.forEach(function(d){ list.push(d.data()); ids.push(d.id); });
+      knownCloudRecipeIds = ids;
       if(!wasEmpty){
-        var list = [];
-        snap.forEach(function(d){ list.push(d.data()); });
         applyingRemote = true;
         try{ window.ChipKitchenApp.applyRemoteRecipes(list); }catch(e){}
         finally{ applyingRemote = false; }
