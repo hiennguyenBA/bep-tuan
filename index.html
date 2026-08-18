@@ -738,12 +738,25 @@
     }catch(e){}
     return normalizeState(null);
   }
-  function save(){
+  // localStorage has its own (smaller) quota, separate from Firestore's per-document
+  // 1MB cap -- writing every recipe/banner photo into one local JSON blob can blow it
+  // even after the Firestore-side split. Photos live in the cloud (and its IndexedDB
+  // cache); locally we only need a light copy so the app has something to render
+  // before the cloud snapshot arrives.
+  function persistLocal(){
     try{
-      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+      var light = JSON.parse(JSON.stringify(state));
+      light.bannerImage = null;
+      if(Array.isArray(light.recipes)){
+        light.recipes.forEach(function(r){ r.image = null; });
+      }
+      localStorage.setItem(STORE_KEY, JSON.stringify(light));
     }catch(e){
-      toast("Không lưu được vào bộ nhớ máy — có thể do ảnh quá lớn hoặc bộ nhớ đầy", 6000);
+      toast("Không lưu được vào bộ nhớ máy — có thể do bộ nhớ đầy", 6000);
     }
+  }
+  function save(){
+    persistLocal();
     if(window.ChipKitchenSync && window.ChipKitchenSync.push) window.ChipKitchenSync.push();
   }
 
@@ -1660,7 +1673,7 @@
     getRecipes: function(){ return state.recipes; },
     applyRemoteState: function(remote){
       state = normalizeState(remote);
-      try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+      persistLocal();
       renderAll();
     },
     // Merges the shared "everything except recipes" document into state,
@@ -1677,7 +1690,7 @@
       if(!state.filter) state.filter = "all";
       if(typeof state.search !== "string") state.search = "";
       if(!state.people) state.people = 3;
-      try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+      persistLocal();
       renderAll();
     },
     // Replaces state.recipes with the recipes collection's current docs.
@@ -1685,7 +1698,7 @@
       state.recipes = (recipesArray && recipesArray.length ? recipesArray : seedRecipes()).map(normalizeRecipe);
       var validIds = {}; state.recipes.forEach(function(r){ validIds[r.id] = true; });
       state.plan = (state.plan||[]).filter(function(p){ return validIds[p.recipeId]; });
-      try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+      persistLocal();
       renderAll();
     },
     reportSyncError: function(err){
