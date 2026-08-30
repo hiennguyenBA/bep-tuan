@@ -103,7 +103,7 @@
   .icon-btn:hover{background:var(--surface-2);color:var(--text);}
   .icon-btn svg{width:16px;height:16px;}
 
-  input[type="text"],input[type="number"],select,textarea{
+  input[type="text"],input[type="number"],input[type="date"],select,textarea{
     font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-control);padding:8px 10px;
   }
   input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
@@ -230,6 +230,7 @@
   .hh-field input{padding:3px 5px;font-size:.78rem;text-align:center;}
   .hh-field input[type="number"]{width:46px;}
   .hh-field input.hh-unit{width:56px;text-align:left;}
+  .hh-field input[type="date"]{width:132px;}
   .hh-row-bottom{display:flex;align-items:center;justify-content:flex-end;gap:8px;}
   .hh-actions{display:flex;align-items:center;gap:4px;}
   .btn-hh{padding:5px 11px;font-size:.76rem;border-radius:var(--radius-pill);}
@@ -435,7 +436,7 @@
   <!-- HOUSEHOLD -->
   <div class="panel" id="panel-household">
     <div class="section-title"><h2>Đồ dùng cần refill</h2></div>
-    <p class="hint">Bấm "Bắt đầu dùng" khi mở món mới — app sẽ ước tính khi nào sắp hết dựa trên số ngày dùng lần trước, và tự đưa vào danh sách đi chợ.</p>
+    <p class="hint">Điền "Ngày bắt đầu dùng" khi mở món mới — app sẽ ước tính khi nào sắp hết dựa trên số ngày dùng lần trước, và tự đưa vào danh sách đi chợ.</p>
     <div class="card hh-summary" id="hhSummary">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6.5V11"/><circle cx="10" cy="14" r=".6" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="7.3"/></svg>
       <p id="hhSummaryText">Mọi thứ đều ổn.</p>
@@ -450,8 +451,15 @@
       </div>
       <div style="display:flex;gap:8px;">
         <select id="hhCatSelect" style="flex:1;">
-          <option value="hoaMyPham">Hoá mỹ phẩm & vệ sinh</option>
-          <option value="kho">Gia vị & thực phẩm khô</option>
+          <option value="gaoNguCoc">Gạo & ngũ cốc</option>
+          <option value="giaVi">Gia vị & nêm nếm</option>
+          <option value="doKho">Đồ khô & đóng hộp</option>
+          <option value="sua">Sữa & chế phẩm từ sữa</option>
+          <option value="doUong">Đồ uống</option>
+          <option value="veSinhNha">Đồ vệ sinh nhà cửa</option>
+          <option value="veSinhCaNhan">Đồ vệ sinh cá nhân</option>
+          <option value="nhaBepTieuHao">Đồ dùng nhà bếp tiêu hao</option>
+          <option value="anVat">Đồ ăn vặt & tráng miệng</option>
         </select>
         <button class="btn btn-primary" id="btnAddHousehold">Thêm</button>
       </div>
@@ -513,6 +521,7 @@
   var RECIPE_PACK_VERSION = 3;
   var CAT_FIX_VERSION = 2;
   var FLOWER_ADD_VERSION = 1;
+  var HOUSEHOLD_PACK_VERSION = 2;
   var FRUIT_INGREDIENT_NAMES = ["Chuối","Quả na","Táo","Trái cây tươi (chuối/berry)"];
 
   var TAGS = {
@@ -537,10 +546,17 @@
   var COUNT_UNITS = ["quả","trái","miếng","củ","lá","cây","muỗng"];
 
   var HCATS = {
-    hoaMyPham: {label:"Hoá mỹ phẩm & vệ sinh", dot:"var(--plum)", soft:"var(--plum-soft)"},
-    kho:       {label:"Gia vị & thực phẩm khô", dot:"var(--amber)", soft:"var(--amber-soft)"}
+    gaoNguCoc:     {label:"Gạo & ngũ cốc",             dot:"var(--gold)",   soft:"var(--gold-soft)"},
+    giaVi:         {label:"Gia vị & nêm nếm",           dot:"var(--amber)",  soft:"var(--amber-soft)"},
+    doKho:         {label:"Đồ khô & đóng hộp",          dot:"var(--clay)",   soft:"var(--clay-soft)"},
+    sua:           {label:"Sữa & chế phẩm từ sữa",      dot:"var(--slate)",  soft:"var(--slate-soft)"},
+    doUong:        {label:"Đồ uống",                    dot:"var(--ocean)",  soft:"var(--ocean-soft)"},
+    veSinhNha:     {label:"Đồ vệ sinh nhà cửa",         dot:"var(--plum)",   soft:"var(--plum-soft)"},
+    veSinhCaNhan:  {label:"Đồ vệ sinh cá nhân",         dot:"var(--rose)",   soft:"var(--rose-soft)"},
+    nhaBepTieuHao: {label:"Đồ dùng nhà bếp tiêu hao",   dot:"var(--forest)", soft:"var(--forest-soft)"},
+    anVat:         {label:"Đồ ăn vặt & tráng miệng",    dot:"var(--accent)", soft:"var(--accent-soft)"}
   };
-  var HCAT_ORDER = ["hoaMyPham","kho"];
+  var HCAT_ORDER = ["gaoNguCoc","giaVi","doKho","sua","doUong","veSinhNha","veSinhCaNhan","nhaBepTieuHao","anVat"];
   var DAY_MS = 86400000;
 
   function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
@@ -548,20 +564,71 @@
   function seedHousehold(){
     function H(name, cat, qty, unit, estimateDays){ return {id:uid(), name:name, cat:cat, size:{qty:qty,unit:unit}, estimateDays:estimateDays, startedAt:null, needsBuy:false}; }
     return [
-      H("Nước rửa chén/bát","hoaMyPham",750,"ml",30),
-      H("Nước rửa tay","hoaMyPham",500,"ml",30),
-      H("Xịt tẩy bếp","hoaMyPham",500,"ml",45),
-      H("Nước lau sàn","hoaMyPham",1,"lít",30),
-      H("Nước giặt","hoaMyPham",3,"lít",30),
-      H("Giấy ăn","hoaMyPham",10,"gói",15),
-      H("Giấy vệ sinh","hoaMyPham",10,"cuộn",20),
-      H("Gạo","kho",10,"kg",20),
-      H("Dầu ăn","kho",1,"lít",45),
-      H("Muối","kho",1,"kg",90),
-      H("Đường","kho",1,"kg",60),
-      H("Bột nêm","kho",400,"g",30),
-      H("Hạt tiêu","kho",100,"g",90),
-      H("Bột ngọt","kho",400,"g",60)
+      H("Gạo tẻ","gaoNguCoc",10,"kg",20),
+      H("Gạo nếp","gaoNguCoc",2,"kg",60),
+      H("Bún, phở, mì, miến","gaoNguCoc",500,"g",30),
+      H("Bột mì","gaoNguCoc",1,"kg",60),
+      H("Bột năng","gaoNguCoc",400,"g",90),
+      H("Yến mạch, ngũ cốc ăn sáng","gaoNguCoc",500,"g",30),
+
+      H("Muối","giaVi",1,"kg",90),
+      H("Đường","giaVi",1,"kg",60),
+      H("Bột ngọt / hạt nêm","giaVi",400,"g",45),
+      H("Nước mắm","giaVi",500,"ml",30),
+      H("Nước tương","giaVi",500,"ml",45),
+      H("Dầu hào","giaVi",300,"ml",60),
+      H("Dầu ăn","giaVi",1,"lít",30),
+      H("Tiêu","giaVi",100,"g",90),
+      H("Ớt bột","giaVi",100,"g",90),
+      H("Giấm","giaVi",500,"ml",60),
+      H("Tương ớt","giaVi",250,"g",45),
+      H("Sốt mayonnaise","giaVi",250,"g",45),
+
+      H("Đậu, đỗ khô các loại","doKho",500,"g",90),
+      H("Nấm khô, mộc nhĩ","doKho",100,"g",90),
+      H("Đồ hộp (cá hộp, thịt hộp)","doKho",1,"hộp",60),
+      H("Mì gói dự trữ","doKho",1,"thùng",60),
+
+      H("Sữa tươi","sua",1,"hộp",7),
+      H("Sữa đặc","sua",1,"hộp",30),
+      H("Sữa chua","sua",1,"hộp",7),
+      H("Phô mai","sua",1,"hộp",30),
+      H("Bơ","sua",1,"hộp",30),
+
+      H("Nước lọc, nước suối","doUong",1,"bình",14),
+      H("Trà","doUong",1,"hộp",60),
+      H("Cà phê","doUong",1,"hộp",45),
+      H("Nước ngọt","doUong",1,"thùng",14),
+      H("Nước ép","doUong",1,"chai",7),
+
+      H("Nước rửa chén","veSinhNha",750,"ml",30),
+      H("Xà phòng giặt","veSinhNha",1,"túi",30),
+      H("Nước lau nhà","veSinhNha",1,"lít",30),
+      H("Nước tẩy toilet","veSinhNha",1,"chai",45),
+      H("Túi rác","veSinhNha",1,"cuộn",20),
+      H("Giấy vệ sinh","veSinhNha",10,"cuộn",20),
+      H("Khăn giấy","veSinhNha",1,"gói",15),
+      H("Khăn ướt","veSinhNha",1,"gói",20),
+
+      H("Kem đánh răng","veSinhCaNhan",1,"tuýp",30),
+      H("Bàn chải","veSinhCaNhan",1,"cái",90),
+      H("Dầu gội","veSinhCaNhan",1,"chai",30),
+      H("Sữa tắm","veSinhCaNhan",1,"chai",30),
+      H("Xà phòng rửa tay","veSinhCaNhan",1,"chai",30),
+      H("Băng vệ sinh","veSinhCaNhan",1,"gói",30),
+      H("Tã (nếu có trẻ nhỏ)","veSinhCaNhan",1,"gói",15),
+
+      H("Màng bọc thực phẩm","nhaBepTieuHao",1,"cuộn",45),
+      H("Giấy bạc","nhaBepTieuHao",1,"cuộn",45),
+      H("Túi zip","nhaBepTieuHao",1,"gói",60),
+      H("Hộp đựng thực phẩm","nhaBepTieuHao",1,"cái",180),
+      H("Bao tay ni lông","nhaBepTieuHao",1,"gói",30),
+      H("Tăm","nhaBepTieuHao",1,"gói",60),
+
+      H("Bánh kẹo","anVat",1,"gói",14),
+      H("Snack, hạt các loại","anVat",1,"gói",14),
+      H("Sữa chua uống","anVat",1,"hộp",7),
+      H("Thạch rau câu","anVat",1,"gói",14)
     ];
   }
 
@@ -578,8 +645,20 @@
     if(left <= threshold) return "soon";
     return "ok";
   }
+  function toDateInputValue(iso){
+    if(!iso) return "";
+    return new Date(iso).toISOString().slice(0,10);
+  }
+  function dateInputToIso(v){
+    return new Date(v+"T00:00:00.000Z").toISOString();
+  }
   function hhStart(h){
-    h.startedAt = new Date().toISOString();
+    h.startedAt = dateInputToIso(toDateInputValue(new Date().toISOString()));
+    h.needsBuy = false;
+  }
+  function hhSetStartDate(h, dateStr){
+    if(!dateStr){ h.startedAt = null; return; }
+    h.startedAt = dateInputToIso(dateStr);
     h.needsBuy = false;
   }
   function hhRanOut(h){
@@ -696,7 +775,7 @@
 
   function normalizeState(parsed){
     if(!parsed || !Array.isArray(parsed.recipes) || !parsed.recipes.length){
-      return { people:3, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", search:"", bannerImage:null, recipePackVersion:RECIPE_PACK_VERSION, catFixVersion:CAT_FIX_VERSION, flowerAddVersion:FLOWER_ADD_VERSION };
+      return { people:3, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", search:"", bannerImage:null, recipePackVersion:RECIPE_PACK_VERSION, catFixVersion:CAT_FIX_VERSION, flowerAddVersion:FLOWER_ADD_VERSION, householdPackVersion:HOUSEHOLD_PACK_VERSION };
     }
     var OLD_TAG_MAP = {"Việt":"man","Âu":"man"};
     parsed.recipes.forEach(function(r){ if(!TAGS[r.tag]) r.tag = OLD_TAG_MAP[r.tag] || "man"; });
@@ -733,6 +812,19 @@
         if(!existingNames[r.name]) parsed.recipes.push(r);
       });
       parsed.flowerAddVersion = FLOWER_ADD_VERSION;
+    }
+    if(!parsed.householdPackVersion || parsed.householdPackVersion < HOUSEHOLD_PACK_VERSION){
+      var OLD_HCAT_MAP = {"hoaMyPham":"veSinhNha","kho":"giaVi"};
+      parsed.household.forEach(function(h){
+        if(h.cat === "kho" && h.name === "Gạo") h.cat = "gaoNguCoc";
+        else if(OLD_HCAT_MAP[h.cat]) h.cat = OLD_HCAT_MAP[h.cat];
+      });
+      var existingHhNames = {};
+      parsed.household.forEach(function(h){ existingHhNames[h.name] = true; });
+      seedHousehold().forEach(function(h){
+        if(!existingHhNames[h.name]) parsed.household.push(h);
+      });
+      parsed.householdPackVersion = HOUSEHOLD_PACK_VERSION;
     }
     return parsed;
   }
@@ -1096,7 +1188,7 @@
             '<span class="status-pill status-'+status+'">'+pillText+'</span></div>'+
           '<div class="hh-row-meta">'+
             '<span class="hh-field">Khối lượng <input type="number" min="0" step="any" value="'+h.size.qty+'" data-hh-sizeqty="'+h.id+'"> <input type="text" class="hh-unit" value="'+escapeHtml(h.size.unit)+'" data-hh-sizeunit="'+h.id+'"></span>'+
-            '<span class="hh-field">Dùng hết trong ~<input type="number" min="1" max="365" value="'+h.estimateDays+'" data-hh-est="'+h.id+'"> ngày</span>'+
+            '<span class="hh-field">Ngày bắt đầu dùng <input type="date" value="'+toDateInputValue(h.startedAt)+'" data-hh-startdate="'+h.id+'"></span>'+
           '</div>'+
           '<div class="hh-row-bottom">'+
             '<div class="hh-actions">'+actionBtn+
@@ -1142,12 +1234,11 @@
     }
   });
   householdListEl.addEventListener("change", function(e){
-    var est = e.target.closest("[data-hh-est]");
-    if(est){
-      var h = state.household.find(function(x){ return x.id===est.dataset.hhEst; });
-      if(h){
-        var v = parseInt(est.value,10);
-        h.estimateDays = (v && v>0) ? v : h.estimateDays;
+    var sd = e.target.closest("[data-hh-startdate]");
+    if(sd){
+      var hd = state.household.find(function(x){ return x.id===sd.dataset.hhStartdate; });
+      if(hd){
+        hhSetStartDate(hd, sd.value);
         save(); renderAll();
       }
       return;
@@ -1660,7 +1751,7 @@
   }
   renderAll();
 
-  var META_KEYS = ["people","plan","household","manual","checked","openCards","filter","search","bannerImage","recipePackVersion","catFixVersion","flowerAddVersion"];
+  var META_KEYS = ["people","plan","household","manual","checked","openCards","filter","search","bannerImage","recipePackVersion","catFixVersion","flowerAddVersion","householdPackVersion"];
   function normalizeRecipe(r){
     if(!TAGS[r.tag]){ var m={"Việt":"man","Âu":"man"}; r.tag = m[r.tag] || "man"; }
     if(typeof r.image === "undefined") r.image = null;
