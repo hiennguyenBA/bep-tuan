@@ -773,6 +773,26 @@
   var STORE_KEY = "bepTuan.v1";
   var state = null;
 
+  // Shared by normalizeState (local load) and applyRemoteMeta (cloud sync) --
+  // it must run in both places, or a stale cloud "shared" doc keeps
+  // overwriting a freshly-migrated local list right back to the old one.
+  // Returns true if it actually changed anything (caller can re-push).
+  function migrateHouseholdPack(s){
+    if(s.householdPackVersion >= HOUSEHOLD_PACK_VERSION) return false;
+    var OLD_HCAT_MAP = {"hoaMyPham":"veSinhNha","kho":"giaVi"};
+    s.household.forEach(function(h){
+      if(h.cat === "kho" && h.name === "Gạo") h.cat = "gaoNguCoc";
+      else if(OLD_HCAT_MAP[h.cat]) h.cat = OLD_HCAT_MAP[h.cat];
+    });
+    var existingHhNames = {};
+    s.household.forEach(function(h){ existingHhNames[h.name] = true; });
+    seedHousehold().forEach(function(h){
+      if(!existingHhNames[h.name]) s.household.push(h);
+    });
+    s.householdPackVersion = HOUSEHOLD_PACK_VERSION;
+    return true;
+  }
+
   function normalizeState(parsed){
     if(!parsed || !Array.isArray(parsed.recipes) || !parsed.recipes.length){
       return { people:3, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", search:"", bannerImage:null, recipePackVersion:RECIPE_PACK_VERSION, catFixVersion:CAT_FIX_VERSION, flowerAddVersion:FLOWER_ADD_VERSION, householdPackVersion:HOUSEHOLD_PACK_VERSION };
@@ -813,19 +833,7 @@
       });
       parsed.flowerAddVersion = FLOWER_ADD_VERSION;
     }
-    if(!parsed.householdPackVersion || parsed.householdPackVersion < HOUSEHOLD_PACK_VERSION){
-      var OLD_HCAT_MAP = {"hoaMyPham":"veSinhNha","kho":"giaVi"};
-      parsed.household.forEach(function(h){
-        if(h.cat === "kho" && h.name === "Gạo") h.cat = "gaoNguCoc";
-        else if(OLD_HCAT_MAP[h.cat]) h.cat = OLD_HCAT_MAP[h.cat];
-      });
-      var existingHhNames = {};
-      parsed.household.forEach(function(h){ existingHhNames[h.name] = true; });
-      seedHousehold().forEach(function(h){
-        if(!existingHhNames[h.name]) parsed.household.push(h);
-      });
-      parsed.householdPackVersion = HOUSEHOLD_PACK_VERSION;
-    }
+    migrateHouseholdPack(parsed);
     return parsed;
   }
   function load(){
@@ -1789,8 +1797,14 @@
       if(!state.filter) state.filter = "all";
       if(typeof state.search !== "string") state.search = "";
       if(!state.people) state.people = 3;
+      var householdMigrated = migrateHouseholdPack(state);
       persistLocal();
       renderAll();
+      if(householdMigrated){
+        // The cloud doc was still on the old household shape -- push the
+        // migrated version back up so it stops reverting on every reload.
+        setTimeout(function(){ if(window.ChipKitchenSync) window.ChipKitchenSync.push(); }, 0);
+      }
     },
     // Replaces state.recipes with the recipes collection's current docs.
     applyRemoteRecipes: function(recipesArray){
