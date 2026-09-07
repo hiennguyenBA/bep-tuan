@@ -103,7 +103,7 @@
   .icon-btn:hover{background:var(--surface-2);color:var(--text);}
   .icon-btn svg{width:16px;height:16px;}
 
-  input[type="text"],input[type="number"],input[type="date"],select,textarea{
+  input[type="text"],input[type="number"],input[type="date"],input[type="url"],select,textarea{
     font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-control);padding:8px 10px;
   }
   input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
@@ -179,6 +179,7 @@
   .plan-group-head{padding:12px 14px 8px;}
   .plan-group-head strong{font-size:.95rem;}
   .plan-ing-preview{border-top:1px dashed var(--border);padding:8px 14px 12px;}
+  .plan-ing-preview>a{margin-top:8px;}
   .plan-ing-preview ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;}
   .plan-ing-preview li{display:flex;justify-content:space-between;gap:10px;font-size:.83rem;color:var(--text-muted);}
   .plan-ing-preview li span:last-child{font-variant-numeric:tabular-nums;color:var(--text);}
@@ -1053,6 +1054,10 @@
         '<div class="recipe-card-actions">'+
           '<button class="btn btn-sm btn-primary" data-add-plan="'+r.id+'">'+
             '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 4V16M4 10H16"/></svg> Thêm vào tuần</button>'+
+          (isHttpUrl(r.guideUrl) ?
+            '<a class="icon-btn" href="'+escapeHtml(r.guideUrl)+'" target="_blank" rel="noopener noreferrer" aria-label="Xem hướng dẫn nấu">'+
+              '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 11.5L11.5 8.5M8 6.5L9 5.5C10.1 4.4 11.9 4.4 13 5.5C14.1 6.6 14.1 8.4 13 9.5L12 10.5M12 13.5L11 14.5C9.9 15.6 8.1 15.6 7 14.5C5.9 13.4 5.9 11.6 7 10.5L8 9.5"/></svg></a>'
+            : '')+
           '<button class="icon-btn" data-edit="'+r.id+'" aria-label="Sửa món">'+
             '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3.5L16.5 6.5L7 16H4V13L13.5 3.5Z"/></svg></button>'+
           '<button class="icon-btn btn-danger-text" data-del="'+r.id+'" aria-label="Xoá món">'+
@@ -1111,6 +1116,9 @@
       return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
     });
   }
+  function isHttpUrl(u){
+    return !!u && /^https?:\/\//i.test(u.trim());
+  }
 
   // ---------- PLAN ----------
   function addToPlan(recipeId){
@@ -1133,7 +1141,11 @@
     var rows = recipe.ingredients.map(function(ing){
       return '<li><span>'+escapeHtml(ing.name)+'</span><span>'+formatQty(ing.qty*factor, ing.unit)+'</span></li>';
     }).join("");
-    return '<div class="plan-ing-preview"><ul>'+rows+'</ul></div>';
+    var guideLink = isHttpUrl(recipe.guideUrl)
+      ? '<a class="btn btn-sm" href="'+escapeHtml(recipe.guideUrl)+'" target="_blank" rel="noopener noreferrer">'+
+          '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 11.5L11.5 8.5M8 6.5L9 5.5C10.1 4.4 11.9 4.4 13 5.5C14.1 6.6 14.1 8.4 13 9.5L12 10.5M12 13.5L11 14.5C9.9 15.6 8.1 15.6 7 14.5C5.9 13.4 5.9 11.6 7 10.5L8 9.5"/></svg> Xem hướng dẫn</a>'
+      : '';
+    return '<div class="plan-ing-preview"><ul>'+rows+'</ul>'+guideLink+'</div>';
   }
 
   function renderPlan(){
@@ -1628,6 +1640,7 @@
           '<div class="field"><label for="mTag">Loại</label><select id="mTag">'+TAG_ORDER.map(function(tg){ return '<option value="'+tg+'"'+((recipe?recipe.tag:"man")===tg?" selected":"")+'>'+TAGS[tg].label+'</option>'; }).join("")+'</select></div>'+
           '<div class="field"><label for="mBase">Khẩu phần cơ bản (người)</label><input type="number" id="mBase" min="1" max="20" value="'+(recipe?recipe.base:4)+'"></div>'+
         '</div>'+
+        '<div class="field"><label for="mGuideUrl">Link hướng dẫn (video/bài viết)</label><input type="url" id="mGuideUrl" value="'+(recipe&&recipe.guideUrl?escapeHtml(recipe.guideUrl):"")+'" placeholder="https://..."></div>'+
         '<div class="field"><label>Nguyên liệu</label><div class="ing-rows" id="ingRows">'+ingRowsHtml()+'</div>'+
           '<button type="button" class="btn btn-sm" id="mAddIng" style="align-self:flex-start;margin-top:2px;">'+
             '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 4V16M4 10H16"/></svg> Thêm nguyên liệu</button></div>'+
@@ -1695,6 +1708,8 @@
       if(!name){ toast("Vui lòng nhập tên món"); return; }
       var tag = overlay.querySelector("#mTag").value;
       var base = parseInt(overlay.querySelector("#mBase").value,10) || 4;
+      var guideUrl = overlay.querySelector("#mGuideUrl").value.trim();
+      if(guideUrl && !/^https?:\/\//i.test(guideUrl)) guideUrl = "https://"+guideUrl;
       var cleanIngredients = draftIngredients
         .filter(function(i){ return i.name && i.name.trim(); })
         .map(function(i){ return {name:i.name.trim(), qty:parseFloat(i.qty)||0, unit:(i.unit||"").trim()||"g", cat:i.cat||"rau"}; });
@@ -1703,10 +1718,10 @@
       var savedRecipe;
       if(editingId){
         var r = recipeById(editingId);
-        r.name = name; r.tag = tag; r.base = base; r.ingredients = cleanIngredients; r.image = draftImage;
+        r.name = name; r.tag = tag; r.base = base; r.ingredients = cleanIngredients; r.image = draftImage; r.guideUrl = guideUrl || null;
         savedRecipe = r;
       } else {
-        savedRecipe = {id:uid(), name:name, tag:tag, base:base, ingredients:cleanIngredients, image:draftImage};
+        savedRecipe = {id:uid(), name:name, tag:tag, base:base, ingredients:cleanIngredients, image:draftImage, guideUrl:guideUrl || null};
         state.recipes.push(savedRecipe);
       }
       save(); renderAll();
@@ -1833,6 +1848,7 @@
   function normalizeRecipe(r){
     if(!TAGS[r.tag]){ var m={"Việt":"man","Âu":"man"}; r.tag = m[r.tag] || "man"; }
     if(typeof r.image === "undefined") r.image = null;
+    if(typeof r.guideUrl === "undefined") r.guideUrl = null;
     if(!r.base) r.base = 3;
     if(!Array.isArray(r.ingredients)) r.ingredients = [];
     return r;
