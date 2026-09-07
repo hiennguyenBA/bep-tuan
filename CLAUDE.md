@@ -34,18 +34,28 @@ không phải khi code đã đúng trên GitHub. Làm đủ các bước sau:
 
    **Riêng cho `state.recipes`**: nó KHÔNG đi qua `applyRemoteMeta` — nó có
    đường đồng bộ cloud riêng (`applyRemoteRecipes`, nghe `recipesCol`
-   subcollection). Đây là 2 `onSnapshot` listener độc lập, không đảm bảo
-   thứ tự bắn trước/sau. Bài học thật đã xảy ra: gate migration recipes bằng
-   `state.recipeTopupVersion` rồi đồng bộ field đó qua `META_KEYS` (đi theo
-   đường `applyRemoteMeta`) tạo ra race — listener nào bắn trước quyết định
-   (sai phần lớn thời gian) có migrate hay không, khiến món mới thêm vào
-   không bao giờ tới được người dùng thật dù code đúng và deploy thành
-   công. Cách sửa đúng: version-flag gate cho một nguồn dữ liệu nào thì
-   PHẢI đọc/ghi cùng lúc với chính nguồn đó — xem `migrateRecipeTopupLocal`
-   (gate local, không sync) và sentinel doc `recipesCol/_meta` (gate cloud,
-   đọc trong CÙNG callback `onSnapshot(recipesCol,...)` trả về danh sách
-   recipe). Không bao giờ đặt version-flag của nguồn A vào field đồng bộ
-   qua nguồn B.
+   subcollection), một `onSnapshot` listener hoàn toàn độc lập với
+   `applyRemoteMeta`, không đảm bảo thứ tự bắn trước/sau. Đã thử 2 cách gate
+   bằng version-flag và cả 2 đều dính race thật (món mới không bao giờ tới
+   được người dùng dù code đúng, deploy thành công): lần 1 đặt flag trong
+   `META_KEYS` (đi theo đường `applyRemoteMeta`, trong khi mutation lại nằm
+   ở `applyRemoteRecipes`); lần 2 thử tách flag ra một sentinel doc riêng
+   trong `recipesCol` — vẫn không xác nhận được vì phải phụ thuộc rule bảo
+   mật Firestore (không có trong repo này, không kiểm tra được) chấp nhận
+   một document mới hình dạng khác hẳn recipe thật.
+
+   Giải pháp cuối cùng: **bỏ hẳn version-flag** cho `topUpMissingRecipes()` —
+   nó chỉ so tên (`seedRecipes()` có tên nào mà `state.recipes` chưa có thì
+   thêm), chạy vô điều kiện ở cả `normalizeState` lẫn `applyRemoteRecipes`.
+   Vì là phép cộng theo tên, chạy lại bao nhiêu lần cũng an toàn (không thêm
+   trùng) và không phụ thuộc thứ tự listener nào cả — hết race triệt để.
+   Đánh đổi: nếu người dùng xoá hẳn một món có sẵn (seed), nó sẽ tự thêm lại
+   ở lần đồng bộ sau — chấp nhận được cho app hộ gia đình quy mô nhỏ này,
+   giống hệt cách `RECIPE_PACK_VERSION` vẫn luôn ghi đè toàn bộ thư viện.
+   Bài học chung: khi một cơ chế cần phối hợp qua 2 nguồn đồng bộ độc lập mà
+   không có cách nào đọc/ghi chúng atomically cùng nhau, đừng cố dùng
+   version-flag — tìm cách làm phép toán đó thành vô điều kiện và idempotent
+   (an toàn chạy lại nhiều lần) thay vì gate bằng trạng thái.
 
 3. **Push lên `main` xong** → không dừng ở đó. Xác nhận GitHub Actions
    ("pages-build-deployment") chạy xong và Success trước khi báo hoàn tất.
