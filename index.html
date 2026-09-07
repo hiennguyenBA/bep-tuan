@@ -845,20 +845,35 @@
     return true;
   }
 
-  // Same reasoning as migrateHouseholdPack, but for state.recipes -- and
-  // recipes have their own remote-replace path (applyRemoteRecipes, driven
-  // by the recipesCol subcollection) that's independent of applyRemoteMeta.
-  // Must run there too, and any recipe it adds must be pushed to that
-  // subcollection individually, or the next cloud snapshot wipes it back out.
-  // Returns the list of newly-added recipes (empty if nothing changed).
-  function migrateRecipeTopup(s){
-    if(s.recipeTopupVersion >= RECIPE_TOPUP_VERSION) return [];
+  // Pure additive diff: push any seedRecipes() entry whose name isn't
+  // already in s.recipes. Safe to call repeatedly (no-ops once caught up),
+  // but NOT safe to call unconditionally forever -- it would resurrect a
+  // seed recipe the user deliberately deleted. Callers gate it with a
+  // version check appropriate to their own data source (see below).
+  function topUpMissingRecipes(s){
     var existingNames = {};
     s.recipes.forEach(function(r){ existingNames[r.name] = true; });
     var added = [];
     seedRecipes().forEach(function(r){
       if(!existingNames[r.name]){ s.recipes.push(r); added.push(r); }
     });
+    return added;
+  }
+  // Local-load gate (normalizeState / localStorage) -- recipeTopupVersion
+  // here is intentionally NOT synced via the meta doc (see META_KEYS): the
+  // cloud recipes subcollection has its own version stamp (a "_meta" doc
+  // inside recipesCol, read by the Firebase module) checked in
+  // applyRemoteRecipes instead. Gating both paths off the same
+  // state.recipeTopupVersion caused a real race: applyRemoteMeta and
+  // applyRemoteRecipes are two independent onSnapshot listeners with no
+  // ordering guarantee, so whichever fired first decided (incorrectly, most
+  // of the time) whether the top-up ran -- new recipes silently never
+  // reached real users because the recipesCol listener usually won the race
+  // while state.recipeTopupVersion still held the fresh "already done"
+  // value from the initial local load.
+  function migrateRecipeTopupLocal(s){
+    if(s.recipeTopupVersion >= RECIPE_TOPUP_VERSION) return [];
+    var added = topUpMissingRecipes(s);
     s.recipeTopupVersion = RECIPE_TOPUP_VERSION;
     return added;
   }
@@ -904,7 +919,7 @@
       parsed.flowerAddVersion = FLOWER_ADD_VERSION;
     }
     migrateHouseholdPack(parsed);
-    migrateRecipeTopup(parsed);
+    migrateRecipeTopupLocal(parsed);
     return parsed;
   }
   function load(){
@@ -1844,7 +1859,12 @@
   }
   renderAll();
 
-  var META_KEYS = ["people","plan","household","manual","checked","openCards","filter","search","bannerImage","recipePackVersion","catFixVersion","flowerAddVersion","householdPackVersion","recipeTopupVersion"];
+  // recipeTopupVersion is intentionally NOT here -- see migrateRecipeTopupLocal's
+  // comment. It stays purely local (still persisted via persistLocal, which
+  // saves the whole state object, not just these keys); the cloud-side gate
+  // for the recipes subcollection lives in a "_meta" doc inside recipesCol
+  // instead, read atomically with the recipe list itself.
+  var META_KEYS = ["people","plan","household","manual","checked","openCards","filter","search","bannerImage","recipePackVersion","catFixVersion","flowerAddVersion","householdPackVersion"];
   function normalizeRecipe(r){
     if(!TAGS[r.tag]){ var m={"Việt":"man","Âu":"man"}; r.tag = m[r.tag] || "man"; }
     if(typeof r.image === "undefined") r.image = null;
@@ -1893,21 +1913,26 @@
       }
     },
     // Replaces state.recipes with the recipes collection's current docs.
-    applyRemoteRecipes: function(recipesArray){
+    // cloudTopupVersion comes from a "_meta" sentinel doc read in the SAME
+    // recipesCol snapshot (see the Firebase module) -- using that instead of
+    // state.recipeTopupVersion is what avoids the cross-listener race
+    // described above: the version and the recipe list it gates always
+    // arrive together, atomically, from one query.
+    applyRemoteRecipes: function(recipesArray, cloudTopupVersion){
       state.recipes = (recipesArray && recipesArray.length ? recipesArray : seedRecipes()).map(normalizeRecipe);
-      // The cloud's recipesCol snapshot just replaced state.recipes wholesale --
-      // if it doesn't have this pack's new dishes yet (stale cloud, or first
-      // sync since the app added them), top them up here too, or they'd only
-      // ever show up locally for a moment before this same listener wipes them
-      // on the next snapshot.
-      var addedRecipes = migrateRecipeTopup(state);
+      var addedRecipes = [];
+      if((cloudTopupVersion||0) < RECIPE_TOPUP_VERSION){
+        addedRecipes = topUpMissingRecipes(state);
+      }
       var validIds = {}; state.recipes.forEach(function(r){ validIds[r.id] = true; });
       state.plan = (state.plan||[]).filter(function(p){ return validIds[p.recipeId]; });
       persistLocal();
       renderAll();
       if(addedRecipes.length){
         addedRecipes.forEach(function(r){ if(window.ChipKitchenSync) window.ChipKitchenSync.pushRecipe(r); });
-        setTimeout(function(){ if(window.ChipKitchenSync) window.ChipKitchenSync.push(); }, 0);
+        if(window.ChipKitchenSync && window.ChipKitchenSync.setRecipesMeta){
+          window.ChipKitchenSync.setRecipesMeta({recipeTopupVersion: RECIPE_TOPUP_VERSION});
+        }
       }
     },
     reportSyncError: function(err){
@@ -1965,6 +1990,11 @@
   var db = getFirestore(fbApp);
   var metaRef = doc(db, "households", "shared");
   var recipesCol = collection(db, "households", "shared", "recipes");
+  // Sentinel doc living inside recipesCol itself, used only to stamp a
+  // recipeTopupVersion that arrives atomically with the recipe list in the
+  // same onSnapshot(recipesCol) callback -- see migrateRecipeTopupLocal's
+  // comment for why this can't just live on the shared meta doc instead.
+  var RECIPES_META_DOC_ID = "_meta";
 
   try{ enableIndexedDbPersistence(db); }catch(e){}
 
@@ -2034,7 +2064,16 @@
     });
   }
 
-  window.ChipKitchenSync = { push: pushMeta, pushRecipe: pushRecipe, deleteRecipe: deleteRecipeCloud, syncAllRecipes: syncAllRecipes };
+  // Merges fields into the recipesCol "_meta" sentinel doc (currently just
+  // recipeTopupVersion). Not gated on applyingRemote/metaReady like pushMeta --
+  // it's an independent single-doc write, same safety class as pushRecipe.
+  function setRecipesMeta(fields){
+    setDoc(doc(recipesCol, RECIPES_META_DOC_ID), fields, { merge: true }).catch(function(err){
+      console.warn("Chip Kitchen: recipes meta sync failed", err);
+    });
+  }
+
+  window.ChipKitchenSync = { push: pushMeta, pushRecipe: pushRecipe, deleteRecipe: deleteRecipeCloud, syncAllRecipes: syncAllRecipes, setRecipesMeta: setRecipesMeta };
 
   // ---- one-time migration from the old single-document shape ----
   var legacyRecipesFromMeta = null;
@@ -2081,14 +2120,16 @@
     }, function(err){ console.warn("Chip Kitchen: meta sync listener error", err); });
 
     onSnapshot(recipesCol, function(snap){
-      var wasEmpty = snap.empty;
-      var list = [];
-      var ids = [];
-      snap.forEach(function(d){ list.push(d.data()); ids.push(d.id); });
+      var metaDoc = snap.docs.find(function(d){ return d.id === RECIPES_META_DOC_ID; });
+      var cloudTopupVersion = metaDoc ? (metaDoc.data().recipeTopupVersion || 0) : 0;
+      var realDocs = snap.docs.filter(function(d){ return d.id !== RECIPES_META_DOC_ID; });
+      var wasEmpty = realDocs.length === 0;
+      var list = realDocs.map(function(d){ return d.data(); });
+      var ids = realDocs.map(function(d){ return d.id; });
       knownCloudRecipeIds = ids;
       if(!wasEmpty){
         applyingRemote = true;
-        try{ window.ChipKitchenApp.applyRemoteRecipes(list); }catch(e){}
+        try{ window.ChipKitchenApp.applyRemoteRecipes(list, cloudTopupVersion); }catch(e){}
         finally{ applyingRemote = false; }
       }
       if(recipesEmptyOnFirstLoad === null) recipesEmptyOnFirstLoad = wasEmpty;

@@ -32,6 +32,21 @@ không phải khi code đã đúng trên GitHub. Làm đủ các bước sau:
    (`window.ChipKitchenSync.push()`, qua `setTimeout` vì lúc đó
    `applyingRemote` đang `true`) để cloud hết giữ bản cũ.
 
+   **Riêng cho `state.recipes`**: nó KHÔNG đi qua `applyRemoteMeta` — nó có
+   đường đồng bộ cloud riêng (`applyRemoteRecipes`, nghe `recipesCol`
+   subcollection). Đây là 2 `onSnapshot` listener độc lập, không đảm bảo
+   thứ tự bắn trước/sau. Bài học thật đã xảy ra: gate migration recipes bằng
+   `state.recipeTopupVersion` rồi đồng bộ field đó qua `META_KEYS` (đi theo
+   đường `applyRemoteMeta`) tạo ra race — listener nào bắn trước quyết định
+   (sai phần lớn thời gian) có migrate hay không, khiến món mới thêm vào
+   không bao giờ tới được người dùng thật dù code đúng và deploy thành
+   công. Cách sửa đúng: version-flag gate cho một nguồn dữ liệu nào thì
+   PHẢI đọc/ghi cùng lúc với chính nguồn đó — xem `migrateRecipeTopupLocal`
+   (gate local, không sync) và sentinel doc `recipesCol/_meta` (gate cloud,
+   đọc trong CÙNG callback `onSnapshot(recipesCol,...)` trả về danh sách
+   recipe). Không bao giờ đặt version-flag của nguồn A vào field đồng bộ
+   qua nguồn B.
+
 3. **Push lên `main` xong** → không dừng ở đó. Xác nhận GitHub Actions
    ("pages-build-deployment") chạy xong và Success trước khi báo hoàn tất.
 
