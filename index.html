@@ -522,6 +522,7 @@
   var CAT_FIX_VERSION = 2;
   var FLOWER_ADD_VERSION = 1;
   var HOUSEHOLD_PACK_VERSION = 2;
+  var RECIPE_TOPUP_VERSION = 1;
   var FRUIT_INGREDIENT_NAMES = ["Chuối","Quả na","Táo","Trái cây tươi (chuối/berry)"];
 
   var TAGS = {
@@ -724,6 +725,56 @@
         I("Cá thu",400,"g","ca"), I("Tiêu",8,"g","kho"), I("Nước mắm",20,"ml","kho"),
         I("Đường",15,"g","kho"), I("Hành tím",15,"g","rau"), I("Ớt",1,"quả","rau")
       ]},
+      {id:uid(), name:"Ức gà xào ớt chuông", tag:"man", base:3, ingredients:[
+        I("Ức gà",400,"g","thit"), I("Ớt chuông",200,"g","rau"), I("Hành tây",100,"g","rau"), I("Tỏi",10,"g","rau")
+      ]},
+      {id:uid(), name:"Cánh gà chiên tỏi (BBQ chicken)", tag:"man", base:3, ingredients:[
+        I("Cánh gà",500,"g","thit"), I("Tỏi băm",20,"g","rau"), I("Bột chiên giòn",50,"g","kho")
+      ]},
+      {id:uid(), name:"Gà hấp xé phay", tag:"man", base:3, ingredients:[
+        I("Gà ta",500,"g","thit"), I("Hành tây",100,"g","rau"), I("Rau răm",20,"g","rau"), I("Lá chanh",5,"g","rau")
+      ]},
+      {id:uid(), name:"Vịt om sấu", tag:"man", base:3, ingredients:[
+        I("Vịt",500,"g","thit"), I("Sấu",100,"g","rau"), I("Khoai sọ",200,"g","rau"),
+        I("Hành tím",20,"g","rau"), I("Gừng",15,"g","rau")
+      ]},
+      {id:uid(), name:"Ngan luộc", tag:"man", base:3, ingredients:[
+        I("Ngan",600,"g","thit"), I("Gừng",20,"g","rau"), I("Hành tím",15,"g","rau"), I("Sả",15,"g","rau")
+      ]},
+      {id:uid(), name:"Thịt ba chỉ rang cà chua", tag:"man", base:3, ingredients:[
+        I("Thịt ba chỉ",400,"g","thit"), I("Cà chua",200,"g","rau"), I("Hành lá",15,"g","rau"), I("Tỏi",10,"g","rau")
+      ]},
+      {id:uid(), name:"Thịt vai om xá xíu", tag:"man", base:3, ingredients:[
+        I("Thịt vai",400,"g","thit"), I("Sốt xá xíu",60,"g","kho"), I("Tỏi",15,"g","rau"), I("Hành tím",15,"g","rau")
+      ]},
+      {id:uid(), name:"Sườn xào ớt chuông", tag:"man", base:3, ingredients:[
+        I("Sườn non",400,"g","thit"), I("Ớt chuông",200,"g","rau"), I("Hành tây",80,"g","rau"), I("Tỏi",10,"g","rau")
+      ]},
+      {id:uid(), name:"Sườn rim mặn ngọt", tag:"man", base:3, ingredients:[
+        I("Sườn non",400,"g","thit"), I("Hành tím",20,"g","rau"), I("Tỏi",15,"g","rau")
+      ]},
+      {id:uid(), name:"Bò lúc lắc xào ớt chuông", tag:"man", base:3, ingredients:[
+        I("Thịt bò thăn",400,"g","thit"), I("Ớt chuông",200,"g","rau"), I("Hành tây",100,"g","rau"), I("Tỏi",15,"g","rau")
+      ]},
+      {id:uid(), name:"Bê xào xả ớt", tag:"man", base:3, ingredients:[
+        I("Thịt bê",400,"g","thit"), I("Sả",30,"g","rau"), I("Ớt",2,"quả","rau"), I("Tỏi",10,"g","rau")
+      ]},
+      {id:uid(), name:"Trứng rán thịt băm", tag:"man", base:3, ingredients:[
+        I("Trứng gà",6,"quả","khac"), I("Thịt heo băm",150,"g","thit"), I("Hành lá",15,"g","rau")
+      ]},
+      {id:uid(), name:"Trứng rán lá lốt/lá mơ", tag:"man", base:3, ingredients:[
+        I("Trứng gà",6,"quả","khac"), I("Lá lốt hoặc lá mơ",100,"g","rau"), I("Hành lá",10,"g","rau")
+      ]},
+      {id:uid(), name:"Trứng sốt cà chua", tag:"man", base:3, ingredients:[
+        I("Trứng gà",6,"quả","khac"), I("Cà chua",250,"g","rau"), I("Hành lá",10,"g","rau")
+      ]},
+      {id:uid(), name:"Cá kho (moom)", tag:"man", base:3, ingredients:[
+        I("Cá (trắm/cá trê)",400,"g","ca"), I("Riềng",20,"g","rau"), I("Hành tím",20,"g","rau"), I("Ớt",1,"quả","rau")
+      ]},
+      {id:uid(), name:"Mỳ Ý", tag:"man", base:3, ingredients:[
+        I("Mỳ Ý (spaghetti)",300,"g","kho"), I("Thịt bò băm hoặc thịt heo băm",300,"g","thit"),
+        I("Cà chua",300,"g","rau"), I("Hành tây",100,"g","rau"), I("Tỏi",15,"g","rau")
+      ]},
       {id:uid(), name:"Canh mùng tơi nấu tôm khô", tag:"canh", base:3, ingredients:[
         I("Rau mùng tơi",300,"g","rau"), I("Tôm khô",20,"g","ca"), I("Hành tím",10,"g","rau"), I("Nước mắm",10,"ml","kho")
       ]},
@@ -793,9 +844,27 @@
     return true;
   }
 
+  // Same reasoning as migrateHouseholdPack, but for state.recipes -- and
+  // recipes have their own remote-replace path (applyRemoteRecipes, driven
+  // by the recipesCol subcollection) that's independent of applyRemoteMeta.
+  // Must run there too, and any recipe it adds must be pushed to that
+  // subcollection individually, or the next cloud snapshot wipes it back out.
+  // Returns the list of newly-added recipes (empty if nothing changed).
+  function migrateRecipeTopup(s){
+    if(s.recipeTopupVersion >= RECIPE_TOPUP_VERSION) return [];
+    var existingNames = {};
+    s.recipes.forEach(function(r){ existingNames[r.name] = true; });
+    var added = [];
+    seedRecipes().forEach(function(r){
+      if(!existingNames[r.name]){ s.recipes.push(r); added.push(r); }
+    });
+    s.recipeTopupVersion = RECIPE_TOPUP_VERSION;
+    return added;
+  }
+
   function normalizeState(parsed){
     if(!parsed || !Array.isArray(parsed.recipes) || !parsed.recipes.length){
-      return { people:3, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", search:"", bannerImage:null, recipePackVersion:RECIPE_PACK_VERSION, catFixVersion:CAT_FIX_VERSION, flowerAddVersion:FLOWER_ADD_VERSION, householdPackVersion:HOUSEHOLD_PACK_VERSION };
+      return { people:3, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", search:"", bannerImage:null, recipePackVersion:RECIPE_PACK_VERSION, catFixVersion:CAT_FIX_VERSION, flowerAddVersion:FLOWER_ADD_VERSION, householdPackVersion:HOUSEHOLD_PACK_VERSION, recipeTopupVersion:RECIPE_TOPUP_VERSION };
     }
     var OLD_TAG_MAP = {"Việt":"man","Âu":"man"};
     parsed.recipes.forEach(function(r){ if(!TAGS[r.tag]) r.tag = OLD_TAG_MAP[r.tag] || "man"; });
@@ -834,6 +903,7 @@
       parsed.flowerAddVersion = FLOWER_ADD_VERSION;
     }
     migrateHouseholdPack(parsed);
+    migrateRecipeTopup(parsed);
     return parsed;
   }
   function load(){
@@ -1759,7 +1829,7 @@
   }
   renderAll();
 
-  var META_KEYS = ["people","plan","household","manual","checked","openCards","filter","search","bannerImage","recipePackVersion","catFixVersion","flowerAddVersion","householdPackVersion"];
+  var META_KEYS = ["people","plan","household","manual","checked","openCards","filter","search","bannerImage","recipePackVersion","catFixVersion","flowerAddVersion","householdPackVersion","recipeTopupVersion"];
   function normalizeRecipe(r){
     if(!TAGS[r.tag]){ var m={"Việt":"man","Âu":"man"}; r.tag = m[r.tag] || "man"; }
     if(typeof r.image === "undefined") r.image = null;
@@ -1809,10 +1879,20 @@
     // Replaces state.recipes with the recipes collection's current docs.
     applyRemoteRecipes: function(recipesArray){
       state.recipes = (recipesArray && recipesArray.length ? recipesArray : seedRecipes()).map(normalizeRecipe);
+      // The cloud's recipesCol snapshot just replaced state.recipes wholesale --
+      // if it doesn't have this pack's new dishes yet (stale cloud, or first
+      // sync since the app added them), top them up here too, or they'd only
+      // ever show up locally for a moment before this same listener wipes them
+      // on the next snapshot.
+      var addedRecipes = migrateRecipeTopup(state);
       var validIds = {}; state.recipes.forEach(function(r){ validIds[r.id] = true; });
       state.plan = (state.plan||[]).filter(function(p){ return validIds[p.recipeId]; });
       persistLocal();
       renderAll();
+      if(addedRecipes.length){
+        addedRecipes.forEach(function(r){ if(window.ChipKitchenSync) window.ChipKitchenSync.pushRecipe(r); });
+        setTimeout(function(){ if(window.ChipKitchenSync) window.ChipKitchenSync.push(); }, 0);
+      }
     },
     reportSyncError: function(err){
       var code = err && err.code ? String(err.code) : "";
