@@ -3,8 +3,19 @@
 Static PWA, không build step: `index.html` (toàn bộ UI + logic JS inline),
 `service-worker.js` (cache app shell), `manifest.json`. Deploy qua GitHub
 Pages tự động khi push lên `main` (xem tab Actions → "pages-build-deployment").
-Dữ liệu đồng bộ nhiều thiết bị qua Firestore (`households/shared` doc +
-`households/shared/recipes` subcollection).
+Dữ liệu đồng bộ nhiều thiết bị qua Firestore: `households/shared` doc (meta),
+`households/shared/recipes` subcollection (mỗi món 1 document, để ảnh món ăn
+có ngân sách 1MB riêng), `households/shared/assets/banner` doc (ảnh banner,
+tách riêng cùng lý do — xem lịch sử "chỉ ảnh banner bị mất" trong git log).
+
+**Firestore security rules không nằm trong repo này** (cấu hình trực tiếp ở
+Firebase console, session này không xem/sửa được). Mỗi khi thêm một
+collection/document path MỚI (như `assets/banner`), rules hiện tại nhiều khả
+năng KHÔNG tự động cho phép — collection `recipes` từng cần một lần cập nhật
+rule thủ công khi mới tách ra. Nếu người dùng báo dữ liệu ở path mới không
+lưu được (hoặc thấy toast "bị từ chối quyền truy cập [permission-denied]"),
+đó là dấu hiệu cần họ vào Firebase console thêm rule cho path đó — không có
+cách nào tự kiểm tra hay sửa từ phía code.
 
 ## Checklist bắt buộc trước khi báo "cập nhật xong"
 

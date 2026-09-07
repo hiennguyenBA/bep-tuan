@@ -1830,7 +1830,8 @@
     if(!file) return;
     compressImage(file, 960, .7).then(function(dataUrl){
       state.bannerImage = dataUrl;
-      save(); renderBanner();
+      persistLocal(); renderBanner();
+      if(window.ChipKitchenSync && window.ChipKitchenSync.pushBanner) window.ChipKitchenSync.pushBanner(dataUrl);
       toast("Đã cập nhật ảnh banner");
     }).catch(function(err){
       toast(err && err.message==="timeout" ? "Xử lý ảnh quá lâu — thử ảnh khác hoặc chụp lại ở độ phân giải thấp hơn" : "Không đọc được ảnh này");
@@ -1849,7 +1850,11 @@
   }
   renderAll();
 
-  var META_KEYS = ["people","plan","household","manual","checked","openCards","filter","search","bannerImage","recipePackVersion","catFixVersion","flowerAddVersion","householdPackVersion"];
+  // bannerImage is intentionally NOT here -- it's a data: URL photo, the only
+  // one left sharing this doc's 1MB budget with everything else (recipe
+  // photos already got their own subcollection docs for the same reason).
+  // It now has its own doc too; see applyRemoteBanner / pushBanner.
+  var META_KEYS = ["people","plan","household","manual","checked","openCards","filter","search","recipePackVersion","catFixVersion","flowerAddVersion","householdPackVersion"];
   function normalizeRecipe(r){
     if(!TAGS[r.tag]){ var m={"Việt":"man","Âu":"man"}; r.tag = m[r.tag] || "man"; }
     if(typeof r.image === "undefined") r.image = null;
@@ -1896,6 +1901,19 @@
         // migrated version back up so it stops reverting on every reload.
         setTimeout(function(){ if(window.ChipKitchenSync) window.ChipKitchenSync.push(); }, 0);
       }
+      // One-time carry-over: if this doc still has a bannerImage from before
+      // it got its own doc, move it there and drop it from here so it stops
+      // competing with everything else for this doc's 1MB budget.
+      if(remoteMeta && remoteMeta.bannerImage && window.ChipKitchenSync && window.ChipKitchenSync.migrateLegacyBanner){
+        window.ChipKitchenSync.migrateLegacyBanner(remoteMeta.bannerImage);
+      }
+    },
+    // Applies the banner photo's own doc (see pushBanner) -- independent of
+    // applyRemoteMeta so it isn't limited by the shared meta doc's 1MB cap.
+    applyRemoteBanner: function(image){
+      state.bannerImage = image || null;
+      persistLocal();
+      renderBanner();
     },
     // Replaces state.recipes with the recipes collection's current docs,
     // then unconditionally tops up any seedRecipes() name still missing
@@ -1966,6 +1984,10 @@
   var db = getFirestore(fbApp);
   var metaRef = doc(db, "households", "shared");
   var recipesCol = collection(db, "households", "shared", "recipes");
+  // Own doc for the banner photo, same reasoning as recipesCol: a data: URL
+  // photo needs its own 1MB budget instead of competing with everything
+  // else crammed into the single "shared" meta doc.
+  var bannerRef = doc(db, "households", "shared", "assets", "banner");
 
   try{ enableIndexedDbPersistence(db); }catch(e){}
 
@@ -2035,7 +2057,26 @@
     });
   }
 
-  window.ChipKitchenSync = { push: pushMeta, pushRecipe: pushRecipe, deleteRecipe: deleteRecipeCloud, syncAllRecipes: syncAllRecipes };
+  // Banner photo lives in its own doc (bannerRef), not gated on
+  // applyingRemote/metaReady -- same safety class as pushRecipe, a single
+  // independent doc write that can't clobber anything else.
+  function pushBanner(dataUrl){
+    setDoc(bannerRef, { image: dataUrl || null }).catch(function(err){
+      console.warn("Chip Kitchen: banner sync failed", err);
+      if(window.ChipKitchenApp && window.ChipKitchenApp.reportSyncError) window.ChipKitchenApp.reportSyncError(err);
+    });
+  }
+
+  // One-time carry-over from the old bannerImage-in-shared-meta-doc shape:
+  // write it to bannerRef, then drop the field from metaRef so it stops
+  // taking up space there.
+  function migrateLegacyBanner(legacyImage){
+    setDoc(bannerRef, { image: legacyImage })
+      .then(function(){ return setDoc(metaRef, { bannerImage: deleteField() }, { merge: true }); })
+      .catch(function(err){ console.warn("Chip Kitchen: legacy banner migration failed", err); });
+  }
+
+  window.ChipKitchenSync = { push: pushMeta, pushRecipe: pushRecipe, deleteRecipe: deleteRecipeCloud, syncAllRecipes: syncAllRecipes, pushBanner: pushBanner, migrateLegacyBanner: migrateLegacyBanner };
 
   // ---- one-time migration from the old single-document shape ----
   var legacyRecipesFromMeta = null;
@@ -2095,6 +2136,13 @@
       if(recipesEmptyOnFirstLoad === null) recipesEmptyOnFirstLoad = wasEmpty;
       maybeMigrateLegacyRecipes();
     }, function(err){ console.warn("Chip Kitchen: recipes sync listener error", err); });
+
+    onSnapshot(bannerRef, function(snap){
+      var image = snap.exists() ? (snap.data().image || null) : null;
+      applyingRemote = true;
+      try{ window.ChipKitchenApp.applyRemoteBanner(image); }catch(e){}
+      finally{ applyingRemote = false; }
+    }, function(err){ console.warn("Chip Kitchen: banner sync listener error", err); });
   });
 </script>
 </body>
