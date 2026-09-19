@@ -224,6 +224,8 @@
   .place-badge-unset{border-style:dashed;}
   .place-badge-market{background:var(--clay-soft);border-color:var(--clay);color:var(--clay);}
   .place-badge-supermarket{background:var(--ocean-soft);border-color:var(--ocean);color:var(--ocean);}
+  .place-badge-gofood{background:var(--gold-soft);border-color:var(--gold);color:var(--gold-strong);}
+  .place-badge-moom{background:var(--plum-soft);border-color:var(--plum);color:var(--plum);}
   .place-badge-gifted{background:var(--slate-soft);border-color:var(--slate);color:var(--slate);}
 
   .hh-summary{padding:12px 14px;display:flex;align-items:center;gap:10px;}
@@ -579,9 +581,13 @@
   var PLACES = {
     market:     {label:"Chợ",       dot:"var(--clay)"},
     supermarket:{label:"Siêu thị",  dot:"var(--ocean)"},
+    gofood:     {label:"Gofood",    dot:"var(--gold)"},
+    moom:       {label:"Moom",      dot:"var(--plum)"},
     gifted:     {label:"Được cho",  dot:"var(--slate)"}
   };
-  var PLACE_ORDER = ["market","supermarket","gifted"];
+  // Display/cycle order. "unset" (chưa chọn nơi mua) is appended after this
+  // list wherever groups are rendered, so it always shows last.
+  var PLACE_ORDER = ["market","supermarket","gofood","moom","gifted"];
 
   var HCATS = {
     gaoNguCoc:     {label:"Gạo & ngũ cốc",             dot:"var(--gold)",   soft:"var(--gold-soft)"},
@@ -1643,7 +1649,7 @@
       var byPlace = { unset: [] };
       PLACE_ORDER.forEach(function(p){ byPlace[p] = []; });
       itemList.forEach(function(it){ (byPlace[placeOf(it.name) || "unset"]).push(it); });
-      ["unset"].concat(PLACE_ORDER).forEach(function(p){
+      PLACE_ORDER.concat(["unset"]).forEach(function(p){
         var items = byPlace[p];
         if(!items.length) return;
         items.sort(function(a,b){ return a.name.localeCompare(b.name,"vi"); });
