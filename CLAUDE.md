@@ -68,6 +68,29 @@ không phải khi code đã đúng trên GitHub. Làm đủ các bước sau:
    version-flag — tìm cách làm phép toán đó thành vô điều kiện và idempotent
    (an toàn chạy lại nhiều lần) thay vì gate bằng trạng thái.
 
+   **Cập nhật (bài học tiếp theo)**: "vô điều kiện + idempotent" chưa đủ nếu
+   phép cộng đó còn tự sinh id ngẫu nhiên (`uid()`) cho phần tử mới thêm.
+   Thực tế đã xảy ra: 2 thiết bị cùng tải trang gần nhau, cả hai cùng thấy
+   "món X còn thiếu", mỗi bên gọi `seedRecipes()` sinh `uid()` khác nhau cho
+   "món X" rồi đều `pushRecipe()` — ra 2 document khác id, cùng tên → trùng
+   lặp hiển thị trong thư viện món ăn. `topUpMissingRecipes` tự nó vẫn
+   idempotent (không tự thêm 2 lần trong CÙNG một lần chạy), nhưng 2 lần
+   chạy độc lập ở 2 nơi lại không hội tụ về cùng 1 document vì id không cố
+   định. Đã sửa bằng `slugifyName()`: id của mọi recipe trong `seedRecipes()`
+   giờ suy ra thẳng từ tên (`"r-"+slug`), không còn `uid()` — nên 2 thiết bị
+   nào cũng tính ra đúng 1 id cho "món X", ghi đè lẫn nhau thay vì tạo bản
+   mới. Thêm `dedupeRecipesByName()` (gọi cùng chỗ với `topUpMissingRecipes`)
+   để dọn các bản trùng đã lỡ lọt vào dữ liệu thật trước khi có fix này —
+   giữ bản đầu tiên, xoá các bản còn lại khỏi cloud, và chuyển hướng mọi
+   entry trong `plan` đang trỏ vào bản bị xoá sang bản được giữ, để không
+   làm rơi món khỏi thực đơn tuần của người dùng.
+
+   Bài học tổng quát: khi một phép "thêm nếu thiếu" chạy độc lập ở nhiều
+   nơi/nhiều thiết bị và tự sinh danh tính (id) cho phần tử mới, danh tính
+   đó PHẢI suy ra được (deterministic) từ nội dung — không được để ngẫu
+   nhiên quyết định, nếu không "idempotent" chỉ đúng cho một lần chạy chứ
+   không đúng khi nhiều nơi cùng chạy.
+
 3. **Push lên `main` xong** → không dừng ở đó. Xác nhận GitHub Actions
    ("pages-build-deployment") chạy xong và Success trước khi báo hoàn tất.
 

@@ -671,6 +671,17 @@
     h.needsBuy = true;
   }
 
+  // Deterministic id from a recipe's name, so every client that runs
+  // seedRecipes() computes the SAME id for "the same" recipe (see
+  // topUpMissingRecipes: without this, two devices independently deciding
+  // "this name is missing" would each mint their own random uid() and push
+  // two different documents with the same name -- an actual bug that
+  // shipped and produced duplicate entries in the recipe library).
+  function slugifyName(s){
+    return "r-"+s.replace(/đ/g,"d").replace(/Đ/g,"D")
+      .normalize("NFD").replace(/[̀-ͯ]/g,"")
+      .toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+  }
   function seedRecipes(){
     function I(name, qty, unit, cat){ return {name:name, qty:qty, unit:unit, cat:cat}; }
     return [
@@ -818,7 +829,7 @@
       {id:uid(), name:"Quả na", tag:"trang", base:3, ingredients:[ I("Quả na",3,"quả","traicay") ]},
       {id:uid(), name:"Táo", tag:"trang", base:3, ingredients:[ I("Táo",3,"quả","traicay") ]},
       {id:uid(), name:"Hoa tươi", tag:"hoa", base:3, ingredients:[ I("Hoa tươi",1,"bó","hoa") ]}
-    ];
+    ].map(function(r){ r.id = slugifyName(r.name); return r; });
   }
 
   var STORE_KEY = "bepTuan.v1";
@@ -858,6 +869,14 @@
   // the built-in seed recipes, it comes back on the next sync -- same
   // behavior this app already has for recipe-pack updates (see
   // RECIPE_PACK_VERSION above, which fully overwrites the library).
+  // Update: this DID produce real duplicates in production -- two devices
+  // independently deciding "this name is missing" each minted their own
+  // seedRecipes(), and back when that used id:uid() per recipe, each pushed
+  // a different id under the same name. Fixed by making seedRecipes() ids
+  // deterministic (slugifyName(name)), so concurrent top-ups from different
+  // devices now write the SAME document instead of two different ones. See
+  // dedupeRecipesByName() below for cleaning up duplicates that already
+  // made it into a household's data before that fix.
   function topUpMissingRecipes(s){
     var existingNames = {};
     s.recipes.forEach(function(r){ existingNames[r.name] = true; });
@@ -866,6 +885,34 @@
       if(!existingNames[r.name]){ var nr = normalizeRecipe(r); s.recipes.push(nr); added.push(nr); }
     });
     return added;
+  }
+
+  // Collapses recipes that share a name down to one (keeping the first,
+  // i.e. whichever this array happened to list first), remapping any plan
+  // entry that pointed at a removed duplicate over to the kept one so a
+  // dedupe never silently drops something from the weekly plan. Returns the
+  // removed {id, replacementId} pairs so a cloud-aware caller can also
+  // delete the now-redundant documents (see applyRemoteRecipes).
+  function dedupeRecipesByName(s){
+    var keptIdByName = {};
+    var kept = [];
+    var removed = [];
+    s.recipes.forEach(function(r){
+      if(Object.prototype.hasOwnProperty.call(keptIdByName, r.name)){
+        removed.push({ id:r.id, replacementId:keptIdByName[r.name] });
+      } else {
+        keptIdByName[r.name] = r.id;
+        kept.push(r);
+      }
+    });
+    if(!removed.length) return removed;
+    s.recipes = kept;
+    var replacementById = {};
+    removed.forEach(function(x){ replacementById[x.id] = x.replacementId; });
+    s.plan = (s.plan||[]).map(function(p){
+      return replacementById[p.recipeId] ? Object.assign({}, p, { recipeId: replacementById[p.recipeId] }) : p;
+    });
+    return removed;
   }
 
   function normalizeState(parsed){
@@ -910,6 +957,7 @@
     }
     migrateHouseholdPack(parsed);
     topUpMissingRecipes(parsed);
+    dedupeRecipesByName(parsed);
     return parsed;
   }
   function load(){
@@ -1917,16 +1965,24 @@
     },
     // Replaces state.recipes with the recipes collection's current docs,
     // then unconditionally tops up any seedRecipes() name still missing
-    // (see topUpMissingRecipes' comment for why this has no version gate).
+    // (see topUpMissingRecipes' comment for why this has no version gate),
+    // then cleans up any duplicate-by-name recipes -- including ones a
+    // pre-deterministic-id top-up already pushed to the cloud, which is why
+    // this also deletes the redundant documents instead of just hiding them
+    // locally.
     applyRemoteRecipes: function(recipesArray){
       state.recipes = (recipesArray && recipesArray.length ? recipesArray : seedRecipes()).map(normalizeRecipe);
       var addedRecipes = topUpMissingRecipes(state);
+      var removedDupes = dedupeRecipesByName(state);
       var validIds = {}; state.recipes.forEach(function(r){ validIds[r.id] = true; });
       state.plan = (state.plan||[]).filter(function(p){ return validIds[p.recipeId]; });
       persistLocal();
       renderAll();
       if(addedRecipes.length){
         addedRecipes.forEach(function(r){ if(window.ChipKitchenSync) window.ChipKitchenSync.pushRecipe(r); });
+      }
+      if(removedDupes.length){
+        removedDupes.forEach(function(x){ if(window.ChipKitchenSync && window.ChipKitchenSync.deleteRecipe) window.ChipKitchenSync.deleteRecipe(x.id); });
       }
     },
     reportSyncError: function(err){
