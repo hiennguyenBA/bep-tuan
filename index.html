@@ -401,7 +401,6 @@
       <input type="text" id="librarySearch" placeholder="Tìm món…" />
     </div>
     <div class="chip-row" id="libraryFilter">
-      <button class="chip active" data-filter="all">Tất cả</button>
       <button class="chip" data-filter="man">Món mặn</button>
       <button class="chip" data-filter="canh">Canh & rau</button>
       <button class="chip" data-filter="sang">Ăn sáng</button>
@@ -1154,12 +1153,15 @@
 
   function renderLibrary(){
     librarySearchEl.value = state.search || "";
-    document.querySelectorAll("#libraryFilter .chip").forEach(function(c){ c.classList.toggle("active", c.dataset.filter === (state.filter||"all")); });
+    // No "Tất cả" chip here on purpose -- the library always shows exactly
+    // one main tag, defaulting to the first when state.filter isn't a real
+    // tag (fresh state, or a leftover "all" from before this changed).
+    if(TAG_ORDER.indexOf(state.filter) === -1) state.filter = TAG_ORDER[0];
+    document.querySelectorAll("#libraryFilter .chip").forEach(function(c){ c.classList.toggle("active", c.dataset.filter === state.filter); });
     var subConfig = SUBTAGS[state.filter];
     var subFilterEl = document.getElementById("librarySubFilter");
     if(subConfig){
-      // No "Tất cả" chip here on purpose -- picking a main tag with
-      // sub-groups always narrows to one sub-group, defaulting to the first.
+      // Same reasoning: no "Tất cả" sub-chip, default to the first sub-group.
       if(subConfig.order.indexOf(state.subFilter) === -1) state.subFilter = subConfig.order[0];
       subFilterEl.hidden = false;
       subFilterEl.innerHTML = subConfig.order.map(function(k){
@@ -1171,7 +1173,7 @@
     }
     var q = (state.search||"").trim().toLowerCase();
     var filtered = state.recipes.filter(function(r){
-      if(state.filter !== "all" && r.tag !== state.filter) return false;
+      if(r.tag !== state.filter) return false;
       if(subConfig && r.sub !== state.subFilter) return false;
       if(q && r.name.toLowerCase().indexOf(q) === -1) return false;
       return true;
