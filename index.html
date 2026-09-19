@@ -121,6 +121,7 @@
 
   .tag{display:inline-flex;align-items:center;border-radius:var(--radius-pill);padding:2px 9px;font-size:.7rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase;}
   .tag-man{background:var(--forest-soft);color:var(--forest);}
+  .tag-xao{background:var(--clay-soft);color:var(--clay);}
   .tag-canh{background:var(--ocean-soft);color:var(--ocean);}
   .tag-sang{background:var(--gold-soft);color:var(--gold-strong);}
   .tag-trang{background:var(--plum-soft);color:var(--plum);}
@@ -132,6 +133,7 @@
   .recipe-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
   .recipe-thumb svg{width:45%;height:45%;opacity:.5;}
   .recipe-thumb.ph-man{background:var(--forest-soft);color:var(--forest);}
+  .recipe-thumb.ph-xao{background:var(--clay-soft);color:var(--clay);}
   .recipe-thumb.ph-canh{background:var(--ocean-soft);color:var(--ocean);}
   .recipe-thumb.ph-sang{background:var(--gold-soft);color:var(--gold-strong);}
   .recipe-thumb.ph-trang{background:var(--plum-soft);color:var(--plum);}
@@ -167,6 +169,7 @@
   .plan-row-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
   .plan-row-thumb svg{width:55%;height:55%;opacity:.5;}
   .plan-row-thumb.ph-man{background:var(--forest-soft);color:var(--forest);}
+  .plan-row-thumb.ph-xao{background:var(--clay-soft);color:var(--clay);}
   .plan-row-thumb.ph-canh{background:var(--ocean-soft);color:var(--ocean);}
   .plan-row-thumb.ph-sang{background:var(--gold-soft);color:var(--gold-strong);}
   .plan-row-thumb.ph-trang{background:var(--plum-soft);color:var(--plum);}
@@ -396,13 +399,14 @@
         Thêm món
       </button>
     </div>
-    <p class="hint">Món mặn, Canh &amp; rau, Ăn sáng, Tráng miệng, Hoa tươi có sẵn — bấm vào món để xem nguyên liệu, hoặc sửa/xoá theo khẩu vị nhà bạn.</p>
+    <p class="hint">Món mặn, Xào, Canh rau, Ăn sáng, Tráng miệng, Hoa tươi có sẵn — bấm vào món để xem nguyên liệu, hoặc sửa/xoá theo khẩu vị nhà bạn.</p>
     <div class="search-row">
       <input type="text" id="librarySearch" placeholder="Tìm món…" />
     </div>
     <div class="chip-row" id="libraryFilter">
       <button class="chip" data-filter="man">Món mặn</button>
-      <button class="chip" data-filter="canh">Canh & rau</button>
+      <button class="chip" data-filter="xao">Xào</button>
+      <button class="chip" data-filter="canh">Canh rau</button>
       <button class="chip" data-filter="sang">Ăn sáng</button>
       <button class="chip" data-filter="trang">Tráng miệng</button>
       <button class="chip" data-filter="hoa">Hoa tươi</button>
@@ -427,14 +431,6 @@
     </div>
 
     <div id="planGroups" style="display:flex;flex-direction:column;gap:14px;"></div>
-
-    <div class="card card-pad" style="display:flex;flex-direction:column;gap:10px;">
-      <label for="addRecipeSelect" style="font-size:.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.03em;">Thêm món vào tuần</label>
-      <div class="search-row">
-        <select id="addRecipeSelect" style="flex:1;"></select>
-        <button class="btn btn-primary" id="btnAddToPlan">Thêm</button>
-      </div>
-    </div>
   </div>
 
   <!-- HOUSEHOLD -->
@@ -530,12 +526,13 @@
 
   var TAGS = {
     man:   {label:"Món mặn",      cls:"tag-man"},
-    canh:  {label:"Canh & rau",   cls:"tag-canh"},
+    xao:   {label:"Xào",          cls:"tag-xao"},
+    canh:  {label:"Canh rau",     cls:"tag-canh"},
     sang:  {label:"Ăn sáng",      cls:"tag-sang"},
     trang: {label:"Tráng miệng",  cls:"tag-trang"},
     hoa:   {label:"Hoa tươi",     cls:"tag-hoa"}
   };
-  var TAG_ORDER = ["man","canh","sang","trang","hoa"];
+  var TAG_ORDER = ["man","xao","canh","sang","trang","hoa"];
 
   // Second-row sub-filter, only shown for tags listed here. Order controls
   // both the chip order and how "Khác" (when present) sorts last.
@@ -543,11 +540,10 @@
     man: {
       order: ["ga","lon","vit","bo","ca","trung","khac"],
       labels: {ga:"Gà", lon:"Lợn", vit:"Vịt", bo:"Bò", ca:"Cá", trung:"Trứng", khac:"Khác"}
-    },
-    canh: {
-      order: ["canhrau","xao"],
-      labels: {canhrau:"Canh rau", xao:"Xào"}
     }
+    // canh no longer has sub-groups: "xao" (stir-fry) is now its own main
+    // tag, leaving canh with only "canhrau" -- a single sub-group doesn't
+    // need a filter row of its own.
   };
 
   var CATS = {
@@ -805,7 +801,7 @@
       {id:uid(), name:"Canh mùng tơi nấu tôm khô", tag:"canh", sub:"canhrau", base:3, ingredients:[
         I("Rau mùng tơi",300,"g","rau"), I("Tôm khô",20,"g","ca"), I("Hành tím",10,"g","rau"), I("Nước mắm",10,"ml","kho")
       ]},
-      {id:uid(), name:"Rau muống xào tỏi", tag:"canh", sub:"xao", base:3, ingredients:[
+      {id:uid(), name:"Rau muống xào tỏi", tag:"xao", base:3, ingredients:[
         I("Rau muống",375,"g","rau"), I("Tỏi",15,"g","rau"), I("Dầu ăn",15,"ml","kho"), I("Nước mắm",10,"ml","kho")
       ]},
       {id:uid(), name:"Canh chua nấu mực ống", tag:"canh", sub:"canhrau", base:3, ingredients:[
@@ -825,7 +821,7 @@
         I("Bí đỏ",300,"g","rau"), I("Thịt heo băm",110,"g","thit"), I("Hành lá",15,"g","rau"),
         I("Nước mắm",10,"ml","kho"), I("Hạt nêm",8,"g","kho")
       ]},
-      {id:uid(), name:"Cà tím xào tỏi và thịt băm", tag:"canh", sub:"xao", base:3, ingredients:[
+      {id:uid(), name:"Cà tím xào tỏi và thịt băm", tag:"xao", base:3, ingredients:[
         I("Cà tím",300,"g","rau"), I("Thịt heo băm",110,"g","thit"), I("Tỏi",15,"g","rau"),
         I("Hành lá",10,"g","rau"), I("Nước mắm",15,"ml","kho"), I("Dầu ăn",10,"ml","kho")
       ]},
@@ -990,6 +986,23 @@
     return changed;
   }
 
+  // Same idea as applySubOverrides, but for the main tag itself: "Xào" used
+  // to be a sub-group under "canh" and is now its own top-level tag, so any
+  // household that already synced the old shape has these under tag:"canh"
+  // with sub:"xao". Force them onto the new tag by name.
+  var TAG_OVERRIDES_BY_NAME = {
+    "Rau muống xào tỏi": "xao",
+    "Cà tím xào tỏi và thịt băm": "xao"
+  };
+  function applyTagOverrides(s){
+    var changed = [];
+    s.recipes.forEach(function(r){
+      var forced = TAG_OVERRIDES_BY_NAME[r.name];
+      if(forced && r.tag !== forced){ r.tag = forced; r.sub = null; changed.push(r); }
+    });
+    return changed;
+  }
+
   function normalizeState(parsed){
     if(!parsed || !Array.isArray(parsed.recipes) || !parsed.recipes.length){
       return { people:3, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", subFilter:null, search:"", bannerImage:null, recipePackVersion:RECIPE_PACK_VERSION, catFixVersion:CAT_FIX_VERSION, flowerAddVersion:FLOWER_ADD_VERSION, householdPackVersion:HOUSEHOLD_PACK_VERSION };
@@ -1035,6 +1048,7 @@
     removeInvalidRecipes(parsed);
     topUpMissingRecipes(parsed);
     dedupeRecipesByName(parsed);
+    applyTagOverrides(parsed);
     backfillRecipeSub(parsed);
     applySubOverrides(parsed);
     return parsed;
@@ -1139,6 +1153,7 @@
 
   var PLACEHOLDER_ICONS = {
     man: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/></svg>',
+    xao: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12.5a8.5 8.5 0 0 0 17 0"/><path d="M3.5 12.5H1"/><path d="M8 8L7 6M12 7V4.5M16 8l1-2"/></svg>',
     canh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16a8 6.5 0 0 1-16 0Z"/><path d="M9 4c0 1-1 1-1 2s1 1 1 2M14 4c0 1-1 1-1 2s1 1 1 2"/></svg>',
     sang: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h16M5 17a7 7 0 0 1 14 0"/><path d="M2.5 20.5h19" stroke-opacity=".45"/></svg>',
     trang: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="16" r="4"/><circle cx="16" cy="15" r="3.2"/><path d="M9 12 12.5 4M15 12 13 7"/></svg>',
@@ -1287,7 +1302,7 @@
   }
 
   var planGroupsEl = document.getElementById("planGroups");
-  var PLAN_GROUP_COLOR = { man:"var(--forest)", canh:"var(--ocean)", sang:"var(--gold-strong)", trang:"var(--plum)", hoa:"var(--rose)" };
+  var PLAN_GROUP_COLOR = { man:"var(--forest)", xao:"var(--clay)", canh:"var(--ocean)", sang:"var(--gold-strong)", trang:"var(--plum)", hoa:"var(--rose)" };
 
   function planToggleBtnHtml(recipeId, isOpen){
     return '<button class="icon-btn" data-plan-toggle="'+recipeId+'" aria-label="Xem nguyên liệu">'+
@@ -1350,12 +1365,6 @@
       });
     }
 
-    var select = document.getElementById("addRecipeSelect");
-    var prevVal = select.value;
-    select.innerHTML = state.recipes.map(function(r){
-      return '<option value="'+r.id+'">'+escapeHtml(r.name)+' ('+TAGS[r.tag].label+')</option>';
-    }).join("");
-    if(prevVal && recipeById(prevVal)) select.value = prevVal;
   }
 
   planGroupsEl.addEventListener("click", function(e){
@@ -1399,11 +1408,6 @@
     if(state.people < 1) state.people = 1;
     if(state.people > 20) state.people = 20;
     save(); renderAll();
-  });
-
-  document.getElementById("btnAddToPlan").addEventListener("click", function(){
-    var select = document.getElementById("addRecipeSelect");
-    if(select.value) addToPlan(select.value);
   });
 
   // ---------- HOUSEHOLD ----------
@@ -2094,7 +2098,8 @@
       var removedInvalid = removeInvalidRecipes(state);
       var addedRecipes = topUpMissingRecipes(state);
       var removedDupes = dedupeRecipesByName(state);
-      var changedSub = backfillRecipeSub(state).concat(applySubOverrides(state));
+      var changedTag = applyTagOverrides(state);
+      var changedSub = backfillRecipeSub(state).concat(applySubOverrides(state)).concat(changedTag);
       var validIds = {}; state.recipes.forEach(function(r){ validIds[r.id] = true; });
       state.plan = (state.plan||[]).filter(function(p){ return validIds[p.recipeId]; });
       persistLocal();
