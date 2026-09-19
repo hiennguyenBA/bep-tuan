@@ -115,6 +115,9 @@
   .chip-row::-webkit-scrollbar{display:none;}
   .chip{border:1px solid var(--border);background:var(--surface);color:var(--text-muted);border-radius:var(--radius-pill);padding:5px 12px;font-size:.78rem;font-weight:600;flex:none;white-space:nowrap;}
   .chip.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-strong);}
+  .chip-row-sub{margin-top:-2px;}
+  .chip-row-sub .chip{background:transparent;border-color:transparent;padding:4px 10px;font-size:.74rem;color:var(--text-muted);}
+  .chip-row-sub .chip.active{background:var(--surface-2);border-color:var(--border);color:var(--text);}
 
   .tag{display:inline-flex;align-items:center;border-radius:var(--radius-pill);padding:2px 9px;font-size:.7rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase;}
   .tag-man{background:var(--forest-soft);color:var(--forest);}
@@ -405,6 +408,7 @@
       <button class="chip" data-filter="trang">Tráng miệng</button>
       <button class="chip" data-filter="hoa">Hoa tươi</button>
     </div>
+    <div class="chip-row chip-row-sub" id="librarySubFilter" hidden></div>
     <div id="recipeList"></div>
   </div>
 
@@ -533,6 +537,19 @@
     hoa:   {label:"Hoa tươi",     cls:"tag-hoa"}
   };
   var TAG_ORDER = ["man","canh","sang","trang","hoa"];
+
+  // Second-row sub-filter, only shown for tags listed here. Order controls
+  // both the chip order and how "Khác" (when present) sorts last.
+  var SUBTAGS = {
+    man: {
+      order: ["ga","lon","vit","bo","ca","trung","khac"],
+      labels: {ga:"Gà", lon:"Lợn", vit:"Vịt", bo:"Bò", ca:"Cá", trung:"Trứng", khac:"Khác"}
+    },
+    canh: {
+      order: ["canhrau","xao"],
+      labels: {canhrau:"Canh rau", xao:"Xào"}
+    }
+  };
 
   var CATS = {
     rau:     {label:"Rau củ",            color:"var(--forest)", soft:"var(--forest-soft)", dot:"var(--forest)"},
@@ -685,131 +702,131 @@
   function seedRecipes(){
     function I(name, qty, unit, cat){ return {name:name, qty:qty, unit:unit, cat:cat}; }
     return [
-      {id:uid(), name:"Ức gà xào lá húng quế", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Ức gà xào lá húng quế", tag:"man", sub:"ga", base:3, ingredients:[
         I("Ức gà",400,"g","thit"), I("Lá húng quế",40,"g","rau"), I("Tỏi",10,"g","rau"),
         I("Ớt",1,"quả","rau"), I("Nước mắm",15,"ml","kho"), I("Dầu ăn",15,"ml","kho"), I("Đường",5,"g","kho")
       ]},
-      {id:uid(), name:"Gà rang gừng nghệ", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Gà rang gừng nghệ", tag:"man", sub:"ga", base:3, ingredients:[
         I("Thịt gà (đùi/cánh)",400,"g","thit"), I("Gừng",30,"g","rau"), I("Nghệ tươi",15,"g","rau"),
         I("Nước mắm",20,"ml","kho"), I("Đường",10,"g","kho"), I("Hành tím",15,"g","rau")
       ]},
-      {id:uid(), name:"Lòng gà xào mướp/dưa chuột", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Lòng gà xào mướp/dưa chuột", tag:"man", sub:"ga", base:3, ingredients:[
         I("Lòng gà",400,"g","thit"), I("Mướp hoặc dưa chuột",220,"g","rau"), I("Tỏi",10,"g","rau"),
         I("Hành lá",10,"g","rau"), I("Nước mắm",10,"ml","kho"), I("Dầu ăn",10,"ml","kho")
       ]},
-      {id:uid(), name:"Bò lúc lắc", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Bò lúc lắc", tag:"man", sub:"bo", base:3, ingredients:[
         I("Thịt bò thăn",400,"g","thit"), I("Hành tây",110,"g","rau"), I("Tỏi",15,"g","rau"),
         I("Bơ",15,"g","khac"), I("Xà lách, cà chua",110,"g","rau"), I("Xì dầu",15,"ml","kho")
       ]},
-      {id:uid(), name:"Bít tết bò", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Bít tết bò", tag:"man", sub:"bo", base:3, ingredients:[
         I("Thăn bò (steak)",400,"g","thit"), I("Khoai tây",375,"g","rau"), I("Bơ",30,"g","khac"),
         I("Tỏi",15,"g","rau"), I("Hương thảo (rosemary)",5,"g","kho"), I("Muối, tiêu đen",8,"g","kho"),
         I("Bông cải xanh",225,"g","rau")
       ]},
-      {id:uid(), name:"Thịt ba chỉ quay", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Thịt ba chỉ quay", tag:"man", sub:"lon", base:3, ingredients:[
         I("Thịt ba chỉ (nguyên miếng)",400,"g","thit"), I("Ngũ vị hương",8,"g","kho"),
         I("Muối",10,"g","kho"), I("Giấm",15,"ml","kho"), I("Tỏi",15,"g","rau")
       ]},
-      {id:uid(), name:"Thịt ba chỉ rang cháy cạnh", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Thịt ba chỉ rang cháy cạnh", tag:"man", sub:"lon", base:3, ingredients:[
         I("Thịt ba chỉ",400,"g","thit"), I("Nước mắm",15,"ml","kho"), I("Đường",10,"g","kho"),
         I("Tỏi",10,"g","rau"), I("Ớt",1,"quả","rau")
       ]},
-      {id:uid(), name:"Lưỡi lợn luộc", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Lưỡi lợn luộc", tag:"man", sub:"lon", base:3, ingredients:[
         I("Lưỡi lợn",400,"g","thit"), I("Gừng",15,"g","rau"), I("Hành tím",15,"g","rau"),
         I("Sả",15,"g","rau"), I("Nước mắm chấm",20,"ml","kho")
       ]},
-      {id:uid(), name:"Thịt nọng lợn quay", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Thịt nọng lợn quay", tag:"man", sub:"lon", base:3, ingredients:[
         I("Thịt nọng lợn",400,"g","thit"), I("Ngũ vị hương",8,"g","kho"), I("Tỏi",15,"g","rau"), I("Muối",8,"g","kho")
       ]},
-      {id:uid(), name:"Thịt lợn má đào luộc", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Thịt lợn má đào luộc", tag:"man", sub:"lon", base:3, ingredients:[
         I("Thịt má đào",400,"g","thit"), I("Gừng",10,"g","rau"), I("Hành tím",10,"g","rau"), I("Muối",8,"g","kho")
       ]},
-      {id:uid(), name:"Cá saba sốt teriyaki", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Cá saba sốt teriyaki", tag:"man", sub:"ca", base:3, ingredients:[
         I("Cá saba",400,"g","ca"), I("Sốt teriyaki",45,"ml","kho"), I("Tỏi",8,"g","rau"),
         I("Gừng",8,"g","rau"), I("Mè rang",8,"g","kho")
       ]},
-      {id:uid(), name:"Cá hồi sốt chanh leo", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Cá hồi sốt chanh leo", tag:"man", sub:"ca", base:3, ingredients:[
         I("Phi lê cá hồi",400,"g","ca"), I("Chanh leo",3,"trái","rau"), I("Bơ",25,"g","khac"),
         I("Mật ong",15,"g","kho"), I("Tỏi",8,"g","rau"), I("Măng tây",225,"g","rau")
       ]},
-      {id:uid(), name:"Cá thu rim tiêu", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Cá thu rim tiêu", tag:"man", sub:"ca", base:3, ingredients:[
         I("Cá thu",400,"g","ca"), I("Tiêu",8,"g","kho"), I("Nước mắm",20,"ml","kho"),
         I("Đường",15,"g","kho"), I("Hành tím",15,"g","rau"), I("Ớt",1,"quả","rau")
       ]},
-      {id:uid(), name:"Ức gà xào ớt chuông", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Ức gà xào ớt chuông", tag:"man", sub:"ga", base:3, ingredients:[
         I("Ức gà",400,"g","thit"), I("Ớt chuông",200,"g","rau"), I("Hành tây",100,"g","rau"), I("Tỏi",10,"g","rau")
       ]},
-      {id:uid(), name:"Cánh gà chiên tỏi (BBQ chicken)", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Cánh gà chiên tỏi (BBQ chicken)", tag:"man", sub:"ga", base:3, ingredients:[
         I("Cánh gà",500,"g","thit"), I("Tỏi băm",20,"g","rau"), I("Bột chiên giòn",50,"g","kho")
       ]},
-      {id:uid(), name:"Gà hấp xé phay", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Gà hấp xé phay", tag:"man", sub:"ga", base:3, ingredients:[
         I("Gà ta",500,"g","thit"), I("Hành tây",100,"g","rau"), I("Rau răm",20,"g","rau"), I("Lá chanh",5,"g","rau")
       ]},
-      {id:uid(), name:"Vịt om sấu", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Vịt om sấu", tag:"man", sub:"vit", base:3, ingredients:[
         I("Vịt",500,"g","thit"), I("Sấu",100,"g","rau"), I("Khoai sọ",200,"g","rau"),
         I("Hành tím",20,"g","rau"), I("Gừng",15,"g","rau")
       ]},
-      {id:uid(), name:"Ngan luộc", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Ngan luộc", tag:"man", sub:"vit", base:3, ingredients:[
         I("Ngan",600,"g","thit"), I("Gừng",20,"g","rau"), I("Hành tím",15,"g","rau"), I("Sả",15,"g","rau")
       ]},
-      {id:uid(), name:"Thịt ba chỉ rang cà chua", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Thịt ba chỉ rang cà chua", tag:"man", sub:"lon", base:3, ingredients:[
         I("Thịt ba chỉ",400,"g","thit"), I("Cà chua",200,"g","rau"), I("Hành lá",15,"g","rau"), I("Tỏi",10,"g","rau")
       ]},
-      {id:uid(), name:"Thịt vai om xá xíu", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Thịt vai om xá xíu", tag:"man", sub:"lon", base:3, ingredients:[
         I("Thịt vai",400,"g","thit"), I("Sốt xá xíu",60,"g","kho"), I("Tỏi",15,"g","rau"), I("Hành tím",15,"g","rau")
       ]},
-      {id:uid(), name:"Sườn xào ớt chuông", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Sườn xào ớt chuông", tag:"man", sub:"lon", base:3, ingredients:[
         I("Sườn non",400,"g","thit"), I("Ớt chuông",200,"g","rau"), I("Hành tây",80,"g","rau"), I("Tỏi",10,"g","rau")
       ]},
-      {id:uid(), name:"Sườn rim mặn ngọt", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Sườn rim mặn ngọt", tag:"man", sub:"lon", base:3, ingredients:[
         I("Sườn non",400,"g","thit"), I("Hành tím",20,"g","rau"), I("Tỏi",15,"g","rau")
       ]},
-      {id:uid(), name:"Bò lúc lắc xào ớt chuông", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Bò lúc lắc xào ớt chuông", tag:"man", sub:"bo", base:3, ingredients:[
         I("Thịt bò thăn",400,"g","thit"), I("Ớt chuông",200,"g","rau"), I("Hành tây",100,"g","rau"), I("Tỏi",15,"g","rau")
       ]},
-      {id:uid(), name:"Bê xào xả ớt", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Bê xào xả ớt", tag:"man", sub:"bo", base:3, ingredients:[
         I("Thịt bê",400,"g","thit"), I("Sả",30,"g","rau"), I("Ớt",2,"quả","rau"), I("Tỏi",10,"g","rau")
       ]},
-      {id:uid(), name:"Trứng rán thịt băm", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Trứng rán thịt băm", tag:"man", sub:"trung", base:3, ingredients:[
         I("Trứng gà",6,"quả","khac"), I("Thịt heo băm",150,"g","thit"), I("Hành lá",15,"g","rau")
       ]},
-      {id:uid(), name:"Trứng rán lá lốt/lá mơ", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Trứng rán lá lốt/lá mơ", tag:"man", sub:"trung", base:3, ingredients:[
         I("Trứng gà",6,"quả","khac"), I("Lá lốt hoặc lá mơ",100,"g","rau"), I("Hành lá",10,"g","rau")
       ]},
-      {id:uid(), name:"Trứng sốt cà chua", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Trứng sốt cà chua", tag:"man", sub:"trung", base:3, ingredients:[
         I("Trứng gà",6,"quả","khac"), I("Cà chua",250,"g","rau"), I("Hành lá",10,"g","rau")
       ]},
-      {id:uid(), name:"Cá kho (moom)", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Cá kho (moom)", tag:"man", sub:"ca", base:3, ingredients:[
         I("Cá (trắm/cá trê)",400,"g","ca"), I("Riềng",20,"g","rau"), I("Hành tím",20,"g","rau"), I("Ớt",1,"quả","rau")
       ]},
-      {id:uid(), name:"Mỳ Ý", tag:"man", base:3, ingredients:[
+      {id:uid(), name:"Mỳ Ý", tag:"man", sub:"khac", base:3, ingredients:[
         I("Mỳ Ý (spaghetti)",300,"g","kho"), I("Thịt bò băm hoặc thịt heo băm",300,"g","thit"),
         I("Cà chua",300,"g","rau"), I("Hành tây",100,"g","rau"), I("Tỏi",15,"g","rau")
       ]},
-      {id:uid(), name:"Canh mùng tơi nấu tôm khô", tag:"canh", base:3, ingredients:[
+      {id:uid(), name:"Canh mùng tơi nấu tôm khô", tag:"canh", sub:"canhrau", base:3, ingredients:[
         I("Rau mùng tơi",300,"g","rau"), I("Tôm khô",20,"g","ca"), I("Hành tím",10,"g","rau"), I("Nước mắm",10,"ml","kho")
       ]},
-      {id:uid(), name:"Rau muống xào tỏi", tag:"canh", base:3, ingredients:[
+      {id:uid(), name:"Rau muống xào tỏi", tag:"canh", sub:"xao", base:3, ingredients:[
         I("Rau muống",375,"g","rau"), I("Tỏi",15,"g","rau"), I("Dầu ăn",15,"ml","kho"), I("Nước mắm",10,"ml","kho")
       ]},
-      {id:uid(), name:"Canh chua nấu mực ống", tag:"canh", base:3, ingredients:[
+      {id:uid(), name:"Canh chua nấu mực ống", tag:"canh", sub:"canhrau", base:3, ingredients:[
         I("Mực ống",300,"g","ca"), I("Dứa (thơm)",75,"g","rau"), I("Cà chua",110,"g","rau"),
         I("Đậu bắp",75,"g","rau"), I("Giá đỗ",75,"g","rau"), I("Me chua",20,"g","kho"),
         I("Ngò gai",10,"g","rau"), I("Nước mắm",15,"ml","kho")
       ]},
-      {id:uid(), name:"Canh chua nấu hàu", tag:"canh", base:3, ingredients:[
+      {id:uid(), name:"Canh chua nấu hàu", tag:"canh", sub:"canhrau", base:3, ingredients:[
         I("Hàu (đã tách vỏ)",225,"g","ca"), I("Dứa (thơm)",75,"g","rau"), I("Cà chua",110,"g","rau"),
         I("Đậu bắp",75,"g","rau"), I("Me chua",20,"g","kho"), I("Ngò gai",10,"g","rau")
       ]},
-      {id:uid(), name:"Canh rau cải nấu thịt băm", tag:"canh", base:3, ingredients:[
+      {id:uid(), name:"Canh rau cải nấu thịt băm", tag:"canh", sub:"canhrau", base:3, ingredients:[
         I("Cải ngọt hoặc cải xanh",300,"g","rau"), I("Thịt heo băm",110,"g","thit"),
         I("Hành tím",10,"g","rau"), I("Nước mắm",10,"ml","kho"), I("Hạt nêm",8,"g","kho")
       ]},
-      {id:uid(), name:"Canh bí đỏ nấu thịt băm", tag:"canh", base:3, ingredients:[
+      {id:uid(), name:"Canh bí đỏ nấu thịt băm", tag:"canh", sub:"canhrau", base:3, ingredients:[
         I("Bí đỏ",300,"g","rau"), I("Thịt heo băm",110,"g","thit"), I("Hành lá",15,"g","rau"),
         I("Nước mắm",10,"ml","kho"), I("Hạt nêm",8,"g","kho")
       ]},
-      {id:uid(), name:"Cà tím xào tỏi và thịt băm", tag:"canh", base:3, ingredients:[
+      {id:uid(), name:"Cà tím xào tỏi và thịt băm", tag:"canh", sub:"xao", base:3, ingredients:[
         I("Cà tím",300,"g","rau"), I("Thịt heo băm",110,"g","thit"), I("Tỏi",15,"g","rau"),
         I("Hành lá",10,"g","rau"), I("Nước mắm",15,"ml","kho"), I("Dầu ăn",10,"ml","kho")
       ]},
@@ -915,9 +932,29 @@
     return removed;
   }
 
+  // Backfills the sub-group field (see SUBTAGS) onto any recipe whose tag
+  // has sub-groups but doesn't have one set yet -- true for every recipe
+  // that existed before this feature. Deterministic and unconditional, same
+  // reasoning as topUpMissingRecipes: the answer is derived purely from the
+  // recipe's own name/tag (via seedRecipes(), the single source of truth
+  // for sub assignments), so any device computes the same value and it's
+  // safe to call on every load with no version flag and no race.
+  function backfillRecipeSub(s){
+    var subByName = {};
+    seedRecipes().forEach(function(r){ if(r.sub) subByName[r.name] = r.sub; });
+    var changed = [];
+    s.recipes.forEach(function(r){
+      if(SUBTAGS[r.tag] && !r.sub){
+        var sub = subByName[r.name] || (r.tag === "man" ? "khac" : null);
+        if(sub){ r.sub = sub; changed.push(r); }
+      }
+    });
+    return changed;
+  }
+
   function normalizeState(parsed){
     if(!parsed || !Array.isArray(parsed.recipes) || !parsed.recipes.length){
-      return { people:3, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", search:"", bannerImage:null, recipePackVersion:RECIPE_PACK_VERSION, catFixVersion:CAT_FIX_VERSION, flowerAddVersion:FLOWER_ADD_VERSION, householdPackVersion:HOUSEHOLD_PACK_VERSION };
+      return { people:3, recipes:seedRecipes(), plan:[], checked:{}, manual:[], household:seedHousehold(), openCards:{}, filter:"all", subFilter:"all", search:"", bannerImage:null, recipePackVersion:RECIPE_PACK_VERSION, catFixVersion:CAT_FIX_VERSION, flowerAddVersion:FLOWER_ADD_VERSION, householdPackVersion:HOUSEHOLD_PACK_VERSION };
     }
     var OLD_TAG_MAP = {"Việt":"man","Âu":"man"};
     parsed.recipes.forEach(function(r){ if(!TAGS[r.tag]) r.tag = OLD_TAG_MAP[r.tag] || "man"; });
@@ -927,6 +964,7 @@
     if(!parsed.checked) parsed.checked = {};
     if(!parsed.manual) parsed.manual = [];
     if(!parsed.filter) parsed.filter = "all";
+    if(!parsed.subFilter) parsed.subFilter = "all";
     if(typeof parsed.search !== "string") parsed.search = "";
     if(typeof parsed.bannerImage === "undefined") parsed.bannerImage = null;
     if(!parsed.people) parsed.people = 4;
@@ -958,6 +996,7 @@
     migrateHouseholdPack(parsed);
     topUpMissingRecipes(parsed);
     dedupeRecipesByName(parsed);
+    backfillRecipeSub(parsed);
     return parsed;
   }
   function load(){
@@ -1075,9 +1114,22 @@
   function renderLibrary(){
     librarySearchEl.value = state.search || "";
     document.querySelectorAll("#libraryFilter .chip").forEach(function(c){ c.classList.toggle("active", c.dataset.filter === (state.filter||"all")); });
+    var subConfig = SUBTAGS[state.filter];
+    var subFilterEl = document.getElementById("librarySubFilter");
+    if(subConfig){
+      subFilterEl.hidden = false;
+      subFilterEl.innerHTML = '<button class="chip'+(!state.subFilter||state.subFilter==="all"?" active":"")+'" data-subfilter="all">Tất cả</button>'+
+        subConfig.order.map(function(k){
+          return '<button class="chip'+(state.subFilter===k?" active":"")+'" data-subfilter="'+k+'">'+subConfig.labels[k]+'</button>';
+        }).join("");
+    } else {
+      subFilterEl.hidden = true;
+      subFilterEl.innerHTML = "";
+    }
     var q = (state.search||"").trim().toLowerCase();
     var filtered = state.recipes.filter(function(r){
       if(state.filter !== "all" && r.tag !== state.filter) return false;
+      if(subConfig && state.subFilter && state.subFilter !== "all" && r.sub !== state.subFilter) return false;
       if(q && r.name.toLowerCase().indexOf(q) === -1) return false;
       return true;
     });
@@ -1159,7 +1211,13 @@
     var chip = e.target.closest(".chip");
     if(!chip) return;
     state.filter = chip.dataset.filter;
-    document.querySelectorAll("#libraryFilter .chip").forEach(function(c){ c.classList.toggle("active", c===chip); });
+    state.subFilter = "all";
+    renderLibrary();
+  });
+  document.getElementById("librarySubFilter").addEventListener("click", function(e){
+    var chip = e.target.closest(".chip");
+    if(!chip) return;
+    state.subFilter = chip.dataset.subfilter;
     renderLibrary();
   });
   document.getElementById("btnAddRecipe").addEventListener("click", function(){ openRecipeModal(null); });
@@ -1653,6 +1711,14 @@
     renderModal(recipe);
   }
 
+  function subFieldHtml(tag, currentSub){
+    var cfg = SUBTAGS[tag];
+    if(!cfg) return "";
+    return '<div class="field"><label for="mSub">Nhóm nhỏ</label><select id="mSub">'+
+      cfg.order.map(function(k){ return '<option value="'+k+'"'+(currentSub===k?" selected":"")+'>'+cfg.labels[k]+'</option>'; }).join("")+
+      '</select></div>';
+  }
+
   function renderModal(recipe){
     var overlay = document.createElement("div");
     overlay.className = "modal-overlay";
@@ -1693,6 +1759,7 @@
           '<div class="field"><label for="mTag">Loại</label><select id="mTag">'+TAG_ORDER.map(function(tg){ return '<option value="'+tg+'"'+((recipe?recipe.tag:"man")===tg?" selected":"")+'>'+TAGS[tg].label+'</option>'; }).join("")+'</select></div>'+
           '<div class="field"><label for="mBase">Khẩu phần cơ bản (người)</label><input type="number" id="mBase" min="1" max="20" value="'+(recipe?recipe.base:4)+'"></div>'+
         '</div>'+
+        '<div id="mSubFieldWrap">'+subFieldHtml(recipe?recipe.tag:"man", recipe?recipe.sub:null)+'</div>'+
         '<div class="field"><label for="mGuideUrl">Link hướng dẫn (video/bài viết)</label><input type="url" id="mGuideUrl" value="'+(recipe&&recipe.guideUrl?escapeHtml(recipe.guideUrl):"")+'" placeholder="https://..."></div>'+
         '<div class="field"><label>Nguyên liệu</label><div class="ing-rows" id="ingRows">'+ingRowsHtml()+'</div>'+
           '<button type="button" class="btn btn-sm" id="mAddIng" style="align-self:flex-start;margin-top:2px;">'+
@@ -1729,6 +1796,9 @@
       draftIngredients.push({name:"",qty:"",unit:"g",cat:"rau"});
       ingRowsEl.innerHTML = ingRowsHtml();
     });
+    overlay.querySelector("#mTag").addEventListener("change", function(){
+      overlay.querySelector("#mSubFieldWrap").innerHTML = subFieldHtml(this.value, null);
+    });
 
     var photoFieldEl = overlay.querySelector("#mPhotoField");
     function wirePhotoField(){
@@ -1761,6 +1831,8 @@
       if(!name){ toast("Vui lòng nhập tên món"); return; }
       var tag = overlay.querySelector("#mTag").value;
       var base = parseInt(overlay.querySelector("#mBase").value,10) || 4;
+      var subSelect = overlay.querySelector("#mSub");
+      var sub = subSelect ? subSelect.value : null;
       var guideUrl = overlay.querySelector("#mGuideUrl").value.trim();
       if(guideUrl && !/^https?:\/\//i.test(guideUrl)) guideUrl = "https://"+guideUrl;
       var cleanIngredients = draftIngredients
@@ -1771,10 +1843,10 @@
       var savedRecipe;
       if(editingId){
         var r = recipeById(editingId);
-        r.name = name; r.tag = tag; r.base = base; r.ingredients = cleanIngredients; r.image = draftImage; r.guideUrl = guideUrl || null;
+        r.name = name; r.tag = tag; r.sub = sub; r.base = base; r.ingredients = cleanIngredients; r.image = draftImage; r.guideUrl = guideUrl || null;
         savedRecipe = r;
       } else {
-        savedRecipe = {id:uid(), name:name, tag:tag, base:base, ingredients:cleanIngredients, image:draftImage, guideUrl:guideUrl || null};
+        savedRecipe = {id:uid(), name:name, tag:tag, sub:sub, base:base, ingredients:cleanIngredients, image:draftImage, guideUrl:guideUrl || null};
         state.recipes.push(savedRecipe);
       }
       save(); renderAll();
@@ -1902,11 +1974,12 @@
   // one left sharing this doc's 1MB budget with everything else (recipe
   // photos already got their own subcollection docs for the same reason).
   // It now has its own doc too; see applyRemoteBanner / pushBanner.
-  var META_KEYS = ["people","plan","household","manual","checked","openCards","filter","search","recipePackVersion","catFixVersion","flowerAddVersion","householdPackVersion"];
+  var META_KEYS = ["people","plan","household","manual","checked","openCards","filter","subFilter","search","recipePackVersion","catFixVersion","flowerAddVersion","householdPackVersion"];
   function normalizeRecipe(r){
     if(!TAGS[r.tag]){ var m={"Việt":"man","Âu":"man"}; r.tag = m[r.tag] || "man"; }
     if(typeof r.image === "undefined") r.image = null;
     if(typeof r.guideUrl === "undefined") r.guideUrl = null;
+    if(typeof r.sub === "undefined") r.sub = null;
     if(!r.base) r.base = 3;
     if(!Array.isArray(r.ingredients)) r.ingredients = [];
     return r;
@@ -1939,6 +2012,7 @@
       if(!state.checked) state.checked = {};
       if(!state.manual) state.manual = [];
       if(!state.filter) state.filter = "all";
+      if(!state.subFilter) state.subFilter = "all";
       if(typeof state.search !== "string") state.search = "";
       if(!state.people) state.people = 3;
       var householdMigrated = migrateHouseholdPack(state);
@@ -1974,6 +2048,7 @@
       state.recipes = (recipesArray && recipesArray.length ? recipesArray : seedRecipes()).map(normalizeRecipe);
       var addedRecipes = topUpMissingRecipes(state);
       var removedDupes = dedupeRecipesByName(state);
+      var changedSub = backfillRecipeSub(state);
       var validIds = {}; state.recipes.forEach(function(r){ validIds[r.id] = true; });
       state.plan = (state.plan||[]).filter(function(p){ return validIds[p.recipeId]; });
       persistLocal();
@@ -1983,6 +2058,9 @@
       }
       if(removedDupes.length){
         removedDupes.forEach(function(x){ if(window.ChipKitchenSync && window.ChipKitchenSync.deleteRecipe) window.ChipKitchenSync.deleteRecipe(x.id); });
+      }
+      if(changedSub.length){
+        changedSub.forEach(function(r){ if(window.ChipKitchenSync) window.ChipKitchenSync.pushRecipe(r); });
       }
     },
     reportSyncError: function(err){
