@@ -1150,6 +1150,11 @@
       if(!r) return;
       var factor = (state.people / r.base) * p.times;
       r.ingredients.forEach(function(ing){
+        // Gia vị (cat "kho") không tự vào danh sách đi chợ từ công thức món --
+        // nhà đã có sẵn hầu hết gia vị, chỉ cần mua khi mục tương ứng trong
+        // "Đồ dùng" (nhóm giaVi) được đánh dấu sắp hết/đã hết, việc đó đã có
+        // sẵn ở phần "Cần mua thêm" bên dưới, không cần cộng dồn ở đây nữa.
+        if(ing.cat === "kho") return;
         var key = ing.name.trim().toLowerCase()+"||"+ing.unit.trim().toLowerCase()+"||"+ing.cat;
         if(!totals[key]) totals[key] = {name:ing.name, unit:ing.unit, cat:ing.cat, qty:0};
         totals[key].qty += ing.qty * factor;
