@@ -214,16 +214,28 @@
   .cat-head span{margin-left:auto;font-size:.76rem;color:var(--text-muted);font-variant-numeric:tabular-nums;}
   .item-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);}
   .item-row:last-child{border-bottom:none;}
-  .item-row.checked .item-name{color:var(--text-muted);text-decoration:line-through;}
+  .item-row.checked .item-name,.manual-item.checked .item-name{color:var(--text-muted);text-decoration:line-through;}
   .item-row.checked .item-qty{color:var(--text-muted);text-decoration:line-through;}
   .checkbox{width:20px;height:20px;flex:none;border-radius:6px;border:1.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;color:#fff;}
   .checkbox svg{width:13px;height:13px;opacity:0;}
-  .item-row.checked .checkbox{background:var(--accent);border-color:var(--accent);}
-  .item-row.checked .checkbox svg{opacity:1;}
+  .item-row.checked .checkbox,.manual-item.checked .checkbox{background:var(--accent);border-color:var(--accent);}
+  .item-row.checked .checkbox svg,.manual-item.checked .checkbox svg{opacity:1;}
   .item-name{flex:1;font-size:.9rem;}
   .gifted{opacity:.55;}
   .gifted .item-name{font-style:italic;}
   .gifted-note{font-size:.72rem;font-weight:400;font-style:normal;color:var(--text-muted);flex:none;}
+
+  /* "Vẫn còn" (đã có sẵn, không cần mua tuần này) / "Không mua được" (đã
+     thử nhưng không mua được) -- 2 trạng thái bổ sung cạnh "Đã mua",
+     chọn qua menu khi bấm vào dòng món, chỉ áp dụng cho tuần hiện tại. */
+  .item-row.status-have .checkbox,.manual-item.status-have .checkbox{background:var(--ocean);border-color:var(--ocean);}
+  .item-row.status-have .checkbox svg,.manual-item.status-have .checkbox svg{opacity:1;}
+  .item-row.status-have .item-name,.manual-item.status-have .item-name{color:var(--text-muted);font-style:italic;}
+  .item-row.status-unavailable .checkbox,.manual-item.status-unavailable .checkbox{background:var(--rose);border-color:var(--rose);}
+  .item-row.status-unavailable .checkbox svg,.manual-item.status-unavailable .checkbox svg{opacity:1;}
+  .item-row.status-unavailable .item-name,.manual-item.status-unavailable .item-name{color:var(--rose);text-decoration:line-through;}
+  .status-note{font-size:.72rem;font-weight:400;font-style:normal;flex:none;color:var(--text-muted);}
+  .item-row.status-unavailable .status-note,.manual-item.status-unavailable .status-note{color:var(--rose);}
 
   .place-badge{flex:none;border:1px solid var(--border);border-radius:var(--radius-pill);padding:3px 9px;font-size:.72rem;font-weight:600;background:var(--surface);color:var(--text-muted);}
   .place-badge-unset{border-style:dashed;}
@@ -1654,19 +1666,82 @@
     cyclePlaceForName(badge.dataset.placeName);
     return true;
   }
+
+  // Mỗi món trong "Đi chợ" (tuần hiện tại) có 4 trạng thái: "need" (mặc
+  // định, chưa làm gì), "bought" (đã mua), "have" (nhà vẫn còn, không cần
+  // mua tuần này), "unavailable" (đã đi mua nhưng không có). Reset về
+  // "need" khi bấm "Bắt đầu tuần mới" (state.checked = {} / state.manual
+  // xoá hết), giống hệt cơ chế reset "đã mua" trước đây -- không cần field
+  // top-level mới, không cần migration.
+  var ITEM_STATUS_LABEL = { need:"Cần mua", bought:"Đã mua", have:"Vẫn còn", unavailable:"Không mua được" };
+  var ITEM_STATUS_ORDER = ["need","bought","have","unavailable"];
+  function itemStatus(key){
+    var v = state.checked[key];
+    if(v === true) return "bought"; // dữ liệu cũ trước khi có 4 trạng thái
+    if(v === "bought" || v === "have" || v === "unavailable") return v;
+    return "need";
+  }
+  function setItemStatus(key, status){
+    if(status === "need") delete state.checked[key];
+    else state.checked[key] = status;
+    save(); renderShopping();
+  }
+  function manualStatus(m){
+    if(m.status === "bought" || m.status === "have" || m.status === "unavailable" || m.status === "need") return m.status;
+    return m.checked ? "bought" : "need"; // dữ liệu cũ trước khi có 4 trạng thái
+  }
+  function setManualStatus(mid, status){
+    var m = state.manual.find(function(x){ return x.id === mid; });
+    if(!m) return;
+    m.status = status;
+    save(); renderShopping();
+  }
+  function statusRowClass(status){
+    return status === "bought" ? " checked" : status !== "need" ? " status-"+status : "";
+  }
+  function checkboxHtml(status){
+    var path = status === "have" ? '<path d="M3 8H13"/>'
+      : status === "unavailable" ? '<path d="M4 4L12 12M12 4L4 12"/>'
+      : '<path d="M3 8L6.5 11.5L13 4.5"/>';
+    return '<div class="checkbox"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+path+'</svg></div>';
+  }
+  // Menu 4 lựa chọn, mở khi bấm vào 1 dòng món (thay cho việc chỉ tích
+  // đã mua/chưa như trước) -- dùng chung kiểu modal với showPlanMenu ở
+  // tab "Tuần này".
+  function showStatusMenu(name, current, onPick){
+    var overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.innerHTML =
+      '<div class="modal">'+
+        '<div class="modal-head"><h3>'+escapeHtml(name)+'</h3></div>'+
+        '<div class="sheet-actions">'+
+          ITEM_STATUS_ORDER.map(function(s){
+            return '<button class="btn'+(s===current?" btn-primary":"")+'" data-pick="'+s+'">'+ITEM_STATUS_LABEL[s]+'</button>';
+          }).join("")+
+        '</div>'+
+      '</div>';
+    modalRoot.innerHTML = "";
+    modalRoot.appendChild(overlay);
+    function close(){ modalRoot.innerHTML = ""; }
+    overlay.addEventListener("click", function(e){ if(e.target===overlay) close(); });
+    overlay.querySelectorAll("[data-pick]").forEach(function(btn){
+      btn.addEventListener("click", function(){ close(); onPick(btn.dataset.pick); });
+    });
+  }
   // Shared row renderer for computed ingredients and household items (both
   // are "name + qty/unit + checkbox" rows). A gifted item shows no checkbox
   // interaction and "không cần mua" instead of a quantity, since there's
   // nothing to go buy.
   function shoppingItemRowHtml(key, name, qty, unit, nameSuffixHtml){
     var gifted = isGifted(name);
-    var isChecked = !!state.checked[key];
-    var rowCls = "item-row"+(isChecked?" checked":"")+(gifted?" gifted":"");
-    var rightHtml = gifted
-      ? '<span class="item-qty gifted-note">không cần mua</span>'
+    var status = gifted ? "need" : itemStatus(key);
+    var rowCls = "item-row"+(gifted?" gifted":statusRowClass(status));
+    var rightHtml = gifted ? '<span class="item-qty gifted-note">không cần mua</span>'
+      : status === "have" ? '<span class="item-qty status-note">nhà còn</span>'
+      : status === "unavailable" ? '<span class="item-qty status-note">không mua được</span>'
       : '<span class="item-qty">'+formatQty(qty, unit)+'</span>';
     return '<div class="'+rowCls+'"'+(gifted?'':' data-check="'+key+'"')+'>'+
-      '<div class="checkbox"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8L6.5 11.5L13 4.5"/></svg></div>'+
+      checkboxHtml(status)+
       '<span class="item-name">'+escapeHtml(name)+(nameSuffixHtml||"")+'</span>'+
       placeBadgeHtml(name)+
       rightHtml+
@@ -1683,16 +1758,18 @@
 
     var hhNeeded = state.household.filter(function(h){ var s = hhStatus(h); return s==="soon" || s==="het"; });
 
-    // Progress excludes gifted items across all three sources -- there's
-    // nothing to "mua" for those, so they shouldn't count toward it.
-    var countableItems = itemList.filter(function(it){ return !isGifted(it.name); });
-    var countableManual = state.manual.filter(function(m){ return !isGifted(m.name); });
-    var countableHh = hhNeeded.filter(function(h){ return !isGifted(h.name); });
+    // Progress loại khỏi đếm: món "được cho" (place), và món tuần này đã
+    // đánh dấu "vẫn còn" hoặc "không mua được" -- coi như đã xử lý xong,
+    // không còn gì phải chủ động đi mua nữa.
+    function isResolved(status){ return status === "have" || status === "unavailable"; }
+    var countableItems = itemList.filter(function(it){ return !isGifted(it.name) && !isResolved(itemStatus(it.key)); });
+    var countableManual = state.manual.filter(function(m){ return !isGifted(m.name) && !isResolved(manualStatus(m)); });
+    var countableHh = hhNeeded.filter(function(h){ return !isGifted(h.name) && !isResolved(itemStatus("hh||"+h.id)); });
     var totalCount = countableItems.length + countableManual.length + countableHh.length;
     var checkedCount = 0;
-    countableItems.forEach(function(it){ if(state.checked[it.key]) checkedCount++; });
-    countableManual.forEach(function(m){ if(m.checked) checkedCount++; });
-    countableHh.forEach(function(h){ if(state.checked["hh||"+h.id]) checkedCount++; });
+    countableItems.forEach(function(it){ if(itemStatus(it.key) === "bought") checkedCount++; });
+    countableManual.forEach(function(m){ if(manualStatus(m) === "bought") checkedCount++; });
+    countableHh.forEach(function(h){ if(itemStatus("hh||"+h.id) === "bought") checkedCount++; });
 
     document.getElementById("progressLabel").textContent = "Đã mua "+checkedCount+"/"+totalCount;
     var pct = totalCount ? Math.round(checkedCount/totalCount*100) : 0;
@@ -1763,12 +1840,17 @@
 
     manualListEl.innerHTML = state.manual.map(function(m){
       var gifted = isGifted(m.name);
-      return '<div class="manual-item'+(gifted?" gifted":"")+'"'+(gifted?"":' data-mcheck="'+m.id+'"')+'>'+
-        '<div class="checkbox" style="'+(m.checked?"background:var(--accent);border-color:var(--accent);":"")+'">'+
-          '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:'+(m.checked?1:0)+'"><path d="M3 8L6.5 11.5L13 4.5"/></svg></div>'+
-        '<span class="item-name" style="'+(m.checked?"color:var(--text-muted);text-decoration:line-through;":"")+'">'+escapeHtml(m.name)+'</span>'+
+      var status = gifted ? "need" : manualStatus(m);
+      var rowCls = "manual-item"+(gifted?" gifted":statusRowClass(status));
+      var noteHtml = gifted ? '<span class="gifted-note">không cần mua</span>'
+        : status === "have" ? '<span class="status-note">nhà còn</span>'
+        : status === "unavailable" ? '<span class="status-note">không mua được</span>'
+        : '';
+      return '<div class="'+rowCls+'"'+(gifted?"":' data-mcheck="'+m.id+'"')+'>'+
+        checkboxHtml(status)+
+        '<span class="item-name">'+escapeHtml(m.name)+'</span>'+
         placeBadgeHtml(m.name)+
-        (gifted ? '<span class="gifted-note">không cần mua</span>' : '')+
+        noteHtml+
         '<button class="icon-btn btn-danger-text" data-mdel="'+m.id+'" aria-label="Xoá mục">'+
           '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6H16M8 6V4.5C8 4 8.4 3.5 9 3.5H11C11.6 3.5 12 4 12 4.5V6M6 6L6.6 16C6.65 16.8 7.3 17.5 8.1 17.5H11.9C12.7 17.5 13.35 16.8 13.4 16L14 6"/></svg></button>'+
       '</div>';
@@ -1787,8 +1869,8 @@
     var row = e.target.closest("[data-check]");
     if(!row) return;
     var key = row.dataset.check;
-    state.checked[key] = !state.checked[key];
-    save(); renderShopping();
+    var nameEl = row.querySelector(".item-name");
+    showStatusMenu(nameEl ? nameEl.textContent : "", itemStatus(key), function(status){ setItemStatus(key, status); });
   }
   shoppingGroupsEl.addEventListener("click", handleShoppingCheckClick);
   shoppingHouseholdEl.addEventListener("click", handleShoppingCheckClick);
@@ -1803,7 +1885,7 @@
     var row = e.target.closest("[data-mcheck]");
     if(row){
       var m = state.manual.find(function(x){ return x.id === row.dataset.mcheck; });
-      if(m){ m.checked = !m.checked; save(); renderShopping(); }
+      if(m) showStatusMenu(m.name, manualStatus(m), function(status){ setManualStatus(m.id, status); });
     }
   });
 
