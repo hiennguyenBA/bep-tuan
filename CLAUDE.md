@@ -17,6 +17,24 @@ lưu được (hoặc thấy toast "bị từ chối quyền truy cập [permiss
 đó là dấu hiệu cần họ vào Firebase console thêm rule cho path đó — không có
 cách nào tự kiểm tra hay sửa từ phía code.
 
+**Lỗi đọc dữ liệu (onSnapshot) từng bị im lặng hoàn toàn** — đã xảy ra thật:
+người dùng báo "Tuần này"/"Đi chợ" trống trơn trên mọi thiết bị (kể cả tab ẩn
+danh), điện thoại thì vẫn còn dữ liệu cũ (rất có thể do đã cache qua
+`enableIndexedDbPersistence` từ trước, không phản ánh trạng thái cloud hiện
+tại). Đào ra nguyên nhân: cả 3 listener `onSnapshot(metaRef/recipesCol/
+bannerRef, ...)` chỉ có `console.warn(err)` ở callback lỗi — không có toast
+hay dấu hiệu gì cho người dùng thấy, khác hẳn lỗi PUSH (ghi lên cloud) vốn đã
+có `reportSyncError` báo toast rõ ràng. Nghi ngờ hàng đầu cho case này: rule
+Firestore ở chế độ "test mode" tự hết hạn theo ngày (rất phổ biến với dự án
+mới), hoặc quota/billing — cả hai đều không xem/sửa được từ code, phải nhờ
+người dùng vào Firebase Console → Firestore Database → Rules kiểm tra.
+Đã thêm `window.ChipKitchenApp.reportReadError(what, err)` (toast riêng cho
+lỗi ĐỌC, phân biệt với `reportSyncError` cho lỗi GHI) và gắn vào cả 3 listener
+trên — từ giờ lỗi đọc sẽ hiện toast thay vì im lặng. Bài học: mọi
+`onSnapshot`/`setDoc`/`getDoc` mới thêm sau này đều PHẢI có error callback
+báo toast cho người dùng, không được chỉ `console.warn` — người dùng không
+mở được devtools để thấy console.
+
 ## Checklist bắt buộc trước khi báo "cập nhật xong"
 
 Một thay đổi chỉ tính là "xong" khi người dùng mở app lên là thấy ngay,

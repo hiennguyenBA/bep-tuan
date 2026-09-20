@@ -2374,6 +2374,18 @@
       } else {
         toast("Không đồng bộ lên đám mây được. Đã lưu trên máy này, sẽ tự thử lại. [mã: "+(code||"unknown")+"]", 6000);
       }
+    },
+    // Trước đây lỗi của 3 onSnapshot listener (metaRef/recipesCol/bannerRef)
+    // chỉ console.warn -- người dùng thấy app trống trơn (dữ liệu tuần này/
+    // đi chợ mất sạch) mà không có bất kỳ dấu hiệu nào là do lỗi tải dữ liệu
+    // (vd hết quyền truy cập). Giờ báo rõ bằng toast để không phải đoán mò.
+    reportReadError: function(what, err){
+      var code = err && err.code ? String(err.code) : "unknown";
+      if(code === "permission-denied"){
+        toast("Không tải được "+what+" từ đám mây — bị từ chối quyền truy cập [permission-denied]. Đang hiện dữ liệu cũ trên máy này (nếu có).", 8000);
+      } else {
+        toast("Không tải được "+what+" từ đám mây. Đang hiện dữ liệu cũ trên máy này (nếu có). [mã: "+code+"]", 8000);
+      }
     }
   };
 })();
@@ -2555,7 +2567,10 @@
         }
       }catch(e){}
       finally{ applyingRemote = false; metaReady = true; maybeMigrateLegacyRecipes(); }
-    }, function(err){ console.warn("Chip Kitchen: meta sync listener error", err); });
+    }, function(err){
+      console.warn("Chip Kitchen: meta sync listener error", err);
+      if(window.ChipKitchenApp && window.ChipKitchenApp.reportReadError) window.ChipKitchenApp.reportReadError("thực đơn/đi chợ", err);
+    });
 
     onSnapshot(recipesCol, function(snap){
       var wasEmpty = snap.empty;
@@ -2570,14 +2585,20 @@
       }
       if(recipesEmptyOnFirstLoad === null) recipesEmptyOnFirstLoad = wasEmpty;
       maybeMigrateLegacyRecipes();
-    }, function(err){ console.warn("Chip Kitchen: recipes sync listener error", err); });
+    }, function(err){
+      console.warn("Chip Kitchen: recipes sync listener error", err);
+      if(window.ChipKitchenApp && window.ChipKitchenApp.reportReadError) window.ChipKitchenApp.reportReadError("danh sách món ăn", err);
+    });
 
     onSnapshot(bannerRef, function(snap){
       var image = snap.exists() ? (snap.data().image || null) : null;
       applyingRemote = true;
       try{ window.ChipKitchenApp.applyRemoteBanner(image); }catch(e){}
       finally{ applyingRemote = false; }
-    }, function(err){ console.warn("Chip Kitchen: banner sync listener error", err); });
+    }, function(err){
+      console.warn("Chip Kitchen: banner sync listener error", err);
+      if(window.ChipKitchenApp && window.ChipKitchenApp.reportReadError) window.ChipKitchenApp.reportReadError("ảnh banner", err);
+    });
   });
 </script>
 </body>
