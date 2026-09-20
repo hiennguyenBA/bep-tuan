@@ -176,10 +176,15 @@
   .plan-row-thumb.ph-hoa{background:var(--rose-soft);color:var(--rose);}
   .plan-row-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;}
   .plan-row-info strong{font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .plan-row-info strong.plan-done-name{color:var(--text-muted);text-decoration:line-through;font-weight:600;}
   .plan-row-info span{font-size:.76rem;color:var(--text-muted);}
   .stepper{display:flex;align-items:center;gap:0;border:1px solid var(--border);border-radius:var(--radius-control);overflow:hidden;flex:none;}
   .stepper button{width:28px;height:28px;border:none;background:var(--surface-2);color:var(--text);font-size:1rem;line-height:1;}
   .stepper output{min-width:26px;text-align:center;font-variant-numeric:tabular-nums;font-weight:700;font-size:.85rem;}
+  .icon-btn.plan-done-btn{border:1.5px solid var(--border);color:var(--text-muted);}
+  .icon-btn.plan-done-btn.active{background:var(--forest);border-color:var(--forest);color:#fff;}
+  .sheet-actions{display:flex;flex-direction:column;gap:8px;}
+  .sheet-actions .btn{justify-content:flex-start;}
 
   .plan-group{overflow:hidden;border-top-width:4px;border-top-style:solid;}
   .plan-group-head{padding:12px 14px 8px;}
@@ -1342,9 +1347,18 @@
   var planGroupsEl = document.getElementById("planGroups");
   var PLAN_GROUP_COLOR = { man:"var(--forest)", xao:"var(--clay)", canh:"var(--ocean)", sang:"var(--gold-strong)", trang:"var(--plum)", hoa:"var(--rose)" };
 
-  function planToggleBtnHtml(recipeId, isOpen){
-    return '<button class="icon-btn" data-plan-toggle="'+recipeId+'" aria-label="Xem nguyên liệu">'+
-      '<svg class="chevron'+(isOpen?" open":"")+'" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7.5L10 12.5L15 7.5"/></svg></button>';
+  // Nút "Đã nấu": khi còn >1 lần dự kiến nấu trong tuần, bấm chỉ bớt đi 1
+  // (giống nút "−"); khi chỉ còn đúng 1 lần, bấm sẽ đánh dấu "đã nấu xong"
+  // (chỉ làm mờ tên món, không xoá khỏi danh sách) -- bấm lại lần nữa để
+  // huỷ đánh dấu, đóng vai trò "hoàn tác" luôn trong chính nút này.
+  function planDoneBtnHtml(p){
+    var isDone = p.times === 1 && !!p.done;
+    return '<button class="icon-btn plan-done-btn'+(isDone?" active":"")+'" data-plan-done="'+p.id+'" aria-label="'+(isDone?"Bỏ đánh dấu đã nấu":"Đã nấu")+'">'+
+      '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5L8 14.5L16 5.5"/></svg></button>';
+  }
+  function planMenuBtnHtml(pid){
+    return '<button class="icon-btn" data-plan-menu="'+pid+'" aria-label="Thêm thao tác">'+
+      '<svg viewBox="0 0 20 20" fill="currentColor"><circle cx="4" cy="10" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="16" cy="10" r="1.6"/></svg></button>';
   }
   function planIngredientsHtml(recipe, factor){
     var rows = recipe.ingredients.map(function(ing){
@@ -1382,16 +1396,17 @@
           var thumb = x.r.image
             ? '<div class="plan-row-thumb"><img src="'+x.r.image+'" alt=""></div>'
             : '<div class="plan-row-thumb ph-'+tag+'">'+PLACEHOLDER_ICONS[tag]+'</div>';
+          var nameCls = (x.p.times===1 && x.p.done) ? ' class="plan-done-name"' : '';
           return '<div class="plan-row'+(idx===0?" first":"")+'">'+
             thumb+
-            '<div class="plan-row-info"><strong>'+escapeHtml(x.r.name)+'</strong></div>'+
+            '<div class="plan-row-info"><strong'+nameCls+'>'+escapeHtml(x.r.name)+'</strong></div>'+
             '<div class="stepper" data-plan="'+x.p.id+'">'+
               '<button data-delta="-1" aria-label="Giảm lần nấu">−</button>'+
               '<output>'+x.p.times+'</output>'+
               '<button data-delta="1" aria-label="Tăng lần nấu">+</button>'+
             '</div>'+
-            planToggleBtnHtml(x.r.id, isOpen)+
-            '<button class="icon-btn btn-danger-text" data-remove-plan="'+x.p.id+'" aria-label="Bỏ khỏi tuần">'+TRASH_SVG+'</button>'+
+            planDoneBtnHtml(x.p)+
+            planMenuBtnHtml(x.p.id)+
           '</div>'+
           (isOpen ? planIngredientsHtml(x.r, factor) : '');
         }).join("");
@@ -1405,36 +1420,74 @@
 
   }
 
+  // Menu "⋮" gộp 2 thao tác ít dùng hơn của mỗi món (xem nguyên liệu, bỏ
+  // khỏi tuần), nhường chỗ hàng nút chính cho nút "Đã nấu" -- xem lựa chọn
+  // đã chốt với người dùng: gộp menu phụ thay vì chèn thêm 1 icon nữa vào
+  // hàng vốn đã chật trên màn hình nhỏ.
+  function showPlanMenu(pid){
+    var entry = state.plan.find(function(p){ return p.id === pid; });
+    var r = entry ? recipeById(entry.recipeId) : null;
+    var name = r ? r.name : "món này";
+    var overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.innerHTML =
+      '<div class="modal">'+
+        '<div class="modal-head"><h3>'+escapeHtml(name)+'</h3></div>'+
+        '<div class="sheet-actions">'+
+          '<button class="btn" id="pmView">Xem nguyên liệu</button>'+
+          '<button class="btn btn-danger-text" id="pmRemove">Bỏ khỏi tuần</button>'+
+        '</div>'+
+      '</div>';
+    modalRoot.innerHTML = "";
+    modalRoot.appendChild(overlay);
+    function close(){ modalRoot.innerHTML = ""; }
+    overlay.addEventListener("click", function(e){ if(e.target===overlay) close(); });
+    overlay.querySelector("#pmView").addEventListener("click", function(){
+      close();
+      if(!r) return;
+      state.openCards[r.id] = !state.openCards[r.id];
+      save(); renderPlan();
+    });
+    overlay.querySelector("#pmRemove").addEventListener("click", function(){
+      close();
+      showConfirm('Bỏ khỏi tuần', 'Bỏ "'+escapeHtml(name)+'" khỏi thực đơn tuần này?', "Bỏ khỏi tuần", function(){
+        state.plan = state.plan.filter(function(p){ return p.id !== pid; });
+        save(); renderAll();
+      });
+    });
+  }
+
   planGroupsEl.addEventListener("click", function(e){
     var stepBtn = e.target.closest("[data-delta]");
     if(stepBtn && stepBtn.closest("[data-plan]")){
       var pid = stepBtn.closest("[data-plan]").dataset.plan;
       var p = state.plan.find(function(x){ return x.id===pid; });
       if(p){
-        p.times += parseInt(stepBtn.dataset.delta,10);
+        var delta = parseInt(stepBtn.dataset.delta,10);
+        p.times += delta;
         if(p.times < 1) p.times = 1;
         if(p.times > 14) p.times = 14;
+        // Thêm lần nấu mới cho món đã "đã nấu xong" -> lại còn việc phải
+        // nấu, nên tự bỏ đánh dấu.
+        if(delta > 0) p.done = false;
         save(); renderAll();
       }
       return;
     }
-    var rm = e.target.closest("[data-remove-plan]");
-    if(rm){
-      var rmId = rm.dataset.removePlan;
-      var rmEntry = state.plan.find(function(p){ return p.id === rmId; });
-      var rmRecipe = rmEntry ? recipeById(rmEntry.recipeId) : null;
-      var rmName = rmRecipe ? rmRecipe.name : "món này";
-      showConfirm('Bỏ khỏi tuần', 'Bỏ "'+rmName+'" khỏi thực đơn tuần này?', "Bỏ khỏi tuần", function(){
-        state.plan = state.plan.filter(function(p){ return p.id !== rmId; });
+    var doneBtn = e.target.closest("[data-plan-done]");
+    if(doneBtn){
+      var dpid = doneBtn.dataset.planDone;
+      var dp = state.plan.find(function(x){ return x.id === dpid; });
+      if(dp){
+        if(dp.times > 1) dp.times -= 1;
+        else dp.done = !dp.done;
         save(); renderAll();
-      });
+      }
       return;
     }
-    var toggle = e.target.closest("[data-plan-toggle]");
-    if(toggle){
-      var rid = toggle.dataset.planToggle;
-      state.openCards[rid] = !state.openCards[rid];
-      save(); renderPlan();
+    var menuBtn = e.target.closest("[data-plan-menu]");
+    if(menuBtn){
+      showPlanMenu(menuBtn.dataset.planMenu);
       return;
     }
   });
