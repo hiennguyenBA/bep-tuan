@@ -17,23 +17,74 @@ lưu được (hoặc thấy toast "bị từ chối quyền truy cập [permiss
 đó là dấu hiệu cần họ vào Firebase console thêm rule cho path đó — không có
 cách nào tự kiểm tra hay sửa từ phía code.
 
-**Lỗi đọc dữ liệu (onSnapshot) từng bị im lặng hoàn toàn** — đã xảy ra thật:
-người dùng báo "Tuần này"/"Đi chợ" trống trơn trên mọi thiết bị (kể cả tab ẩn
-danh), điện thoại thì vẫn còn dữ liệu cũ (rất có thể do đã cache qua
-`enableIndexedDbPersistence` từ trước, không phản ánh trạng thái cloud hiện
-tại). Đào ra nguyên nhân: cả 3 listener `onSnapshot(metaRef/recipesCol/
-bannerRef, ...)` chỉ có `console.warn(err)` ở callback lỗi — không có toast
-hay dấu hiệu gì cho người dùng thấy, khác hẳn lỗi PUSH (ghi lên cloud) vốn đã
-có `reportSyncError` báo toast rõ ràng. Nghi ngờ hàng đầu cho case này: rule
-Firestore ở chế độ "test mode" tự hết hạn theo ngày (rất phổ biến với dự án
-mới), hoặc quota/billing — cả hai đều không xem/sửa được từ code, phải nhờ
-người dùng vào Firebase Console → Firestore Database → Rules kiểm tra.
-Đã thêm `window.ChipKitchenApp.reportReadError(what, err)` (toast riêng cho
-lỗi ĐỌC, phân biệt với `reportSyncError` cho lỗi GHI) và gắn vào cả 3 listener
-trên — từ giờ lỗi đọc sẽ hiện toast thay vì im lặng. Bài học: mọi
-`onSnapshot`/`setDoc`/`getDoc` mới thêm sau này đều PHẢI có error callback
-báo toast cho người dùng, không được chỉ `console.warn` — người dùng không
-mở được devtools để thấy console.
+**Sự cố thật đã xảy ra (2026-09-19 đến 21): "Tuần này"/"Đi chợ" mất dữ liệu
+trên diện rộng — nguyên nhân là 1 race condition thật trong dedupe món ăn,
+không phải rule/quota.** Quá trình chẩn đoán ban đầu đi sai hướng — ghi lại
+đầy đủ để không lặp lại cách đoán mò tốn thời gian đó:
+
+1. Người dùng báo "Tuần này"/"Đi chợ" trống trên MỌI thiết bị (web thường,
+   web ẩn danh, điện thoại chị giúp việc); riêng điện thoại chính chủ vẫn
+   hiện dữ liệu cũ nhưng KHÔNG sửa/xoá được gì mới.
+2. Nghi ngờ đầu tiên (rule Firestore hết hạn/quota) — **kiểm tra rồi loại
+   bỏ**: rule không hết hạn, Anonymous auth vẫn Enabled, quota Reads/Writes
+   bình thường. Nhưng mục **Deletes trong Firebase Console → Firestore
+   Database → Usage lại là ~40.000 trong 2 ngày** — bất thường nặng so với
+   quy mô 1 hộ gia đình (~45 món). Đây là manh mối đúng.
+3. Nguyên nhân thật: dữ liệu `recipes` thật trong Firestore vẫn còn ở dạng
+   ID ngẫu nhiên cũ (`msr3favs...`, từ trước khi có `slugifyName()`), CHƯA
+   từng được thật sự hội tụ về ID xác định. `dedupeRecipesByName()` (cũ)
+   chọn "giữ bản đầu tiên theo thứ tự mảng nhận từ snapshot" — nhưng
+   Firestore KHÔNG đảm bảo thứ tự ổn định giữa các lần đọc/giữa các thiết
+   bị. Khi 2-3 thiết bị cùng mở app (đúng lúc này: điện thoại chủ, điện
+   thoại chị giúp việc, web) cùng chạy hàm dedupe gần như đồng thời, mỗi
+   bên có thể thấy thứ tự khác nhau → **bên A giữ bản 1 xoá bản 2, bên B lại
+   giữ bản 2 xoá bản 1 → CẢ HAI bản cùng biến mất** → `topUpMissingRecipes()`
+   phát hiện món "thiếu" nên tạo bản thứ 3 để bù → lặp lại → ra đúng ~40K
+   lượt xoá. Mỗi lần một món tạm biến mất khỏi `state.recipes` giữa chừng
+   như vậy, code cũ trong `applyRemoteRecipes()` có 1 dòng
+   `state.plan = state.plan.filter(function(p){ return validIds[p.recipeId]; })`
+   ở CUỐI hàm — dòng này xoá LUÔN VĨNH VIỄN đúng entry "Tuần này" đang trỏ
+   tới món tạm-biến-mất đó, và chỉ cần 1 hành động bất kỳ sau đó gọi `save()`
+   (bấm nút gì cũng được) là bản plan đã bị cắt cụt này được đẩy lên cloud —
+   mất thật cho mọi thiết bị.
+4. Đã sửa 3 chỗ:
+   - `dedupeRecipesByName()`: khi có nhiều bản trùng tên, sắp xếp theo `id`
+     trước khi chọn giữ bản nào (`sort` rồi lấy phần tử đầu) — kết quả không
+     còn phụ thuộc thứ tự mảng đầu vào, mọi thiết bị luôn chọn đúng 1 bản
+     giống hệt nhau dù nhận snapshot theo thứ tự nào.
+   - `applyRemoteRecipes()`: **bỏ hẳn** dòng lọc `state.plan` theo
+     `validIds` ở cuối hàm. `removeInvalidRecipes()` và
+     `dedupeRecipesByName()` đã tự dọn/remap plan an toàn cho đúng những gì
+     CHÚNG chủ động xoá; xoá món thủ công từ thư viện cũng tự dọn plan riêng
+     (xem handler "Xoá món khỏi thư viện"). Một entry còn trỏ tới recipeId
+     tạm thời không có mặt trong `state.recipes` chỉ đơn giản KHÔNG HIỆN RA
+     (`renderPlan`/`computeShopping` đã tự bỏ qua an toàn bằng
+     `recipeById()` trả `null`) — vô hại hơn nhiều so với xoá thẳng.
+   - `onSnapshot(recipesCol, ...)`: gán `d.id` (id THẬT của Firestore
+     document) đè lên field `id` bên trong dữ liệu trước khi đưa vào
+     `applyRemoteRecipes` — trước đây tin thẳng vào field `id` bên trong dữ
+     liệu, nên 1 document rác không có field `id` (sót lại từ lần thử
+     nghiệm sentinel-doc cũ, tên `_meta`, nằm ngay trong `recipesCol`)
+     không bao giờ bị `removeInvalidRecipes()` xoá được dù bị phát hiện là
+     invalid mỗi lần chạy.
+
+   Bài học tổng quát (bổ sung cho bài học "unconditional + idempotent +
+   deterministic id" ở mục #2 bên dưới): **idempotent với chính nó là chưa
+   đủ khi hàm đó phải RA QUYẾT ĐỊNH giữa nhiều lựa chọn tương đương (ở đây:
+   "giữ bản nào") mà nhiều thiết bị cùng chạy song song** — quyết định đó
+   PHẢI là một hàm thuần tuý của nội dung (vd sort theo id) chứ không được
+   phụ thuộc thứ tự dữ liệu nhận về, nếu không các thiết bị có thể ra quyết
+   định KHÁC NHAU cho cùng một tình huống và giẫm chân lên nhau.
+
+5. Riêng lỗi ĐỌC (`onSnapshot`) từng bị im lặng hoàn toàn (chỉ
+   `console.warn`, không toast) — không phải nguyên nhân chính của sự cố
+   trên, nhưng là một lỗ hổng thật khiến việc chẩn đoán mất nhiều bước hơn
+   cần thiết (người dùng không có cách nào tự biết có lỗi). Đã thêm
+   `window.ChipKitchenApp.reportReadError(what, err)` (toast riêng cho lỗi
+   ĐỌC, phân biệt với `reportSyncError` cho lỗi GHI) và gắn vào cả 3
+   listener `onSnapshot(metaRef/recipesCol/bannerRef, ...)`. Bài học: mọi
+   `onSnapshot`/`setDoc`/`getDoc` mới thêm sau này đều PHẢI có error
+   callback báo toast cho người dùng, không được chỉ `console.warn`.
 
 ## Checklist bắt buộc trước khi báo "cập nhật xong"
 

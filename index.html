@@ -973,16 +973,29 @@
   // removed {id, replacementId} pairs so a cloud-aware caller can also
   // delete the now-redundant documents (see applyRemoteRecipes).
   function dedupeRecipesByName(s){
-    var keptIdByName = {};
+    var groups = {};
+    var order = [];
+    s.recipes.forEach(function(r){
+      if(!groups[r.name]){ groups[r.name] = []; order.push(r.name); }
+      groups[r.name].push(r);
+    });
     var kept = [];
     var removed = [];
-    s.recipes.forEach(function(r){
-      if(Object.prototype.hasOwnProperty.call(keptIdByName, r.name)){
-        removed.push({ id:r.id, replacementId:keptIdByName[r.name] });
-      } else {
-        keptIdByName[r.name] = r.id;
-        kept.push(r);
-      }
+    order.forEach(function(name){
+      var group = groups[name];
+      if(group.length === 1){ kept.push(group[0]); return; }
+      // Bug thật đã xảy ra: chọn "giữ bản đầu tiên theo thứ tự mảng nhận
+      // được từ snapshot" không an toàn khi nhiều thiết bị cùng chạy hàm
+      // này -- Firestore không đảm bảo thứ tự ổn định giữa các lần đọc, nên
+      // 2 thiết bị có thể thấy thứ tự khác nhau và mỗi bên GIỮ một bản khác
+      // nhau -> cả 2 bản cùng bị xoá (mỗi bên tưởng bản kia là bản trùng) ->
+      // topUpMissingRecipes lại tạo bản thứ 3 để bù -> lặp vô hạn (thực tế
+      // đã gây ra ~40 nghìn lượt xoá trong 2 ngày). Sắp theo id trước khi
+      // chọn để MỌI thiết bị, bất kể thứ tự snapshot, luôn chọn đúng 1 bản
+      // giống hệt nhau.
+      var sorted = group.slice().sort(function(a,b){ return a.id < b.id ? -1 : a.id > b.id ? 1 : 0; });
+      kept.push(sorted[0]);
+      for(var i=1;i<sorted.length;i++) removed.push({ id:sorted[i].id, replacementId:sorted[0].id });
     });
     if(!removed.length) return removed;
     s.recipes = kept;
@@ -2347,8 +2360,20 @@
       var removedDupes = dedupeRecipesByName(state);
       var changedTag = applyTagOverrides(state);
       var changedSub = backfillRecipeSub(state).concat(applySubOverrides(state)).concat(changedTag);
-      var validIds = {}; state.recipes.forEach(function(r){ validIds[r.id] = true; });
-      state.plan = (state.plan||[]).filter(function(p){ return validIds[p.recipeId]; });
+      // KHÔNG lọc state.plan theo "recipeId có nằm trong state.recipes hiện
+      // tại không" ở đây nữa -- từng làm vậy và gây mất dữ liệu thật: khi 2
+      // thiết bị cùng dedupe một cặp món trùng tên và bất đồng bản nào nên
+      // giữ (xem dedupeRecipesByName), có một khoảnh khắc CẢ HAI bản đều
+      // vắng mặt khỏi state.recipes -- lúc đó dòng lọc này sẽ xoá vĩnh viễn
+      // đúng dòng "Tuần này" đang trỏ tới món đó, và nếu ngay sau đó có
+      // save() nào chạy (chỉ cần bấm bất kỳ nút gì khác) thì "Tuần này" bị
+      // xoá đã được đẩy lên cloud, mất thật cho mọi thiết bị. removeInvalidRecipes
+      // và dedupeRecipesByName ở trên đã tự dọn plan an toàn cho đúng
+      // những gì CHÚNG chủ động xoá/gộp; xoá món thủ công từ thư viện cũng
+      // tự dọn plan riêng (xem "Xoá món khỏi thư viện"). Một entry còn trỏ
+      // tới recipeId không tồn tại (vd món vừa bị xoá ở máy khác, sự kiện
+      // chưa đồng bộ tới) chỉ đơn giản không hiện ra (renderPlan/computeShopping
+      // đã tự bỏ qua an toàn) -- vô hại hơn nhiều so với xoá thẳng dữ liệu.
       persistLocal();
       renderAll();
       if(removedInvalid.length){
@@ -2576,7 +2601,16 @@
       var wasEmpty = snap.empty;
       var list = [];
       var ids = [];
-      snap.forEach(function(d){ list.push(d.data()); ids.push(d.id); });
+      snap.forEach(function(d){
+        // Luôn lấy id THẬT của document Firestore, không tin vào field
+        // "id" bên trong dữ liệu -- có document rác (vd "_meta", sót lại
+        // từ một lần thử nghiệm cơ chế đồng bộ cũ) không có field "id" nên
+        // trước đây không bao giờ bị removeInvalidRecipes() xoá được.
+        var data = d.data();
+        data.id = d.id;
+        list.push(data);
+        ids.push(d.id);
+      });
       knownCloudRecipeIds = ids;
       if(!wasEmpty){
         applyingRemote = true;
