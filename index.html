@@ -1214,11 +1214,17 @@
   // (r.image), nên không đụng gì tới đường đồng bộ Firestore theo món (vốn
   // đã có lịch sử race condition -- xem CLAUDE.md). Mọi thiết bị tính ra
   // cùng 1 giá trị từ chính index.html đang chạy, không cần đồng bộ.
+  // Khoá theo TÊN món chứ không theo id: dữ liệu thật của hộ đã dùng app từ
+  // trước khi có slugifyName() (xem sự cố trong CLAUDE.md) có thể vẫn còn
+  // recipe với id ngẫu nhiên cũ (vd "msr3favs...") nếu món đó chưa từng bị
+  // trùng tên để kích hoạt dedupeRecipesByName() hội tụ id -- khoá theo id
+  // xác định (r-ga-rang-gung-nghe) sẽ không bao giờ khớp trong trường hợp
+  // đó. Tên món thì luôn ổn định bất kể lịch sử id.
   var DEFAULT_RECIPE_IMAGES = {
-    "r-ga-rang-gung-nghe": "recipe-photos/ga-rang-gung-nghe.jpg"
+    "Gà rang gừng nghệ": "recipe-photos/ga-rang-gung-nghe.jpg"
   };
   function recipeThumbHtml(r){
-    var img = r.image || DEFAULT_RECIPE_IMAGES[r.id];
+    var img = r.image || DEFAULT_RECIPE_IMAGES[r.name];
     if(img){
       return '<div class="recipe-thumb"><img src="'+img+'" alt=""></div>';
     }
@@ -1410,7 +1416,7 @@
         var rowsHtml = entries.map(function(x, idx){
           var factor = (state.people/x.r.base) * x.p.times;
           var isOpen = !!state.openCards[x.r.id];
-          var rowImg = x.r.image || DEFAULT_RECIPE_IMAGES[x.r.id];
+          var rowImg = x.r.image || DEFAULT_RECIPE_IMAGES[x.r.name];
           var thumb = rowImg
             ? '<div class="plan-row-thumb"><img src="'+rowImg+'" alt=""></div>'
             : '<div class="plan-row-thumb ph-'+tag+'">'+PLACEHOLDER_ICONS[tag]+'</div>';
