@@ -61,6 +61,19 @@
     line-height:1.5;
     -webkit-font-smoothing:antialiased;
   }
+  /* Hoa văn bếp làm nền trang trí, mờ nhẹ để không ảnh hưởng độ đọc của
+     nội dung phía trên (các card đều có nền trắng/đặc riêng). */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background-image:url('bg-pattern.png');
+    background-repeat:repeat;
+    background-size:220px auto;
+    opacity:.3;
+    z-index:-1;
+    pointer-events:none;
+  }
   #app{max-width:760px;margin:0 auto;padding:20px 16px 96px;min-height:100vh;}
   h1,h2,h3{font-family:var(--font-display);font-weight:700;text-wrap:balance;margin:0;}
   .app-header{display:flex;flex-direction:column;gap:2px;margin-bottom:20px;}
