@@ -1209,9 +1209,18 @@
     trang: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="16" r="4"/><circle cx="16" cy="15" r="3.2"/><path d="M9 12 12.5 4M15 12 13 7"/></svg>',
     hoa: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="1.6"/><circle cx="9" cy="6" r="1.8"/><circle cx="15" cy="6" r="1.8"/><circle cx="9" cy="10" r="1.8"/><circle cx="15" cy="10" r="1.8"/><path d="M12 11.5V20"/></svg>'
   };
+  // Ảnh mặc định cho vài món (file tĩnh trong repo, không phải data: URL) --
+  // chỉ dùng làm ảnh nền khi món CHƯA có ảnh riêng do người dùng tự thêm
+  // (r.image), nên không đụng gì tới đường đồng bộ Firestore theo món (vốn
+  // đã có lịch sử race condition -- xem CLAUDE.md). Mọi thiết bị tính ra
+  // cùng 1 giá trị từ chính index.html đang chạy, không cần đồng bộ.
+  var DEFAULT_RECIPE_IMAGES = {
+    "r-ga-rang-gung-nghe": "recipe-photos/ga-rang-gung-nghe.jpg"
+  };
   function recipeThumbHtml(r){
-    if(r.image){
-      return '<div class="recipe-thumb"><img src="'+r.image+'" alt=""></div>';
+    var img = r.image || DEFAULT_RECIPE_IMAGES[r.id];
+    if(img){
+      return '<div class="recipe-thumb"><img src="'+img+'" alt=""></div>';
     }
     return '<div class="recipe-thumb ph-'+r.tag+'">'+PLACEHOLDER_ICONS[r.tag]+'</div>';
   }
@@ -1401,8 +1410,9 @@
         var rowsHtml = entries.map(function(x, idx){
           var factor = (state.people/x.r.base) * x.p.times;
           var isOpen = !!state.openCards[x.r.id];
-          var thumb = x.r.image
-            ? '<div class="plan-row-thumb"><img src="'+x.r.image+'" alt=""></div>'
+          var rowImg = x.r.image || DEFAULT_RECIPE_IMAGES[x.r.id];
+          var thumb = rowImg
+            ? '<div class="plan-row-thumb"><img src="'+rowImg+'" alt=""></div>'
             : '<div class="plan-row-thumb ph-'+tag+'">'+PLACEHOLDER_ICONS[tag]+'</div>';
           var nameCls = (x.p.times===1 && x.p.done) ? ' class="plan-done-name"' : '';
           return '<div class="plan-row'+(idx===0?" first":"")+'">'+
