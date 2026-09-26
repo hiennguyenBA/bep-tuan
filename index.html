@@ -440,17 +440,6 @@
         <span class="week-pill" id="bannerWeek"></span>
       </div>
     </div>
-    <div class="card people-row">
-      <div class="label">
-        <strong>Số người trong nhà</strong>
-      </div>
-      <div class="stepper" id="peopleStepper">
-        <button data-delta="-1" aria-label="Giảm">−</button>
-        <output id="peopleValue">4</output>
-        <button data-delta="1" aria-label="Tăng">+</button>
-      </div>
-    </div>
-
     <div id="planGroups" style="display:flex;flex-direction:column;gap:14px;"></div>
   </div>
 
@@ -1390,7 +1379,8 @@
   }
 
   function renderPlan(){
-    document.getElementById("peopleValue").textContent = state.people;
+    var peopleValueEl = document.getElementById("peopleValue");
+    if(peopleValueEl) peopleValueEl.textContent = state.people;
 
     planGroupsEl.innerHTML = "";
     if(!state.plan.length){
@@ -1508,15 +1498,6 @@
       showPlanMenu(menuBtn.dataset.planMenu);
       return;
     }
-  });
-
-  document.getElementById("peopleStepper").addEventListener("click", function(e){
-    var btn = e.target.closest("[data-delta]");
-    if(!btn) return;
-    state.people += parseInt(btn.dataset.delta,10);
-    if(state.people < 1) state.people = 1;
-    if(state.people > 20) state.people = 20;
-    save(); renderAll();
   });
 
   // ---------- HOUSEHOLD ----------
@@ -2215,6 +2196,14 @@
     overlay.innerHTML =
       '<div class="modal">'+
         '<div class="modal-head"><h3>Cài đặt</h3></div>'+
+        '<div class="card people-row">'+
+          '<div class="label"><strong>Số người trong nhà</strong></div>'+
+          '<div class="stepper" id="peopleStepper">'+
+            '<button data-delta="-1" aria-label="Giảm">−</button>'+
+            '<output id="peopleValue">'+state.people+'</output>'+
+            '<button data-delta="1" aria-label="Tăng">+</button>'+
+          '</div>'+
+        '</div>'+
         '<div class="sheet-actions">'+
           '<button class="btn" id="setExport">'+
             '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4"/><path d="M4 16v.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V16"/></svg>'+
@@ -2230,6 +2219,14 @@
     overlay.addEventListener("click", function(e){ if(e.target===overlay) close(); });
     overlay.querySelector("#setExport").addEventListener("click", function(){ close(); doExportData(); });
     overlay.querySelector("#setImport").addEventListener("click", function(){ close(); doImportClick(); });
+    overlay.querySelector("#peopleStepper").addEventListener("click", function(e){
+      var btn = e.target.closest("[data-delta]");
+      if(!btn) return;
+      state.people += parseInt(btn.dataset.delta,10);
+      if(state.people < 1) state.people = 1;
+      if(state.people > 20) state.people = 20;
+      save(); renderAll();
+    });
   }
   document.getElementById("btnSettings").addEventListener("click", showSettingsMenu);
 
