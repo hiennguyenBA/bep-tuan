@@ -1,6 +1,6 @@
 // Bump this on every deploy so clients pick up the new version and drop old caches.
-const CACHE_NAME = 'chip-kitchen-v50';
-const APP_SHELL = ['./', './index.html', './manifest.json', './icon.svg', './bg-pattern.png'];
+const CACHE_NAME = 'chip-kitchen-v51';
+const APP_SHELL = ['./', './index.html', './manifest.json', './icon.svg', './bg-pattern.png', './banner-default.png'];
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

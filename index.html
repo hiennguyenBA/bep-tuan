@@ -77,8 +77,10 @@
   #app{max-width:760px;margin:0 auto;padding:20px 16px 96px;min-height:100vh;}
   h1,h2,h3{font-family:var(--font-display);font-weight:700;text-wrap:balance;margin:0;}
   .app-header{display:flex;flex-direction:column;gap:2px;margin-bottom:20px;}
+  .app-header-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
   .app-header h1{font-size:1.75rem;letter-spacing:-.01em;color:var(--accent-strong);}
   .app-header p{margin:0;color:var(--text-muted);font-size:.9rem;}
+  .app-header .icon-btn{border:1px solid var(--border);flex:none;}
 
   .tabs{position:fixed;left:0;right:0;bottom:0;display:flex;gap:2px;background:var(--surface);border:none;border-top:1px solid var(--border);border-radius:0;padding:6px 6px calc(6px + env(safe-area-inset-bottom, 0px));margin:0 auto;max-width:760px;z-index:40;box-shadow:0 -2px 12px rgba(42,32,19,.08);}
   .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 2px;border:none;background:transparent;border-radius:12px;color:var(--text-muted);font:inherit;font-size:.66rem;font-weight:600;cursor:pointer;}
@@ -88,9 +90,6 @@
   .tab-btn.active .tab-label{color:var(--text);}
   .tab-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
   .tab-badge{position:absolute;top:-3px;right:-6px;background:var(--clay);color:#fff;font-size:.6rem;font-weight:700;border-radius:var(--radius-pill);padding:0 4px;min-width:14px;height:14px;line-height:14px;text-align:center;font-variant-numeric:tabular-nums;}
-
-  .sync-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
-  .sync-row .btn{color:var(--text-muted);}
 
   .panel{display:none;flex-direction:column;gap:16px;}
   .panel.active{display:flex;}
@@ -346,8 +345,6 @@
       top:44px;
     }
     .app-main{flex:1;min-width:0;}
-    .sync-row{flex-direction:column;align-items:stretch;margin-bottom:0;}
-    .sync-row .btn{justify-content:flex-start;}
     .tabs{
       position:static;
       flex-direction:column;
@@ -382,19 +379,12 @@
 <div id="app">
  <div class="app-sidebar">
   <div class="app-header">
-    <h1>Chip Kitchen</h1>
-    <p>Lên thực đơn cả tuần, tự động gộp thành danh sách đi chợ.</p>
-  </div>
-
-  <div class="sync-row">
-    <button class="btn btn-sm" id="btnExport">
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4"/><path d="M4 16v.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V16"/></svg>
-      Xuất dữ liệu
-    </button>
-    <button class="btn btn-sm" id="btnImport">
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17V7M6 11l4-4 4 4"/><path d="M4 16v.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V16"/></svg>
-      Nhập dữ liệu
-    </button>
+    <div class="app-header-row">
+      <h1>Chip Kitchen</h1>
+      <button class="icon-btn" id="btnSettings" aria-label="Cài đặt">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="2.6"/><path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.1 4.9l-1.4 1.4M6.3 13.7l-1.4 1.4M15.1 15.1l-1.4-1.4M6.3 6.3L4.9 4.9"/></svg>
+      </button>
+    </div>
     <input type="file" id="importFile" accept="application/json,.json" style="display:none;" />
   </div>
 
@@ -2208,7 +2198,7 @@
     }
   }
 
-  document.getElementById("btnExport").addEventListener("click", function(){
+  function doExportData(){
     var payload = JSON.stringify(state, null, 2);
     var filename = "chip-kitchen-"+new Date().toISOString().slice(0,10)+".json";
     if(window.claude && window.claude.downloads){
@@ -2221,11 +2211,38 @@
     } else {
       fallbackDownload(filename, payload);
     }
-  });
+  }
 
-  document.getElementById("btnImport").addEventListener("click", function(){
+  function doImportClick(){
     document.getElementById("importFile").click();
-  });
+  }
+
+  // Menu "Cài đặt" gộp Xuất/Nhập dữ liệu (trước đây là 2 nút riêng ở đầu
+  // trang) -- dùng chung kiểu modal với showPlanMenu/showStatusMenu.
+  function showSettingsMenu(){
+    var overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.innerHTML =
+      '<div class="modal">'+
+        '<div class="modal-head"><h3>Cài đặt</h3></div>'+
+        '<div class="sheet-actions">'+
+          '<button class="btn" id="setExport">'+
+            '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4"/><path d="M4 16v.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V16"/></svg>'+
+            ' Xuất dữ liệu</button>'+
+          '<button class="btn" id="setImport">'+
+            '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17V7M6 11l4-4 4 4"/><path d="M4 16v.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V16"/></svg>'+
+            ' Nhập dữ liệu</button>'+
+        '</div>'+
+      '</div>';
+    modalRoot.innerHTML = "";
+    modalRoot.appendChild(overlay);
+    function close(){ modalRoot.innerHTML = ""; }
+    overlay.addEventListener("click", function(e){ if(e.target===overlay) close(); });
+    overlay.querySelector("#setExport").addEventListener("click", function(){ close(); doExportData(); });
+    overlay.querySelector("#setImport").addEventListener("click", function(){ close(); doImportClick(); });
+  }
+  document.getElementById("btnSettings").addEventListener("click", showSettingsMenu);
+
   document.getElementById("importFile").addEventListener("change", function(e){
     var file = e.target.files[0];
     if(!file) return;
@@ -2259,7 +2276,7 @@
     return d1+" tháng "+m1+" - "+d2+" tháng "+m2;
   }
   function renderBanner(){
-    bannerMediaEl.innerHTML = state.bannerImage ? '<img src="'+state.bannerImage+'" alt="">' : "";
+    bannerMediaEl.innerHTML = '<img src="'+(state.bannerImage || 'banner-default.png')+'" alt="">';
     document.getElementById("bannerWeek").textContent = getWeekRangeLabel();
   }
   document.getElementById("btnBannerEdit").addEventListener("click", function(){
