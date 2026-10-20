@@ -1,6 +1,6 @@
 # Chip Kitchen — Danh sách chức năng
 
-Cập nhật lần cuối: 20/10/2026 (đối chiếu với code và lịch sử thay đổi trên GitHub đến bản `chip-kitchen-v58`)
+Cập nhật lần cuối: 20/10/2026 (đối chiếu với code và lịch sử thay đổi trên GitHub đến bản `chip-kitchen-v59`)
 
 **Ký hiệu:** ✅ đã làm · 🔧 đã làm nhưng cần bạn kiểm tra/xác nhận · 🔲 dự kiến làm · 💡 đề xuất (chưa bàn kỹ với bạn)
 
