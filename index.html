@@ -140,10 +140,12 @@
   .tag-hoa{background:var(--rose-soft);color:var(--rose);}
 
   #recipeList{display:flex;flex-direction:column;gap:8px;}
-  .recipe-card{padding:10px 12px;display:flex;flex-direction:column;gap:6px;}
-  .recipe-thumb{width:60px;height:60px;border-radius:12px;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;background:var(--surface-2);}
-  .recipe-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
-  .recipe-thumb svg{width:45%;height:45%;opacity:.5;}
+  .recipe-card{padding:0;display:flex;flex-direction:column;overflow:hidden;}
+  .recipe-main{display:flex;align-items:stretch;}
+  .recipe-body{flex:1;min-width:0;padding:10px 12px;display:flex;flex-direction:column;gap:8px;}
+  .recipe-thumb{position:relative;width:116px;min-height:112px;align-self:stretch;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;background:var(--surface-2);cursor:pointer;}
+  .recipe-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+  .recipe-thumb svg{width:34%;height:34%;opacity:.5;}
   .recipe-thumb.ph-man{background:var(--forest-soft);color:var(--forest);}
   .recipe-thumb.ph-xao{background:var(--clay-soft);color:var(--clay);}
   .recipe-thumb.ph-canh{background:var(--ocean-soft);color:var(--ocean);}
@@ -157,18 +159,22 @@
   .section-title-main{display:flex;align-items:center;gap:8px;}
   .week-pill{background:var(--surface-2);color:var(--text);font-weight:700;font-size:.78rem;padding:4px 12px;border-radius:var(--radius-pill);font-variant-numeric:tabular-nums;}
 
-  .recipe-card-top{display:flex;align-items:center;gap:10px;cursor:pointer;}
+  .recipe-card-top{display:flex;align-items:flex-start;gap:6px;cursor:pointer;}
   .recipe-card-title{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;}
-  .recipe-card-title strong{font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .recipe-meta{color:var(--text-muted);font-size:.74rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .chevron{width:16px;height:16px;color:var(--text-muted);flex:none;transition:transform .15s ease;}
+  .recipe-card-title strong{font-size:.95rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .recipe-meta{color:var(--text-muted);font-size:.76rem;line-height:1.35;}
+  .chevron{width:16px;height:16px;color:var(--text-muted);flex:none;margin-top:2px;transition:transform .15s ease;}
   .recipe-card.open .chevron,.chevron.open{transform:rotate(180deg);}
-  .ing-preview{display:none;border-top:1px dashed var(--border);padding-top:8px;margin-top:2px;}
+  .ing-preview{display:none;border-top:1px dashed var(--border);padding:8px 12px 10px;}
   .recipe-card.open .ing-preview{display:block;}
   .ing-preview ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;}
   .ing-preview li{display:flex;justify-content:space-between;gap:10px;font-size:.83rem;color:var(--text-muted);}
   .ing-preview li span:last-child{font-variant-numeric:tabular-nums;color:var(--text);}
-  .recipe-card-actions{display:flex;align-items:center;gap:6px;}
+  .recipe-card-actions{display:flex;align-items:center;justify-content:flex-end;gap:2px;margin-top:auto;}
+  .recipe-card-actions .icon-btn{width:32px;height:32px;}
+  .btn-add-week{display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 14px;margin-left:6px;border-radius:var(--radius-pill);border:1px solid #E6C3AB;background:var(--accent-soft);color:var(--accent-strong);font-size:.82rem;font-weight:600;white-space:nowrap;}
+  .btn-add-week svg{width:15px;height:15px;}
+  .btn-add-week:active{background:#EBCDB6;}
 
   .plan-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-top:1px solid var(--border);}
   .plan-row.first{border-top:none;}
@@ -361,7 +367,7 @@
     .tab-badge{position:static;margin-left:auto;padding:1px 6px;height:auto;line-height:normal;}
     .chip-row{flex-wrap:wrap;overflow-x:visible;margin:0;padding-left:0;padding-right:0;}
     #panel-plan, #panel-household{max-width:640px;}
-    #recipeList{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;align-items:start;}
+    #recipeList{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px;align-items:start;}
     #recipeList .empty-state{grid-column:1/-1;}
     .shopping-layout{flex-direction:row;align-items:flex-start;gap:24px;}
     .shopping-main{flex:1;min-width:0;max-width:640px;}
@@ -1271,19 +1277,17 @@
         return '<li><span>'+escapeHtml(ing.name)+'</span><span>'+formatQty(ing.qty, ing.unit)+'</span></li>';
       }).join("");
       card.innerHTML =
+        '<div class="recipe-main">'+
+        '<div class="recipe-thumb-wrap" data-toggle="'+r.id+'" style="display:flex;flex:none;">'+recipeThumbHtml(r)+'</div>'+
+        '<div class="recipe-body">'+
         '<div class="recipe-card-top" data-toggle="'+r.id+'">'+
-          recipeThumbHtml(r)+
           '<div class="recipe-card-title">'+
-            '<span class="tag '+TAGS[r.tag].cls+'">'+TAGS[r.tag].label+'</span>'+
             '<strong>'+escapeHtml(r.name)+'</strong>'+
             '<span class="recipe-meta">'+r.ingredients.length+' nguyên liệu · khẩu phần cơ bản '+r.base+' người</span>'+
           '</div>'+
           '<svg class="chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7.5L10 12.5L15 7.5"/></svg>'+
         '</div>'+
-        '<div class="ing-preview"><ul>'+ingRows+'</ul></div>'+
         '<div class="recipe-card-actions">'+
-          '<button class="btn btn-sm btn-primary" data-add-plan="'+r.id+'">'+
-            '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 4V16M4 10H16"/></svg> Thêm vào tuần</button>'+
           (isHttpUrl(r.guideUrl) ?
             '<a class="icon-btn" href="'+escapeHtml(r.guideUrl)+'" target="_blank" rel="noopener noreferrer" aria-label="Xem hướng dẫn nấu">'+
               '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 11.5L11.5 8.5M8 6.5L9 5.5C10.1 4.4 11.9 4.4 13 5.5C14.1 6.6 14.1 8.4 13 9.5L12 10.5M12 13.5L11 14.5C9.9 15.6 8.1 15.6 7 14.5C5.9 13.4 5.9 11.6 7 10.5L8 9.5"/></svg></a>'
@@ -1292,7 +1296,12 @@
             '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3.5L16.5 6.5L7 16H4V13L13.5 3.5Z"/></svg></button>'+
           '<button class="icon-btn btn-danger-text" data-del="'+r.id+'" aria-label="Xoá món">'+
             '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6H16M8 6V4.5C8 4 8.4 3.5 9 3.5H11C11.6 3.5 12 4 12 4.5V6M6 6L6.6 16C6.65 16.8 7.3 17.5 8.1 17.5H11.9C12.7 17.5 13.35 16.8 13.4 16L14 6"/></svg></button>'+
-        '</div>';
+          '<button class="btn-add-week" data-add-plan="'+r.id+'">'+
+            '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 4V16M4 10H16"/></svg> Thêm vào tuần</button>'+
+        '</div>'+
+        '</div>'+
+        '</div>'+
+        '<div class="ing-preview"><ul>'+ingRows+'</ul></div>';
       recipeListEl.appendChild(card);
     });
   }

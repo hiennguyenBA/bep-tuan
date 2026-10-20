@@ -1,6 +1,6 @@
 # Chip Kitchen — Danh sách chức năng
 
-Cập nhật lần cuối: 19/10/2026 (đối chiếu với code và lịch sử thay đổi trên GitHub đến bản `chip-kitchen-v56`)
+Cập nhật lần cuối: 20/10/2026 (đối chiếu với code và lịch sử thay đổi trên GitHub đến bản `chip-kitchen-v57`)
 
 **Ký hiệu:** ✅ đã làm · 🔧 đã làm nhưng cần bạn kiểm tra/xác nhận · 🔲 dự kiến làm · 💡 đề xuất (chưa bàn kỹ với bạn)
 
@@ -39,7 +39,7 @@ Cập nhật lần cuối: 19/10/2026 (đối chiếu với code và lịch sử
 | 2.8 | Upload ảnh món từ điện thoại/máy tính, tự nén ảnh | ✅ |
 | 2.9 | Chưa có ảnh → hiện icon minh hoạ theo nhóm; một số món có ảnh mặc định sẵn trong app (đang thử với "Gà rang gừng nghệ") | 🔧 |
 | 2.10 | Link hướng dẫn nấu (video/bài viết) cho từng món, có nút mở nhanh trên thẻ món | ✅ |
-| 2.11 | Thẻ món thu gọn để thấy nhiều món hơn trên một màn hình; bấm để mở nguyên liệu | ✅ |
+| 2.11 | Thẻ món: ảnh to bên trái cao hết thẻ, không có nhãn nhóm, nút Link hướng dẫn · Sửa · Xoá · "Thêm vào tuần" (kiểu viên thuốc nhạt) căn phải cho tay phải; bấm vào thẻ để mở nguyên liệu | 🔧 mới đổi 20/10, cần kiểm tra trên máy thật |
 | 2.12 | Tự bổ sung món có sẵn còn thiếu, tự dọn món bị trùng tên (id cố định theo tên) | ✅ |
 | 2.13 | Ảnh món tỉ lệ 4:3 | ✅ |
 
