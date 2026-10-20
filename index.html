@@ -944,9 +944,33 @@
     return removedIds;
   }
 
+  // Món có sẵn bị người dùng xoá (hoặc đổi tên) được ghi lại bằng một
+  // "bia mộ" (tombstone) NGAY TRONG recipesCol -- 1 document cùng hình dạng
+  // món ăn + deleted:true -- thay vì xoá hẳn document. Lý do: topUpMissingRecipes
+  // chạy vô điều kiện và tự thêm lại mọi món có sẵn mà tên không còn trong
+  // thư viện, nên xoá thật sẽ khiến món "sống lại" ngay ở lần đồng bộ sau.
+  // Đặt bia mộ trong CÙNG collection với món ăn (không đặt ở doc meta) để
+  // đi chung 1 listener onSnapshot -- không có race giữa 2 listener độc lập
+  // như CLAUDE.md đã cảnh báo. applyRemoteRecipes tách bia mộ ra khỏi
+  // state.recipes và lưu tên vào state.deletedSeedNames (chỉ lưu local, suy
+  // ra lại từ snapshot mỗi lần).
+  var seedNameSet = null;
+  function isSeedName(name){
+    if(!seedNameSet){ seedNameSet = {}; seedRecipes().forEach(function(r){ seedNameSet[r.name] = true; }); }
+    return !!seedNameSet[name];
+  }
+  function tombstoneFor(id, name){
+    return {id:id, name:name, tag:"man", sub:null, base:3, ingredients:[], image:null, guideUrl:null, deleted:true};
+  }
+  function addDeletedSeedName(name){
+    if(!state.deletedSeedNames) state.deletedSeedNames = [];
+    if(state.deletedSeedNames.indexOf(name) === -1) state.deletedSeedNames.push(name);
+  }
+
   function topUpMissingRecipes(s){
     var existingNames = {};
     s.recipes.forEach(function(r){ existingNames[r.name] = true; });
+    (s.deletedSeedNames||[]).forEach(function(n){ existingNames[n] = true; });
     var added = [];
     seedRecipes().forEach(function(r){
       if(!existingNames[r.name]){ var nr = normalizeRecipe(r); s.recipes.push(nr); added.push(nr); }
@@ -1327,10 +1351,16 @@
       var delRecipe = recipeById(rid);
       var delName = delRecipe ? delRecipe.name : "món này";
       showConfirm("Xoá món khỏi thư viện", 'Xoá hẳn "'+delName+'" cùng công thức của nó? Không thể hoàn tác.', "Xoá món", function(){
+        var isSeed = delRecipe && isSeedName(delRecipe.name);
         state.recipes = state.recipes.filter(function(r){ return r.id !== rid; });
         state.plan = state.plan.filter(function(p){ return p.recipeId !== rid; });
+        if(isSeed) addDeletedSeedName(delName);
         save(); renderAll();
-        if(window.ChipKitchenSync && window.ChipKitchenSync.deleteRecipe) window.ChipKitchenSync.deleteRecipe(rid);
+        if(window.ChipKitchenSync){
+          // Món có sẵn: ghi bia mộ đè lên document cũ để nó không bị tự thêm lại.
+          if(isSeed && window.ChipKitchenSync.pushRecipe) window.ChipKitchenSync.pushRecipe(tombstoneFor(rid, delName));
+          else if(window.ChipKitchenSync.deleteRecipe) window.ChipKitchenSync.deleteRecipe(rid);
+        }
         toast("Đã xoá món khỏi thư viện");
       });
       return;
@@ -2149,6 +2179,10 @@
       var savedRecipe;
       if(editingId){
         var r = recipeById(editingId);
+        // Đổi tên 1 món có sẵn: nếu không làm gì, tên gốc không còn trong thư
+        // viện nên topUpMissingRecipes sẽ thêm lại 1 bản "gốc" bên cạnh bản đã đổi tên.
+        var renamedSeed = (r.name !== name && isSeedName(r.name)) ? r.name : null;
+        if(renamedSeed) addDeletedSeedName(renamedSeed);
         r.name = name; r.tag = tag; r.sub = sub; r.base = base; r.ingredients = cleanIngredients; r.image = draftImage; r.guideUrl = guideUrl || null;
         savedRecipe = r;
       } else {
@@ -2156,7 +2190,10 @@
         state.recipes.push(savedRecipe);
       }
       save(); renderAll();
-      if(window.ChipKitchenSync && window.ChipKitchenSync.pushRecipe) window.ChipKitchenSync.pushRecipe(savedRecipe);
+      if(window.ChipKitchenSync && window.ChipKitchenSync.pushRecipe){
+        window.ChipKitchenSync.pushRecipe(savedRecipe);
+        if(renamedSeed) window.ChipKitchenSync.pushRecipe(tombstoneFor("x-"+slugifyName(renamedSeed), renamedSeed));
+      }
       closeModal();
       toast(editingId ? "Đã lưu thay đổi" : "Đã thêm món mới");
     });
@@ -2266,7 +2303,12 @@
       showConfirm("Nhập dữ liệu", "Dữ liệu hiện tại trên thiết bị này sẽ bị thay thế bằng nội dung trong file đã chọn. Tiếp tục?", "Ghi đè", function(){
         state = normalizeState(data);
         save(); renderAll();
-        if(window.ChipKitchenSync && window.ChipKitchenSync.syncAllRecipes) window.ChipKitchenSync.syncAllRecipes(state.recipes);
+        // syncAllRecipes xoá mọi document không có trong file -- kể cả bia mộ
+        // món có sẵn đã xoá -- nên ghi lại bia mộ cho các tên còn trong file,
+        // nếu không sau khi nhập các món đó sẽ tự hiện lại.
+        var tombs = (state.deletedSeedNames||[]).filter(function(n){ return typeof n === "string" && n; })
+          .map(function(n){ return tombstoneFor("x-"+slugifyName(n), n); });
+        if(window.ChipKitchenSync && window.ChipKitchenSync.syncAllRecipes) window.ChipKitchenSync.syncAllRecipes(state.recipes.concat(tombs));
         toast("Đã nhập dữ liệu thành công");
       });
     };
@@ -2385,7 +2427,14 @@
     // this also deletes the redundant documents instead of just hiding them
     // locally.
     applyRemoteRecipes: function(recipesArray){
-      state.recipes = (recipesArray && recipesArray.length ? recipesArray : seedRecipes()).map(normalizeRecipe);
+      // Tách "bia mộ" (xem isSeedName/tombstoneFor) ra khỏi danh sách món thật.
+      var liveRecipes = [], tombNames = {};
+      (recipesArray || []).forEach(function(r){
+        if(r && r.deleted === true){ if(typeof r.name === "string" && r.name) tombNames[r.name] = true; }
+        else liveRecipes.push(r);
+      });
+      state.deletedSeedNames = Object.keys(tombNames);
+      state.recipes = (recipesArray && recipesArray.length ? liveRecipes : seedRecipes()).map(normalizeRecipe);
       var removedInvalid = removeInvalidRecipes(state);
       var addedRecipes = topUpMissingRecipes(state);
       var removedDupes = dedupeRecipesByName(state);

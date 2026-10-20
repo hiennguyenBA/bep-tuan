@@ -169,3 +169,18 @@ không phải khi code đã đúng trên GitHub. Làm đủ các bước sau:
    xem có bị tụt về bản cũ không (chính là triệu chứng của lỗi #2).
 
 Chỉ báo "xong" với người dùng sau khi cả 4 bước trên đều ổn.
+
+## Xoá/đổi tên món có sẵn (seed) — bia mộ (tombstone)
+
+`topUpMissingRecipes()` tự thêm lại mọi món có sẵn mà tên không còn trong
+thư viện, nên xoá thật một món seed (hoặc đổi tên nó) làm món gốc "sống lại"
+ở lần đồng bộ sau (lỗi thật 2026-10-20: không xoá được "Thịt vai om xá xíu").
+Cách xử lý: xoá món seed = ghi đè document của nó bằng 1 "bia mộ" cùng hình
+dạng món ăn + `deleted:true` (`tombstoneFor()`); đổi tên món seed = ghi thêm
+bia mộ id `x-<slug tên cũ>`. Bia mộ nằm CÙNG `recipesCol` (cùng 1 listener,
+tránh race 2 listener như mục #2). `applyRemoteRecipes` tách bia mộ ra khỏi
+`state.recipes`, lưu tên vào `state.deletedSeedNames`; `topUpMissingRecipes`
+bỏ qua các tên đó. Nhập JSON ghi lại bia mộ sau `syncAllRecipes`. Món
+không phải seed vẫn xoá thật bằng `deleteDoc`. Nếu sau này toast
+`permission-denied` khi xoá món seed: rule Firestore có thể kiểm tra hình
+dạng document — cần xem lại rule trong Firebase console.

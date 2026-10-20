@@ -1,6 +1,6 @@
 # Chip Kitchen — Danh sách chức năng
 
-Cập nhật lần cuối: 20/10/2026 (đối chiếu với code và lịch sử thay đổi trên GitHub đến bản `chip-kitchen-v57`)
+Cập nhật lần cuối: 20/10/2026 (đối chiếu với code và lịch sử thay đổi trên GitHub đến bản `chip-kitchen-v58`)
 
 **Ký hiệu:** ✅ đã làm · 🔧 đã làm nhưng cần bạn kiểm tra/xác nhận · 🔲 dự kiến làm · 💡 đề xuất (chưa bàn kỹ với bạn)
 
@@ -42,6 +42,7 @@ Cập nhật lần cuối: 20/10/2026 (đối chiếu với code và lịch sử
 | 2.11 | Thẻ món: ảnh to bên trái cao hết thẻ, không có nhãn nhóm, nút Link hướng dẫn · Sửa · Xoá · "Thêm vào tuần" (kiểu viên thuốc nhạt) căn phải cho tay phải; bấm vào thẻ để mở nguyên liệu | 🔧 mới đổi 20/10, cần kiểm tra trên máy thật |
 | 2.12 | Tự bổ sung món có sẵn còn thiếu, tự dọn món bị trùng tên (id cố định theo tên) | ✅ |
 | 2.13 | Ảnh món tỉ lệ 4:3 | ✅ |
+| 2.14 | Xoá (hoặc đổi tên) món có sẵn thì món gốc không tự hiện lại nữa (ghi "bia mộ" trong danh sách món trên đám mây) | 🔧 mới sửa 20/10, cần kiểm tra trên máy thật |
 
 ## 3. Đi chợ ("Đi chợ")
 
