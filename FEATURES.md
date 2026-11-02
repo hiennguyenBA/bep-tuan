@@ -86,6 +86,7 @@ Cập nhật lần cuối: 20/10/2026 (đối chiếu với code và lịch sử
 | 5.7 | Thông báo nhỏ (toast) khi lưu/đồng bộ lỗi, kèm mã lỗi để báo lại cho Claude | ✅ |
 | 5.8 | Toàn bộ giao diện bằng tiếng Việt | ✅ |
 | 5.9 | Đổi/bỏ ảnh banner bằng tay | 🔧 đã bỏ nút đổi ảnh ở bản 26/9 — banner nay là ảnh mặc định; bạn xác nhận có muốn thêm lại không |
+| 5.10 | Chuyển đổi Việt/Anh (nút trong menu Cài đặt): dịch toàn bộ giao diện, kể cả tên 45 món ăn và tên nguyên liệu/đơn vị; lưu riêng theo từng thiết bị (không đồng bộ lên đám mây) | ✅ |
 
 ## 6. Đồng bộ & dữ liệu
 

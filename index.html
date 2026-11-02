@@ -382,7 +382,7 @@
   <div class="app-header">
     <div class="app-header-row">
       <h1>Chip Kitchen</h1>
-      <button class="icon-btn" id="btnSettings" aria-label="Cài đặt">
+      <button class="icon-btn" id="btnSettings" aria-label="Cài đặt" data-i18n-aria="settingsAria">
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="2.6"/><path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.1 4.9l-1.4 1.4M6.3 13.7l-1.4 1.4M15.1 15.1l-1.4-1.4M6.3 6.3L4.9 4.9"/></svg>
       </button>
     </div>
@@ -392,19 +392,19 @@
   <div class="tabs" role="tablist">
     <button class="tab-btn" data-tab="plan" role="tab">
       <span class="tab-icon-wrap"><svg viewBox="0 0 24 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9H20"/><path d="M8 3V6"/><path d="M16 3V6"/></svg></span>
-      <span class="tab-label">Tuần này</span>
+      <span class="tab-label" data-i18n="tabPlan">Tuần này</span>
     </button>
     <button class="tab-btn" data-tab="library" role="tab">
       <span class="tab-icon-wrap"><svg viewBox="0 0 24 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5C4 4.67 4.67 4 5.5 4H11V17H5.5C4.67 17 4 16.33 4 15.5V5.5Z"/><path d="M20 5.5C20 4.67 19.33 4 18.5 4H13V17H18.5C19.33 17 20 16.33 20 15.5V5.5Z"/></svg></span>
-      <span class="tab-label">Món ăn</span>
+      <span class="tab-label" data-i18n="tabLibrary">Món ăn</span>
     </button>
     <button class="tab-btn" data-tab="household" role="tab">
       <span class="tab-icon-wrap"><svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H13V5.5L15 8V18.5C15 19.3 14.3 20 13.5 20H8.5C7.7 20 7 19.3 7 18.5V8L9 5.5V3Z"/><path d="M7.5 11.5H14.5"/></svg><span class="tab-badge" id="householdBadge">0</span></span>
-      <span class="tab-label">Đồ dùng</span>
+      <span class="tab-label" data-i18n="tabHousehold">Đồ dùng</span>
     </button>
     <button class="tab-btn" data-tab="shopping" role="tab">
       <span class="tab-icon-wrap"><svg viewBox="0 0 24 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4H6L8.2 14.2C8.35 14.95 9.01 15.5 9.78 15.5H17.3C18.05 15.5 18.7 14.98 18.87 14.25L20.4 7.5H6.4"/><circle cx="10" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/></svg><span class="tab-badge" id="shoppingBadge">0</span></span>
-      <span class="tab-label">Đi chợ</span>
+      <span class="tab-label" data-i18n="tabShopping">Đi chợ</span>
     </button>
   </div>
  </div>
@@ -417,14 +417,14 @@
   <!-- LIBRARY -->
   <div class="panel" id="panel-library">
     <div class="section-title">
-      <h2>Thư viện món ăn</h2>
+      <h2 data-i18n="libraryTitle">Thư viện món ăn</h2>
       <button class="btn btn-primary btn-sm" id="btnAddRecipe">
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 4V16M4 10H16"/></svg>
-        Thêm món
+        <span data-i18n="addRecipeBtn">Thêm món</span>
       </button>
     </div>
     <div class="search-row">
-      <input type="text" id="librarySearch" placeholder="Tìm món…" />
+      <input type="text" id="librarySearch" placeholder="Tìm món…" data-i18n-placeholder="searchPlaceholder" />
     </div>
     <div class="chip-row" id="libraryFilter">
       <button class="chip" data-filter="man">Món mặn</button>
@@ -442,7 +442,7 @@
   <div class="panel" id="panel-plan">
     <div class="section-title">
       <div class="section-title-main">
-        <h2>Thực đơn tuần này</h2>
+        <h2 data-i18n="planTitle">Thực đơn tuần này</h2>
         <span class="week-pill" id="bannerWeek"></span>
       </div>
     </div>
@@ -451,40 +451,40 @@
 
   <!-- HOUSEHOLD -->
   <div class="panel" id="panel-household">
-    <div class="section-title"><h2>Đồ dùng cần refill</h2></div>
-    <p class="hint">Điền "Ngày bắt đầu dùng" khi mở món mới — app sẽ ước tính khi nào sắp hết dựa trên số ngày dùng lần trước, và tự đưa vào danh sách đi chợ.</p>
+    <div class="section-title"><h2 data-i18n="householdTitle">Đồ dùng cần refill</h2></div>
+    <p class="hint" data-i18n="householdHint">Điền "Ngày bắt đầu dùng" khi mở món mới — app sẽ ước tính khi nào sắp hết dựa trên số ngày dùng lần trước, và tự đưa vào danh sách đi chợ.</p>
     <div class="card hh-summary" id="hhSummary">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6.5V11"/><circle cx="10" cy="14" r=".6" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="7.3"/></svg>
       <p id="hhSummaryText">Mọi thứ đều ổn.</p>
     </div>
     <div id="householdList" style="display:flex;flex-direction:column;gap:10px;"></div>
     <div class="card card-pad" style="display:flex;flex-direction:column;gap:8px;">
-      <label for="hhInput" style="font-size:.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.03em;">Thêm mục khác</label>
-      <input type="text" id="hhInput" placeholder="Ví dụ: Nước xả vải…" />
+      <label for="hhInput" style="font-size:.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.03em;" data-i18n="addOtherLabel">Thêm mục khác</label>
+      <input type="text" id="hhInput" placeholder="Ví dụ: Nước xả vải…" data-i18n-placeholder="hhInputPlaceholder" />
       <div style="display:flex;gap:8px;">
-        <input type="number" id="hhSizeQty" min="0" step="any" placeholder="SL" value="1" style="width:70px;" />
-        <input type="text" id="hhSizeUnit" placeholder="đơn vị (kg, lít, chai…)" style="flex:1;" />
+        <input type="number" id="hhSizeQty" min="0" step="any" placeholder="SL" value="1" style="width:70px;" data-i18n-placeholder="qtyPlaceholder" />
+        <input type="text" id="hhSizeUnit" placeholder="đơn vị (kg, lít, chai…)" style="flex:1;" data-i18n-placeholder="unitPlaceholderHint" />
       </div>
       <div style="display:flex;gap:8px;">
         <select id="hhCatSelect" style="flex:1;">
-          <option value="gaoNguCoc">Gạo & ngũ cốc</option>
-          <option value="giaVi">Gia vị & nêm nếm</option>
-          <option value="doKho">Đồ khô & đóng hộp</option>
-          <option value="sua">Sữa & chế phẩm từ sữa</option>
-          <option value="doUong">Đồ uống</option>
-          <option value="veSinhNha">Đồ vệ sinh nhà cửa</option>
-          <option value="veSinhCaNhan">Đồ vệ sinh cá nhân</option>
-          <option value="nhaBepTieuHao">Đồ dùng nhà bếp tiêu hao</option>
-          <option value="anVat">Đồ ăn vặt & tráng miệng</option>
+          <option value="gaoNguCoc" data-hcat="gaoNguCoc">Gạo & ngũ cốc</option>
+          <option value="giaVi" data-hcat="giaVi">Gia vị & nêm nếm</option>
+          <option value="doKho" data-hcat="doKho">Đồ khô & đóng hộp</option>
+          <option value="sua" data-hcat="sua">Sữa & chế phẩm từ sữa</option>
+          <option value="doUong" data-hcat="doUong">Đồ uống</option>
+          <option value="veSinhNha" data-hcat="veSinhNha">Đồ vệ sinh nhà cửa</option>
+          <option value="veSinhCaNhan" data-hcat="veSinhCaNhan">Đồ vệ sinh cá nhân</option>
+          <option value="nhaBepTieuHao" data-hcat="nhaBepTieuHao">Đồ dùng nhà bếp tiêu hao</option>
+          <option value="anVat" data-hcat="anVat">Đồ ăn vặt & tráng miệng</option>
         </select>
-        <button class="btn btn-primary" id="btnAddHousehold">Thêm</button>
+        <button class="btn btn-primary" id="btnAddHousehold" data-i18n="addBtn">Thêm</button>
       </div>
     </div>
   </div>
 
   <!-- SHOPPING -->
   <div class="panel" id="panel-shopping">
-    <div class="section-title"><h2>Danh sách đi chợ</h2></div>
+    <div class="section-title"><h2 data-i18n="shoppingTitle">Danh sách đi chợ</h2></div>
     <div class="shopping-layout">
       <div class="shopping-main">
         <div class="card progress-wrap">
@@ -496,34 +496,34 @@
         </div>
 
         <div class="chip-row" id="shoppingViewToggle">
-          <button class="chip" data-view="category">Theo loại thực phẩm</button>
-          <button class="chip" data-view="place">Theo nơi mua</button>
+          <button class="chip" data-view="category" data-i18n="byCategoryChip">Theo loại thực phẩm</button>
+          <button class="chip" data-view="place" data-i18n="byPlaceChip">Theo nơi mua</button>
         </div>
 
         <div class="list-actions">
           <button class="btn" id="btnCopyList">
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="10" height="11" rx="1.5"/><path d="M14 6V4.5C14 3.67 13.33 3 12.5 3H5.5C4.67 3 4 3.67 4 4.5V13.5C4 14.33 4.67 15 5.5 15H6"/></svg>
-            Sao chép danh sách
+            <span data-i18n="copyListBtn">Sao chép danh sách</span>
           </button>
           <button class="btn" id="btnNewWeek">
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10a6 6 0 1 1 1.8 4.3M4 10V6M4 10h4"/></svg>
-            Bắt đầu tuần mới
+            <span data-i18n="newWeekBtn">Bắt đầu tuần mới</span>
           </button>
         </div>
 
         <div id="shoppingGroups" style="display:flex;flex-direction:column;gap:14px;"></div>
 
-        <p class="bottom-note">Danh sách được tính từ thực đơn ở tab "Tuần này". Bấm vào từng mục khi đã bỏ vào giỏ.</p>
+        <p class="bottom-note" data-i18n="shoppingBottomNote">Danh sách được tính từ thực đơn ở tab "Tuần này". Bấm vào từng mục khi đã bỏ vào giỏ.</p>
       </div>
 
       <div class="shopping-side">
         <div class="card shopping-side-card" id="shoppingHousehold"></div>
 
         <div class="manual-section">
-          <strong style="font-size:.85rem;">Tự thêm mục khác</strong>
+          <strong style="font-size:.85rem;" data-i18n="manualSectionTitle">Tự thêm mục khác</strong>
           <div class="manual-add-row">
-            <input type="text" id="manualInput" placeholder="Ví dụ: giấy ăn, trái cây tráng miệng…" />
-            <button class="btn btn-sm" id="btnAddManual">Thêm</button>
+            <input type="text" id="manualInput" placeholder="Ví dụ: giấy ăn, trái cây tráng miệng…" data-i18n-placeholder="manualInputPlaceholder" />
+            <button class="btn btn-sm" id="btnAddManual" data-i18n="addBtn">Thêm</button>
           </div>
           <div id="manualList" style="display:flex;flex-direction:column;gap:8px;"></div>
         </div>
@@ -546,12 +546,12 @@
   var FRUIT_INGREDIENT_NAMES = ["Chuối","Quả na","Táo","Trái cây tươi (chuối/berry)"];
 
   var TAGS = {
-    man:   {label:"Món mặn",      cls:"tag-man"},
-    xao:   {label:"Xào",          cls:"tag-xao"},
-    canh:  {label:"Canh rau",     cls:"tag-canh"},
-    sang:  {label:"Ăn sáng",      cls:"tag-sang"},
-    trang: {label:"Tráng miệng",  cls:"tag-trang"},
-    hoa:   {label:"Hoa tươi",     cls:"tag-hoa"}
+    man:   {label:"Món mặn",      labelEn:"Savory mains",  cls:"tag-man"},
+    xao:   {label:"Xào",          labelEn:"Stir-fries",    cls:"tag-xao"},
+    canh:  {label:"Canh rau",     labelEn:"Soups",         cls:"tag-canh"},
+    sang:  {label:"Ăn sáng",      labelEn:"Breakfast",     cls:"tag-sang"},
+    trang: {label:"Tráng miệng",  labelEn:"Desserts",      cls:"tag-trang"},
+    hoa:   {label:"Hoa tươi",     labelEn:"Fresh flowers", cls:"tag-hoa"}
   };
   var TAG_ORDER = ["man","xao","canh","sang","trang","hoa"];
 
@@ -560,7 +560,8 @@
   var SUBTAGS = {
     man: {
       order: ["ga","lon","vit","bo","ca","trung","khac"],
-      labels: {ga:"Gà", lon:"Lợn", vit:"Vịt", bo:"Bò", ca:"Cá", trung:"Trứng", khac:"Khác"}
+      labels: {ga:"Gà", lon:"Lợn", vit:"Vịt", bo:"Bò", ca:"Cá", trung:"Trứng", khac:"Khác"},
+      labelsEn: {ga:"Chicken", lon:"Pork", vit:"Duck", bo:"Beef", ca:"Fish", trung:"Egg", khac:"Other"}
     }
     // canh no longer has sub-groups: "xao" (stir-fry) is now its own main
     // tag, leaving canh with only "canhrau" -- a single sub-group doesn't
@@ -568,13 +569,13 @@
   };
 
   var CATS = {
-    rau:     {label:"Rau củ",            color:"var(--forest)", soft:"var(--forest-soft)", dot:"var(--forest)"},
-    traicay: {label:"Trái cây",          soft:"var(--plum-soft)",  dot:"var(--plum)"},
-    hoa:     {label:"Hoa tươi",          soft:"var(--gold-soft)",  dot:"var(--gold)"},
-    thit:    {label:"Thịt",              soft:"var(--rose-soft)",  dot:"var(--rose)"},
-    ca:      {label:"Cá & hải sản",      soft:"var(--ocean-soft)", dot:"var(--ocean)"},
-    khac:    {label:"Trứng, sữa & khác", soft:"var(--slate-soft)", dot:"var(--slate)"},
-    kho:     {label:"Gia vị & đồ khô",   soft:"var(--amber-soft)", dot:"var(--amber)"}
+    rau:     {label:"Rau củ",            labelEn:"Vegetables",          color:"var(--forest)", soft:"var(--forest-soft)", dot:"var(--forest)"},
+    traicay: {label:"Trái cây",          labelEn:"Fruit",               soft:"var(--plum-soft)",  dot:"var(--plum)"},
+    hoa:     {label:"Hoa tươi",          labelEn:"Fresh flowers",       soft:"var(--gold-soft)",  dot:"var(--gold)"},
+    thit:    {label:"Thịt",              labelEn:"Meat",                soft:"var(--rose-soft)",  dot:"var(--rose)"},
+    ca:      {label:"Cá & hải sản",      labelEn:"Fish & seafood",      soft:"var(--ocean-soft)", dot:"var(--ocean)"},
+    khac:    {label:"Trứng, sữa & khác", labelEn:"Eggs, dairy & other", soft:"var(--slate-soft)", dot:"var(--slate)"},
+    kho:     {label:"Gia vị & đồ khô",   labelEn:"Pantry & spices",     soft:"var(--amber-soft)", dot:"var(--amber)"}
   };
   var CAT_ORDER = ["thit","ca","rau","traicay","hoa","khac","kho"];
   var COUNT_UNITS = ["quả","trái","miếng","củ","lá","cây","muỗng"];
@@ -584,29 +585,468 @@
   // entries -- tag "Trứng gà" once, it applies everywhere that name shows
   // up). "gifted" means "don't need to buy this", not a place to go.
   var PLACES = {
-    market:     {label:"Chợ",       dot:"var(--clay)"},
-    supermarket:{label:"Siêu thị",  dot:"var(--ocean)"},
-    gofood:     {label:"Gofood",    dot:"var(--gold)"},
-    moom:       {label:"Moom",      dot:"var(--plum)"},
-    gifted:     {label:"Được cho",  dot:"var(--slate)"}
+    market:     {label:"Chợ",       labelEn:"Market",       dot:"var(--clay)"},
+    supermarket:{label:"Siêu thị",  labelEn:"Supermarket",  dot:"var(--ocean)"},
+    gofood:     {label:"Gofood",    labelEn:"Gofood",       dot:"var(--gold)"},
+    moom:       {label:"Moom",      labelEn:"Moom",         dot:"var(--plum)"},
+    gifted:     {label:"Được cho",  labelEn:"Gifted",       dot:"var(--slate)"}
   };
   // Display/cycle order. "unset" (chưa chọn nơi mua) is appended after this
   // list wherever groups are rendered, so it always shows last.
   var PLACE_ORDER = ["market","supermarket","gofood","moom","gifted"];
 
   var HCATS = {
-    gaoNguCoc:     {label:"Gạo & ngũ cốc",             dot:"var(--gold)",   soft:"var(--gold-soft)"},
-    giaVi:         {label:"Gia vị & nêm nếm",           dot:"var(--amber)",  soft:"var(--amber-soft)"},
-    doKho:         {label:"Đồ khô & đóng hộp",          dot:"var(--clay)",   soft:"var(--clay-soft)"},
-    sua:           {label:"Sữa & chế phẩm từ sữa",      dot:"var(--slate)",  soft:"var(--slate-soft)"},
-    doUong:        {label:"Đồ uống",                    dot:"var(--ocean)",  soft:"var(--ocean-soft)"},
-    veSinhNha:     {label:"Đồ vệ sinh nhà cửa",         dot:"var(--plum)",   soft:"var(--plum-soft)"},
-    veSinhCaNhan:  {label:"Đồ vệ sinh cá nhân",         dot:"var(--rose)",   soft:"var(--rose-soft)"},
-    nhaBepTieuHao: {label:"Đồ dùng nhà bếp tiêu hao",   dot:"var(--forest)", soft:"var(--forest-soft)"},
-    anVat:         {label:"Đồ ăn vặt & tráng miệng",    dot:"var(--accent)", soft:"var(--accent-soft)"}
+    gaoNguCoc:     {label:"Gạo & ngũ cốc",             labelEn:"Rice & grains",          dot:"var(--gold)",   soft:"var(--gold-soft)"},
+    giaVi:         {label:"Gia vị & nêm nếm",           labelEn:"Seasonings & spices",    dot:"var(--amber)",  soft:"var(--amber-soft)"},
+    doKho:         {label:"Đồ khô & đóng hộp",          labelEn:"Dry & canned goods",     dot:"var(--clay)",   soft:"var(--clay-soft)"},
+    sua:           {label:"Sữa & chế phẩm từ sữa",      labelEn:"Milk & dairy",           dot:"var(--slate)",  soft:"var(--slate-soft)"},
+    doUong:        {label:"Đồ uống",                    labelEn:"Drinks",                 dot:"var(--ocean)",  soft:"var(--ocean-soft)"},
+    veSinhNha:     {label:"Đồ vệ sinh nhà cửa",         labelEn:"Household cleaning",     dot:"var(--plum)",   soft:"var(--plum-soft)"},
+    veSinhCaNhan:  {label:"Đồ vệ sinh cá nhân",         labelEn:"Personal care",          dot:"var(--rose)",   soft:"var(--rose-soft)"},
+    nhaBepTieuHao: {label:"Đồ dùng nhà bếp tiêu hao",   labelEn:"Kitchen consumables",    dot:"var(--forest)", soft:"var(--forest-soft)"},
+    anVat:         {label:"Đồ ăn vặt & tráng miệng",    labelEn:"Snacks & treats",        dot:"var(--accent)", soft:"var(--accent-soft)"}
   };
   var HCAT_ORDER = ["gaoNguCoc","giaVi","doKho","sua","doUong","veSinhNha","veSinhCaNhan","nhaBepTieuHao","anVat"];
   var DAY_MS = 86400000;
+
+  // ---------- I18N (VI/EN display toggle) ----------
+  // Pure display layer: a per-device preference (localStorage only, never
+  // synced to Firestore -- see CLAUDE.md's rules about the sync machinery).
+  // Recipe/ingredient identity and every stored field stay Vietnamese no
+  // matter what LANG is; these dictionaries only affect what's RENDERED.
+  var LANG_KEY = "chipKitchen.lang";
+  var LANG = (function(){
+    try{ return localStorage.getItem(LANG_KEY) === "en" ? "en" : "vi"; }catch(e){ return "vi"; }
+  })();
+
+  // One entry per recipe name in seedRecipes() (45 dishes).
+  var RECIPE_NAME_EN = {
+    "Ức gà xào lá húng quế": "Chicken Breast Stir-Fried with Thai Basil",
+    "Gà rang gừng nghệ": "Ginger Turmeric Fried Chicken",
+    "Lòng gà xào mướp/dưa chuột": "Stir-Fried Chicken Giblets with Loofah or Cucumber",
+    "Bò lúc lắc": "Shaking Beef",
+    "Bít tết bò": "Beef Steak",
+    "Thịt ba chỉ quay": "Crispy Roast Pork Belly",
+    "Thịt ba chỉ rang cháy cạnh": "Caramelized Crispy-Edge Pork Belly",
+    "Lưỡi lợn luộc": "Boiled Pork Tongue",
+    "Thịt nọng lợn quay": "Roast Pork Jowl",
+    "Thịt lợn má đào luộc": "Boiled Pork Cheek",
+    "Cá saba sốt teriyaki": "Teriyaki Saba Mackerel",
+    "Cá hồi sốt chanh leo": "Salmon with Passion Fruit Sauce",
+    "Cá thu rim tiêu": "Peppered Braised Mackerel",
+    "Ức gà xào ớt chuông": "Chicken Breast Stir-Fried with Bell Peppers",
+    "Cánh gà chiên tỏi (BBQ chicken)": "Garlic Fried Chicken Wings (BBQ Chicken)",
+    "Gà hấp xé phay": "Steamed Shredded Chicken Salad",
+    "Vịt om sấu": "Duck Stewed with Sour Sấu Fruit",
+    "Ngan luộc": "Boiled Muscovy Duck",
+    "Thịt ba chỉ rang cà chua": "Pork Belly Braised with Tomato",
+    "Thịt vai om xá xíu": "Char Siu-Style Braised Pork Shoulder",
+    "Sườn xào ớt chuông": "Stir-Fried Ribs with Bell Peppers",
+    "Sườn rim mặn ngọt": "Sweet and Savory Braised Ribs",
+    "Bò lúc lắc xào ớt chuông": "Shaking Beef with Bell Peppers",
+    "Bê xào xả ớt": "Stir-Fried Veal with Lemongrass and Chili",
+    "Trứng rán thịt băm": "Fried Egg with Minced Pork",
+    "Trứng rán lá lốt/lá mơ": "Fried Egg with Lolot or Mơ Leaves",
+    "Trứng sốt cà chua": "Tomato Fried Egg",
+    "Cá kho (moom)": "Braised Catfish",
+    "Mỳ Ý": "Spaghetti",
+    "Canh mùng tơi nấu tôm khô": "Malabar Spinach Soup with Dried Shrimp",
+    "Rau muống xào tỏi": "Garlic Stir-Fried Water Spinach",
+    "Canh chua nấu mực ống": "Sour Squid Soup",
+    "Canh chua nấu hàu": "Sour Oyster Soup",
+    "Canh rau cải nấu thịt băm": "Leafy Greens Soup with Minced Pork",
+    "Canh bí đỏ nấu thịt băm": "Pumpkin Soup with Minced Pork",
+    "Cà tím xào tỏi và thịt băm": "Stir-Fried Eggplant with Garlic and Minced Pork",
+    "Yến mạch ngâm sữa chua": "Overnight Oats with Yogurt",
+    "Trứng ốp": "Fried Eggs, Sunny Side Up",
+    "Bánh mỳ nướng bơ": "Buttered Toast",
+    "Chuối": "Banana",
+    "Kem": "Ice Cream",
+    "Sữa chua": "Yogurt",
+    "Quả na": "Custard Apple",
+    "Táo": "Apple",
+    "Hoa tươi": "Fresh Flowers"
+  };
+
+  // One entry per unique ingredient name across all recipes, plus every
+  // household-item name (both lists together are far fewer than the 188
+  // raw ingredient mentions in seedRecipes()).
+  var INGREDIENT_NAME_EN = {
+    "Bánh mì sandwich": "Sandwich bread",
+    "Bí đỏ": "Pumpkin",
+    "Bông cải xanh": "Broccoli",
+    "Bơ": "Butter",
+    "Bột chiên giòn": "Crispy frying flour",
+    "Chanh leo": "Passion fruit",
+    "Chuối": "Banana",
+    "Cà chua": "Tomato",
+    "Cà tím": "Eggplant",
+    "Cá (trắm/cá trê)": "Fish (grass carp or catfish)",
+    "Cá saba": "Saba mackerel",
+    "Cá thu": "Mackerel",
+    "Cánh gà": "Chicken wings",
+    "Cải ngọt hoặc cải xanh": "Bok choy or mustard greens",
+    "Dầu ăn": "Cooking oil",
+    "Dứa (thơm)": "Pineapple",
+    "Giá đỗ": "Bean sprouts",
+    "Giấm": "Vinegar",
+    "Gà ta": "Free-range chicken",
+    "Gừng": "Ginger",
+    "Hoa tươi": "Fresh flowers",
+    "Hành lá": "Scallion",
+    "Hành tây": "Onion",
+    "Hành tím": "Shallot",
+    "Hàu (đã tách vỏ)": "Oysters, shelled",
+    "Hương thảo (rosemary)": "Rosemary",
+    "Hạt nêm": "Seasoning powder",
+    "Kem (hộp)": "Ice cream",
+    "Khoai sọ": "Taro",
+    "Khoai tây": "Potato",
+    "Lá chanh": "Lime leaves",
+    "Lá húng quế": "Thai basil leaves",
+    "Lá lốt hoặc lá mơ": "Lolot or mơ leaves",
+    "Lòng gà": "Chicken giblets",
+    "Lưỡi lợn": "Pork tongue",
+    "Me chua": "Tamarind",
+    "Muối": "Salt",
+    "Muối tiêu": "Salt and pepper",
+    "Muối, tiêu đen": "Salt, black pepper",
+    "Mè rang": "Toasted sesame seeds",
+    "Măng tây": "Asparagus",
+    "Mướp hoặc dưa chuột": "Loofah or cucumber",
+    "Mật ong": "Honey",
+    "Mứt hoặc mật ong": "Jam or honey",
+    "Mực ống": "Squid",
+    "Mỳ Ý (spaghetti)": "Spaghetti",
+    "Ngan": "Muscovy duck",
+    "Nghệ tươi": "Fresh turmeric",
+    "Ngò gai": "Culantro (sawtooth coriander)",
+    "Ngũ vị hương": "Five-spice powder",
+    "Nước mắm": "Fish sauce",
+    "Nước mắm chấm": "Dipping fish sauce",
+    "Phi lê cá hồi": "Salmon fillet",
+    "Quả na": "Custard apple",
+    "Rau muống": "Water spinach",
+    "Rau mùng tơi": "Malabar spinach",
+    "Rau răm": "Vietnamese coriander",
+    "Riềng": "Galangal",
+    "Sườn non": "Pork ribs",
+    "Sả": "Lemongrass",
+    "Sấu": "Sấu fruit (dracontomelon)",
+    "Sốt teriyaki": "Teriyaki sauce",
+    "Sốt xá xíu": "Char siu sauce",
+    "Sữa chua": "Yogurt",
+    "Sữa tươi": "Fresh milk",
+    "Thăn bò (steak)": "Beef tenderloin (steak)",
+    "Thịt ba chỉ": "Pork belly",
+    "Thịt ba chỉ (nguyên miếng)": "Pork belly, whole piece",
+    "Thịt bê": "Veal",
+    "Thịt bò băm hoặc thịt heo băm": "Ground beef or ground pork",
+    "Thịt bò thăn": "Beef tenderloin",
+    "Thịt gà (đùi/cánh)": "Chicken (thigh or wing)",
+    "Thịt heo băm": "Ground pork",
+    "Thịt má đào": "Pork cheek",
+    "Thịt nọng lợn": "Pork jowl",
+    "Thịt vai": "Pork shoulder",
+    "Tiêu": "Black pepper",
+    "Trái cây tươi (chuối/berry)": "Fresh fruit (banana/berries)",
+    "Trứng gà": "Eggs",
+    "Táo": "Apple",
+    "Tôm khô": "Dried shrimp",
+    "Tỏi": "Garlic",
+    "Tỏi băm": "Minced garlic",
+    "Vịt": "Duck",
+    "Xà lách, cà chua": "Lettuce, tomato",
+    "Xì dầu": "Soy sauce",
+    "Yến mạch": "Oats",
+    "Đường": "Sugar",
+    "Đậu bắp": "Okra",
+    "Ớt": "Chili",
+    "Ớt chuông": "Bell pepper",
+    "Ức gà": "Chicken breast",
+    "Bao tay ni lông": "Disposable plastic gloves",
+    "Bàn chải": "Toothbrush",
+    "Bánh kẹo": "Candy and snacks",
+    "Bún, phở, mì, miến": "Rice noodles, pho noodles, egg noodles, glass noodles",
+    "Băng vệ sinh": "Sanitary pads",
+    "Bột mì": "All-purpose flour",
+    "Bột ngọt / hạt nêm": "MSG / seasoning powder",
+    "Bột năng": "Tapioca starch",
+    "Cà phê": "Coffee",
+    "Dầu gội": "Shampoo",
+    "Dầu hào": "Oyster sauce",
+    "Giấy bạc": "Aluminum foil",
+    "Giấy vệ sinh": "Toilet paper",
+    "Gạo nếp": "Sticky rice",
+    "Gạo tẻ": "White rice",
+    "Hộp đựng thực phẩm": "Food storage containers",
+    "Kem đánh răng": "Toothpaste",
+    "Khăn giấy": "Paper towels",
+    "Khăn ướt": "Wet wipes",
+    "Màng bọc thực phẩm": "Plastic food wrap",
+    "Mì gói dự trữ": "Instant noodles (stock)",
+    "Nước lau nhà": "Floor cleaner",
+    "Nước lọc, nước suối": "Drinking water, mineral water",
+    "Nước ngọt": "Soft drinks",
+    "Nước rửa chén": "Dish soap",
+    "Nước tương": "Soy sauce",
+    "Nước tẩy toilet": "Toilet cleaner",
+    "Nước ép": "Juice",
+    "Nấm khô, mộc nhĩ": "Dried mushrooms, wood ear fungus",
+    "Phô mai": "Cheese",
+    "Snack, hạt các loại": "Snacks and assorted nuts",
+    "Sốt mayonnaise": "Mayonnaise",
+    "Sữa chua uống": "Drinking yogurt",
+    "Sữa tắm": "Shower gel",
+    "Sữa đặc": "Condensed milk",
+    "Thạch rau câu": "Jelly",
+    "Trà": "Tea",
+    "Tã (nếu có trẻ nhỏ)": "Diapers (if you have a baby)",
+    "Túi rác": "Trash bags",
+    "Túi zip": "Zip-lock bags",
+    "Tăm": "Toothpicks",
+    "Tương ớt": "Chili sauce",
+    "Xà phòng giặt": "Laundry soap",
+    "Xà phòng rửa tay": "Hand soap",
+    "Yến mạch, ngũ cốc ăn sáng": "Oats, breakfast cereal",
+    "Đậu, đỗ khô các loại": "Assorted dried beans",
+    "Đồ hộp (cá hộp, thịt hộp)": "Canned goods (canned fish, canned meat)",
+    "Ớt bột": "Chili powder"
+  };
+
+  // Unit codes actually used by recipes, formatQty()'s auto-converted units
+  // (g→kg, ml→lít), and household items. The ingredient-edit text input
+  // stays free text in whatever language was typed; this only relabels
+  // known unit codes for display.
+  var UNIT_EN = {
+    "g":"g", "ml":"ml", "kg":"kg", "lít":"L",
+    "quả":"pc", "trái":"pc", "miếng":"piece", "củ":"piece", "lá":"leaf",
+    "cây":"stalk", "muỗng":"tbsp",
+    "bó":"bunch", "hộp":"box", "lát":"slice",
+    "bình":"bottle", "chai":"bottle", "cuộn":"roll", "cái":"piece",
+    "gói":"pack", "thùng":"case", "tuýp":"tube", "túi":"bag", "phần":"portion"
+  };
+
+  function recipeName(r){
+    if(!r) return "";
+    return LANG === "en" ? (RECIPE_NAME_EN[r.name] || r.name) : r.name;
+  }
+  function ingName(name){
+    if(!name) return name;
+    return LANG === "en" ? (INGREDIENT_NAME_EN[name] || name) : name;
+  }
+  function unitLabel(unit){
+    if(!unit) return unit;
+    return LANG === "en" ? (UNIT_EN[unit] || unit) : unit;
+  }
+  function tagLabel(key){ var t = TAGS[key]; if(!t) return key; return LANG==="en" ? (t.labelEn||t.label) : t.label; }
+  function catLabel(key){ var c = CATS[key]; if(!c) return key; return LANG==="en" ? (c.labelEn||c.label) : c.label; }
+  function placeLabel(key){ var p = PLACES[key]; if(!p) return key; return LANG==="en" ? (p.labelEn||p.label) : p.label; }
+  function hcatLabel(key){ var h = HCATS[key]; if(!h) return key; return LANG==="en" ? (h.labelEn||h.label) : h.label; }
+  function subLabel(tag, key){
+    var cfg = SUBTAGS[tag];
+    if(!cfg) return key;
+    return LANG==="en" ? ((cfg.labelsEn && cfg.labelsEn[key]) || cfg.labels[key]) : cfg.labels[key];
+  }
+
+  // Every other UI string: button/heading/placeholder/toast/confirm text.
+  var STRINGS = {
+    vi: {
+      settingsAria: "Cài đặt",
+      tabPlan: "Tuần này", tabLibrary: "Món ăn", tabHousehold: "Đồ dùng", tabShopping: "Đi chợ",
+      libraryTitle: "Thư viện món ăn", addRecipeBtn: "Thêm món",
+      searchPlaceholder: "Tìm món…",
+      libraryEmpty: "Không tìm thấy món nào phù hợp.",
+      recipeMeta: "{count} nguyên liệu · khẩu phần cơ bản {base} người",
+      viewGuideAria: "Xem hướng dẫn nấu", editRecipeAria: "Sửa món", deleteRecipeAria: "Xoá món",
+      addToWeekBtn: "Thêm vào tuần",
+      thisDish: "món này",
+      confirmDeleteRecipeTitle: "Xoá món khỏi thư viện",
+      confirmDeleteRecipeMsg: 'Xoá hẳn "{name}" cùng công thức của nó? Không thể hoàn tác.',
+      deleteBtn: "Xoá món",
+      toastRecipeDeleted: "Đã xoá món khỏi thư viện",
+      toastAddedToWeek: 'Đã thêm "{name}" vào tuần này',
+      undoCookedAria: "Bỏ đánh dấu đã nấu", cookedAria: "Đã nấu",
+      moreActionsAria: "Thêm thao tác",
+      viewGuideBtn: "Xem hướng dẫn",
+      planTitle: "Thực đơn tuần này",
+      planEmpty: "Chưa có món nào trong tuần. Thêm món từ thư viện hoặc chọn ở ô bên dưới.",
+      decreaseTimesAria: "Giảm lần nấu", increaseTimesAria: "Tăng lần nấu",
+      viewIngredientsBtn: "Xem nguyên liệu", removeFromWeekBtn: "Bỏ khỏi tuần",
+      removeFromWeekTitle: "Bỏ khỏi tuần",
+      removeFromWeekMsg: 'Bỏ "{name}" khỏi thực đơn tuần này?',
+      householdTitle: "Đồ dùng cần refill",
+      householdHint: 'Điền "Ngày bắt đầu dùng" khi mở món mới — app sẽ ước tính khi nào sắp hết dựa trên số ngày dùng lần trước, và tự đưa vào danh sách đi chợ.',
+      hhLeftDays: "còn ~{n} ngày", hhSoonDays: "sắp hết · ~{n} ngày",
+      hhOut: "đã hết – cần mua", hhUnused: "chưa theo dõi",
+      startUsingBtn: "Bắt đầu dùng", ranOutBtn: "Đã hết",
+      quantityLabel: "Khối lượng", startDateLabel: "Ngày bắt đầu dùng",
+      deleteItemAria: "Xoá mục",
+      itemsCountEntries: "{count} mục",
+      allOutTitle: "{count} món sắp hết hoặc đã hết",
+      allOutBody: "Kiểm tra bên dưới và thêm vào lần đi chợ tới.",
+      allGoodTitle: "Mọi thứ đều ổn", allGoodBody: "Chưa có món nào sắp hết.",
+      toastStartUsing: 'Bắt đầu dùng "{name}"', toastRanOut: 'Đã đánh dấu hết "{name}"',
+      addOtherLabel: "Thêm mục khác", hhInputPlaceholder: "Ví dụ: Nước xả vải…",
+      qtyPlaceholder: "SL", unitPlaceholderHint: "đơn vị (kg, lít, chai…)",
+      addBtn: "Thêm", toastAddedItem: 'Đã thêm "{name}"',
+      shoppingTitle: "Danh sách đi chợ",
+      boughtProgress: "Đã mua {checked}/{total}",
+      byCategoryChip: "Theo loại thực phẩm", byPlaceChip: "Theo nơi mua",
+      copyListBtn: "Sao chép danh sách", newWeekBtn: "Bắt đầu tuần mới",
+      confirmAgainBtn: "Bấm lần nữa để xác nhận",
+      shoppingBottomNote: 'Danh sách được tính từ thực đơn ở tab "Tuần này". Bấm vào từng mục khi đã bỏ vào giỏ.',
+      manualSectionTitle: "Tự thêm mục khác", manualInputPlaceholder: "Ví dụ: giấy ăn, trái cây tráng miệng…",
+      addPlaceBtn: "+ Nơi mua", unsetPlaceLabel: "Chưa chọn nơi mua",
+      notNeededNote: "không cần mua", stillHaveNote: "nhà còn", unavailableNote: "không mua được",
+      itemsCountDishes: "{count} món",
+      shoppingEmpty: 'Chưa có nguyên liệu nào. Thêm món ăn vào tab "Tuần này" để tạo danh sách.',
+      needToBuyTitle: "Cần mua thêm", noItemsRunningLow: "Chưa có đồ dùng nào sắp hết.",
+      ranOutReason: "đã hết", runningLowReason: "sắp hết",
+      statusNeed: "Cần mua", statusBought: "Đã mua", statusHave: "Vẫn còn", statusUnavailable: "Không mua được",
+      toastCopied: "Đã sao chép danh sách", toastCopyBlocked: "Không thể sao chép — trình duyệt chặn quyền truy cập",
+      toastCopyUnsupported: "Trình duyệt không hỗ trợ sao chép tự động",
+      toastNewWeek: "Đã bắt đầu tuần mới",
+      shoppingListHeader: "Danh sách đi chợ — Chip Kitchen", otherSectionLabel: "Khác:",
+      editRecipeTitle: "Sửa món", addRecipeTitle: "Thêm món mới", closeAria: "Đóng",
+      nameLabel: "Tên món", nameFieldPlaceholder: "Ví dụ: Canh chua cá lóc",
+      typeLabel: "Loại", baseServingLabel: "Khẩu phần cơ bản (người)",
+      subgroupLabel: "Nhóm nhỏ", guideLinkLabel: "Link hướng dẫn (video/bài viết)",
+      ingredientsLabel: "Nguyên liệu",
+      ingNamePlaceholder: "Tên nguyên liệu", unitPlaceholder: "đơn vị", deleteRowAria: "Xoá dòng",
+      addIngredientBtn: "Thêm nguyên liệu",
+      photoLabel: "Ảnh món ăn", addPhotoBtn: "+ Thêm ảnh", removePhotoBtn: "Xoá ảnh",
+      cancelBtn: "Huỷ", saveBtn: "Lưu món",
+      toastImageTooSlow: "Xử lý ảnh quá lâu — thử ảnh khác hoặc chụp lại ở độ phân giải thấp hơn",
+      toastImageReadError: "Không đọc được ảnh này",
+      toastNeedName: "Vui lòng nhập tên món", toastNeedIngredient: "Thêm ít nhất một nguyên liệu",
+      toastSavedChanges: "Đã lưu thay đổi", toastAddedRecipe: "Đã thêm món mới",
+      toastBackupDownloaded: "Đã tải file sao lưu", toastDownloadUnsupported: "Trình duyệt này không hỗ trợ tải file",
+      settingsTitle: "Cài đặt", householdSizeLabel: "Số người trong nhà",
+      decreaseAria: "Giảm", increaseAria: "Tăng",
+      exportBtn: "Xuất dữ liệu", importBtn: "Nhập dữ liệu",
+      languageLabel: "Ngôn ngữ", langViBtn: "Tiếng Việt", langEnBtn: "English",
+      toastBadFile: "Không đọc được file — sai định dạng",
+      toastWrongFormat: "File không đúng định dạng dữ liệu Chip Kitchen",
+      importTitle: "Nhập dữ liệu",
+      importMsg: "Dữ liệu hiện tại trên thiết bị này sẽ bị thay thế bằng nội dung trong file đã chọn. Tiếp tục?",
+      overwriteBtn: "Ghi đè", toastImportSuccess: "Đã nhập dữ liệu thành công",
+      toastSyncLimit: "Không đồng bộ — dữ liệu (ảnh) vượt giới hạn 1MB của đám mây. Đã lưu trên máy này. [invalid-argument]",
+      toastSyncDenied: "Không đồng bộ — bị từ chối quyền truy cập. Đã lưu trên máy này. [permission-denied]",
+      toastSyncOther: "Không đồng bộ lên đám mây được. Đã lưu trên máy này, sẽ tự thử lại. [mã: {code}]",
+      toastReadDenied: "Không tải được {what} từ đám mây — bị từ chối quyền truy cập [permission-denied]. Đang hiện dữ liệu cũ trên máy này (nếu có).",
+      toastReadOther: "Không tải được {what} từ đám mây. Đang hiện dữ liệu cũ trên máy này (nếu có). [mã: {code}]",
+      whatPlan: "thực đơn/đi chợ", whatRecipes: "danh sách món ăn", whatBanner: "ảnh banner"
+    },
+    en: {
+      settingsAria: "Settings",
+      tabPlan: "This Week", tabLibrary: "Recipes", tabHousehold: "Supplies", tabShopping: "Shopping",
+      libraryTitle: "Recipe Library", addRecipeBtn: "Add Recipe",
+      searchPlaceholder: "Search recipes…",
+      libraryEmpty: "No matching recipes found.",
+      recipeMeta: "{count} ingredients · base serving {base} people",
+      viewGuideAria: "View cooking guide", editRecipeAria: "Edit recipe", deleteRecipeAria: "Delete recipe",
+      addToWeekBtn: "Add to week",
+      thisDish: "this dish",
+      confirmDeleteRecipeTitle: "Delete recipe from library",
+      confirmDeleteRecipeMsg: 'Permanently delete "{name}" and its recipe? This cannot be undone.',
+      deleteBtn: "Delete recipe",
+      toastRecipeDeleted: "Recipe deleted from library",
+      toastAddedToWeek: 'Added "{name}" to this week',
+      undoCookedAria: "Unmark as cooked", cookedAria: "Cooked",
+      moreActionsAria: "More actions",
+      viewGuideBtn: "View guide",
+      planTitle: "This Week's Menu",
+      planEmpty: "No dishes planned yet. Add some from the library or the box below.",
+      decreaseTimesAria: "Decrease times cooked", increaseTimesAria: "Increase times cooked",
+      viewIngredientsBtn: "View ingredients", removeFromWeekBtn: "Remove from week",
+      removeFromWeekTitle: "Remove from week",
+      removeFromWeekMsg: 'Remove "{name}" from this week\'s menu?',
+      householdTitle: "Supplies to Restock",
+      householdHint: 'Fill in "Date started using" when you open a new item — the app will estimate when it\'ll run low based on how long the last one lasted, and add it to the shopping list automatically.',
+      hhLeftDays: "~{n} days left", hhSoonDays: "running low · ~{n} days left",
+      hhOut: "out – need to buy", hhUnused: "not tracked yet",
+      startUsingBtn: "Start using", ranOutBtn: "Ran out",
+      quantityLabel: "Quantity", startDateLabel: "Date started using",
+      deleteItemAria: "Delete item",
+      itemsCountEntries: "{count} items",
+      allOutTitle: "{count} items running low or out",
+      allOutBody: "Check below and add them to your next shopping trip.",
+      allGoodTitle: "Everything's fine", allGoodBody: "Nothing is running low yet.",
+      toastStartUsing: 'Started using "{name}"', toastRanOut: 'Marked "{name}" as out',
+      addOtherLabel: "Add another item", hhInputPlaceholder: "e.g. Fabric softener…",
+      qtyPlaceholder: "Qty", unitPlaceholderHint: "unit (kg, L, bottle…)",
+      addBtn: "Add", toastAddedItem: 'Added "{name}"',
+      shoppingTitle: "Shopping List",
+      boughtProgress: "Bought {checked}/{total}",
+      byCategoryChip: "By food type", byPlaceChip: "By place to buy",
+      copyListBtn: "Copy list", newWeekBtn: "Start new week",
+      confirmAgainBtn: "Tap again to confirm",
+      shoppingBottomNote: 'The list is calculated from the menu in the "This Week" tab. Tap an item once it\'s in your cart.',
+      manualSectionTitle: "Add another item", manualInputPlaceholder: "e.g. napkins, fruit for dessert…",
+      addPlaceBtn: "+ Place", unsetPlaceLabel: "No place chosen",
+      notNeededNote: "no need to buy", stillHaveNote: "still have some", unavailableNote: "couldn't find it",
+      itemsCountDishes: "{count} items",
+      shoppingEmpty: 'No ingredients yet. Add dishes in the "This Week" tab to build a list.',
+      needToBuyTitle: "Also need to buy", noItemsRunningLow: "Nothing is running low yet.",
+      ranOutReason: "out", runningLowReason: "running low",
+      statusNeed: "Need to buy", statusBought: "Bought", statusHave: "Still have", statusUnavailable: "Couldn't find",
+      toastCopied: "List copied", toastCopyBlocked: "Couldn't copy — browser blocked clipboard access",
+      toastCopyUnsupported: "This browser doesn't support auto-copy",
+      toastNewWeek: "Started a new week",
+      shoppingListHeader: "Shopping List — Chip Kitchen", otherSectionLabel: "Other:",
+      editRecipeTitle: "Edit recipe", addRecipeTitle: "Add new recipe", closeAria: "Close",
+      nameLabel: "Recipe name", nameFieldPlaceholder: "e.g. Sour fish soup",
+      typeLabel: "Category", baseServingLabel: "Base serving (people)",
+      subgroupLabel: "Subgroup", guideLinkLabel: "Guide link (video/article)",
+      ingredientsLabel: "Ingredients",
+      ingNamePlaceholder: "Ingredient name", unitPlaceholder: "unit", deleteRowAria: "Delete row",
+      addIngredientBtn: "Add ingredient",
+      photoLabel: "Recipe photo", addPhotoBtn: "+ Add photo", removePhotoBtn: "Remove photo",
+      cancelBtn: "Cancel", saveBtn: "Save recipe",
+      toastImageTooSlow: "Image processing took too long — try another photo or a lower resolution",
+      toastImageReadError: "Couldn't read this image",
+      toastNeedName: "Please enter a recipe name", toastNeedIngredient: "Add at least one ingredient",
+      toastSavedChanges: "Changes saved", toastAddedRecipe: "Recipe added",
+      toastBackupDownloaded: "Backup file downloaded", toastDownloadUnsupported: "This browser doesn't support file downloads",
+      settingsTitle: "Settings", householdSizeLabel: "Household size",
+      decreaseAria: "Decrease", increaseAria: "Increase",
+      exportBtn: "Export data", importBtn: "Import data",
+      languageLabel: "Language", langViBtn: "Tiếng Việt", langEnBtn: "English",
+      toastBadFile: "Couldn't read the file — wrong format",
+      toastWrongFormat: "This file isn't in the Chip Kitchen data format",
+      importTitle: "Import data",
+      importMsg: "The current data on this device will be replaced with the contents of the chosen file. Continue?",
+      overwriteBtn: "Overwrite", toastImportSuccess: "Data imported successfully",
+      toastSyncLimit: "Couldn't sync — data (photo) exceeds the cloud's 1MB limit. Saved on this device. [invalid-argument]",
+      toastSyncDenied: "Couldn't sync — access denied. Saved on this device. [permission-denied]",
+      toastSyncOther: "Couldn't sync to the cloud. Saved on this device, will retry automatically. [code: {code}]",
+      toastReadDenied: "Couldn't load {what} from the cloud — access denied [permission-denied]. Showing old data on this device (if any).",
+      toastReadOther: "Couldn't load {what} from the cloud. Showing old data on this device (if any). [code: {code}]",
+      whatPlan: "the weekly plan/shopping list", whatRecipes: "the recipe library", whatBanner: "the banner image"
+    }
+  };
+  function t(key){ return (STRINGS[LANG] && STRINGS[LANG][key]) || STRINGS.vi[key] || key; }
+  function tf(key, vars){
+    var s = t(key);
+    if(vars){ Object.keys(vars).forEach(function(k){ s = s.split("{"+k+"}").join(String(vars[k])); }); }
+    return s;
+  }
+  function setLang(l){
+    if(l !== "vi" && l !== "en") return;
+    LANG = l;
+    try{ localStorage.setItem(LANG_KEY, l); }catch(e){}
+    applyStaticTranslations();
+    renderAll();
+  }
+  function applyStaticTranslations(){
+    try{ document.documentElement.lang = LANG; }catch(e){}
+    document.querySelectorAll("[data-i18n]").forEach(function(el){ el.textContent = t(el.getAttribute("data-i18n")); });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(function(el){ el.placeholder = t(el.getAttribute("data-i18n-placeholder")); });
+    document.querySelectorAll("[data-i18n-aria]").forEach(function(el){ el.setAttribute("aria-label", t(el.getAttribute("data-i18n-aria"))); });
+    document.querySelectorAll("#libraryFilter .chip[data-filter]").forEach(function(c){ c.textContent = tagLabel(c.dataset.filter); });
+    document.querySelectorAll("#hhCatSelect option[data-hcat]").forEach(function(o){ o.textContent = hcatLabel(o.getAttribute("data-hcat")); });
+  }
 
   function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
 
@@ -1167,17 +1607,17 @@
     var u = unit.trim();
     if(u === "g" && total >= 1000){
       var kg = total/1000;
-      return (Math.round(kg*100)/100) + " kg";
+      return (Math.round(kg*100)/100) + " " + unitLabel("kg");
     }
     if(u === "ml" && total >= 1000){
       var l = total/1000;
-      return (Math.round(l*100)/100) + " lít";
+      return (Math.round(l*100)/100) + " " + unitLabel("lít");
     }
     if(COUNT_UNITS.indexOf(u) !== -1){
-      return Math.ceil(total) + " " + u;
+      return Math.ceil(total) + " " + unitLabel(u);
     }
     var r = Math.round(total*10)/10;
-    return r + " " + u;
+    return r + " " + unitLabel(u);
   }
 
   function recipeById(id){
@@ -1275,7 +1715,7 @@
       if(subConfig.order.indexOf(state.subFilter) === -1) state.subFilter = subConfig.order[0];
       subFilterEl.hidden = false;
       subFilterEl.innerHTML = subConfig.order.map(function(k){
-        return '<button class="chip'+(state.subFilter===k?" active":"")+'" data-subfilter="'+k+'">'+subConfig.labels[k]+'</button>';
+        return '<button class="chip'+(state.subFilter===k?" active":"")+'" data-subfilter="'+k+'">'+subLabel(state.filter,k)+'</button>';
       }).join("");
     } else {
       subFilterEl.hidden = true;
@@ -1290,7 +1730,7 @@
     });
     recipeListEl.innerHTML = "";
     if(!filtered.length){
-      recipeListEl.innerHTML = '<div class="card empty-state"><p>Không tìm thấy món nào phù hợp.</p></div>';
+      recipeListEl.innerHTML = '<div class="card empty-state"><p>'+t("libraryEmpty")+'</p></div>';
       return;
     }
     filtered.forEach(function(r){
@@ -1298,7 +1738,7 @@
       var card = document.createElement("div");
       card.className = "card recipe-card" + (open?" open":"");
       var ingRows = r.ingredients.map(function(ing){
-        return '<li><span>'+escapeHtml(ing.name)+'</span><span>'+formatQty(ing.qty, ing.unit)+'</span></li>';
+        return '<li><span>'+escapeHtml(ingName(ing.name))+'</span><span>'+formatQty(ing.qty, ing.unit)+'</span></li>';
       }).join("");
       card.innerHTML =
         '<div class="recipe-main">'+
@@ -1306,22 +1746,22 @@
         '<div class="recipe-body">'+
         '<div class="recipe-card-top" data-toggle="'+r.id+'">'+
           '<div class="recipe-card-title">'+
-            '<strong>'+escapeHtml(r.name)+'</strong>'+
-            '<span class="recipe-meta">'+r.ingredients.length+' nguyên liệu · khẩu phần cơ bản '+r.base+' người</span>'+
+            '<strong>'+escapeHtml(recipeName(r))+'</strong>'+
+            '<span class="recipe-meta">'+tf("recipeMeta",{count:r.ingredients.length, base:r.base})+'</span>'+
           '</div>'+
           '<svg class="chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7.5L10 12.5L15 7.5"/></svg>'+
         '</div>'+
         '<div class="recipe-card-actions">'+
           (isHttpUrl(r.guideUrl) ?
-            '<a class="icon-btn" href="'+escapeHtml(r.guideUrl)+'" target="_blank" rel="noopener noreferrer" aria-label="Xem hướng dẫn nấu">'+
+            '<a class="icon-btn" href="'+escapeHtml(r.guideUrl)+'" target="_blank" rel="noopener noreferrer" aria-label="'+escapeHtml(t("viewGuideAria"))+'">'+
               '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 11.5L11.5 8.5M8 6.5L9 5.5C10.1 4.4 11.9 4.4 13 5.5C14.1 6.6 14.1 8.4 13 9.5L12 10.5M12 13.5L11 14.5C9.9 15.6 8.1 15.6 7 14.5C5.9 13.4 5.9 11.6 7 10.5L8 9.5"/></svg></a>'
             : '')+
-          '<button class="icon-btn" data-edit="'+r.id+'" aria-label="Sửa món">'+
+          '<button class="icon-btn" data-edit="'+r.id+'" aria-label="'+escapeHtml(t("editRecipeAria"))+'">'+
             '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3.5L16.5 6.5L7 16H4V13L13.5 3.5Z"/></svg></button>'+
-          '<button class="icon-btn btn-danger-text" data-del="'+r.id+'" aria-label="Xoá món">'+
+          '<button class="icon-btn btn-danger-text" data-del="'+r.id+'" aria-label="'+escapeHtml(t("deleteRecipeAria"))+'">'+
             '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6H16M8 6V4.5C8 4 8.4 3.5 9 3.5H11C11.6 3.5 12 4 12 4.5V6M6 6L6.6 16C6.65 16.8 7.3 17.5 8.1 17.5H11.9C12.7 17.5 13.35 16.8 13.4 16L14 6"/></svg></button>'+
           '<button class="btn-add-week" data-add-plan="'+r.id+'">'+
-            '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 4V16M4 10H16"/></svg> Thêm vào tuần</button>'+
+            '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 4V16M4 10H16"/></svg> '+escapeHtml(t("addToWeekBtn"))+'</button>'+
         '</div>'+
         '</div>'+
         '</div>'+
@@ -1350,7 +1790,8 @@
       var rid = delBtn.dataset.del;
       var delRecipe = recipeById(rid);
       var delName = delRecipe ? delRecipe.name : "món này";
-      showConfirm("Xoá món khỏi thư viện", 'Xoá hẳn "'+delName+'" cùng công thức của nó? Không thể hoàn tác.', "Xoá món", function(){
+      var delNameDisplay = delRecipe ? recipeName(delRecipe) : t("thisDish");
+      showConfirm(t("confirmDeleteRecipeTitle"), tf("confirmDeleteRecipeMsg",{name:delNameDisplay}), t("deleteBtn"), function(){
         var isSeed = delRecipe && isSeedName(delRecipe.name);
         state.recipes = state.recipes.filter(function(r){ return r.id !== rid; });
         state.plan = state.plan.filter(function(p){ return p.recipeId !== rid; });
@@ -1361,7 +1802,7 @@
           if(isSeed && window.ChipKitchenSync.pushRecipe) window.ChipKitchenSync.pushRecipe(tombstoneFor(rid, delName));
           else if(window.ChipKitchenSync.deleteRecipe) window.ChipKitchenSync.deleteRecipe(rid);
         }
-        toast("Đã xoá món khỏi thư viện");
+        toast(t("toastRecipeDeleted"));
       });
       return;
     }
@@ -1402,7 +1843,7 @@
     else{ state.plan.push({id:uid(), recipeId:recipeId, times:1}); }
     save(); renderAll();
     var r = recipeById(recipeId);
-    toast('Đã thêm "'+(r?r.name:"")+'" vào tuần này');
+    toast(tf("toastAddedToWeek",{name:r?recipeName(r):""}));
   }
 
   var planGroupsEl = document.getElementById("planGroups");
@@ -1414,20 +1855,20 @@
   // huỷ đánh dấu, đóng vai trò "hoàn tác" luôn trong chính nút này.
   function planDoneBtnHtml(p){
     var isDone = p.times === 1 && !!p.done;
-    return '<button class="icon-btn plan-done-btn'+(isDone?" active":"")+'" data-plan-done="'+p.id+'" aria-label="'+(isDone?"Bỏ đánh dấu đã nấu":"Đã nấu")+'">'+
+    return '<button class="icon-btn plan-done-btn'+(isDone?" active":"")+'" data-plan-done="'+p.id+'" aria-label="'+escapeHtml(isDone?t("undoCookedAria"):t("cookedAria"))+'">'+
       '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5L8 14.5L16 5.5"/></svg></button>';
   }
   function planMenuBtnHtml(pid){
-    return '<button class="icon-btn" data-plan-menu="'+pid+'" aria-label="Thêm thao tác">'+
+    return '<button class="icon-btn" data-plan-menu="'+pid+'" aria-label="'+escapeHtml(t("moreActionsAria"))+'">'+
       '<svg viewBox="0 0 20 20" fill="currentColor"><circle cx="4" cy="10" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="16" cy="10" r="1.6"/></svg></button>';
   }
   function planIngredientsHtml(recipe, factor){
     var rows = recipe.ingredients.map(function(ing){
-      return '<li><span>'+escapeHtml(ing.name)+'</span><span>'+formatQty(ing.qty*factor, ing.unit)+'</span></li>';
+      return '<li><span>'+escapeHtml(ingName(ing.name))+'</span><span>'+formatQty(ing.qty*factor, ing.unit)+'</span></li>';
     }).join("");
     var guideLink = isHttpUrl(recipe.guideUrl)
       ? '<a class="btn btn-sm" href="'+escapeHtml(recipe.guideUrl)+'" target="_blank" rel="noopener noreferrer">'+
-          '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 11.5L11.5 8.5M8 6.5L9 5.5C10.1 4.4 11.9 4.4 13 5.5C14.1 6.6 14.1 8.4 13 9.5L12 10.5M12 13.5L11 14.5C9.9 15.6 8.1 15.6 7 14.5C5.9 13.4 5.9 11.6 7 10.5L8 9.5"/></svg> Xem hướng dẫn</a>'
+          '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 11.5L11.5 8.5M8 6.5L9 5.5C10.1 4.4 11.9 4.4 13 5.5C14.1 6.6 14.1 8.4 13 9.5L12 10.5M12 13.5L11 14.5C9.9 15.6 8.1 15.6 7 14.5C5.9 13.4 5.9 11.6 7 10.5L8 9.5"/></svg> '+escapeHtml(t("viewGuideBtn"))+'</a>'
       : '';
     return '<div class="plan-ing-preview"><ul>'+rows+'</ul>'+guideLink+'</div>';
   }
@@ -1440,7 +1881,7 @@
     if(!state.plan.length){
       planGroupsEl.innerHTML = '<div class="card empty-state">'+
         '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="14" height="13" rx="1.8"/><path d="M3 8H17"/></svg>'+
-        '<p>Chưa có món nào trong tuần. Thêm món từ thư viện hoặc chọn ở ô bên dưới.</p></div>';
+        '<p>'+t("planEmpty")+'</p></div>';
     } else {
       TAG_ORDER.forEach(function(tag){
         var entries = state.plan
@@ -1462,11 +1903,11 @@
           var nameCls = (x.p.times===1 && x.p.done) ? ' class="plan-done-name"' : '';
           return '<div class="plan-row'+(idx===0?" first":"")+'">'+
             thumb+
-            '<div class="plan-row-info"><strong'+nameCls+'>'+escapeHtml(x.r.name)+'</strong></div>'+
+            '<div class="plan-row-info"><strong'+nameCls+'>'+escapeHtml(recipeName(x.r))+'</strong></div>'+
             '<div class="stepper" data-plan="'+x.p.id+'">'+
-              '<button data-delta="-1" aria-label="Giảm lần nấu">−</button>'+
+              '<button data-delta="-1" aria-label="'+escapeHtml(t("decreaseTimesAria"))+'">−</button>'+
               '<output>'+x.p.times+'</output>'+
-              '<button data-delta="1" aria-label="Tăng lần nấu">+</button>'+
+              '<button data-delta="1" aria-label="'+escapeHtml(t("increaseTimesAria"))+'">+</button>'+
             '</div>'+
             planDoneBtnHtml(x.p)+
             planMenuBtnHtml(x.p.id)+
@@ -1475,7 +1916,7 @@
         }).join("");
 
         group.innerHTML =
-          '<div class="plan-group-head"><strong style="color:'+PLAN_GROUP_COLOR[tag]+';">'+TAGS[tag].label+'</strong></div>'+
+          '<div class="plan-group-head"><strong style="color:'+PLAN_GROUP_COLOR[tag]+';">'+tagLabel(tag)+'</strong></div>'+
           rowsHtml;
         planGroupsEl.appendChild(group);
       });
@@ -1490,15 +1931,15 @@
   function showPlanMenu(pid){
     var entry = state.plan.find(function(p){ return p.id === pid; });
     var r = entry ? recipeById(entry.recipeId) : null;
-    var name = r ? r.name : "món này";
+    var name = r ? recipeName(r) : t("thisDish");
     var overlay = document.createElement("div");
     overlay.className = "modal-overlay";
     overlay.innerHTML =
       '<div class="modal">'+
         '<div class="modal-head"><h3>'+escapeHtml(name)+'</h3></div>'+
         '<div class="sheet-actions">'+
-          '<button class="btn" id="pmView">Xem nguyên liệu</button>'+
-          '<button class="btn btn-danger-text" id="pmRemove">Bỏ khỏi tuần</button>'+
+          '<button class="btn" id="pmView">'+escapeHtml(t("viewIngredientsBtn"))+'</button>'+
+          '<button class="btn btn-danger-text" id="pmRemove">'+escapeHtml(t("removeFromWeekBtn"))+'</button>'+
         '</div>'+
       '</div>';
     modalRoot.innerHTML = "";
@@ -1513,7 +1954,7 @@
     });
     overlay.querySelector("#pmRemove").addEventListener("click", function(){
       close();
-      showConfirm('Bỏ khỏi tuần', 'Bỏ "'+escapeHtml(name)+'" khỏi thực đơn tuần này?', "Bỏ khỏi tuần", function(){
+      showConfirm(t("removeFromWeekTitle"), tf("removeFromWeekMsg",{name:name}), t("removeFromWeekBtn"), function(){
         state.plan = state.plan.filter(function(p){ return p.id !== pid; });
         save(); renderAll();
       });
@@ -1571,28 +2012,28 @@
         var status = hhStatus(h);
         if(status==="soon" || status==="het") soonOrOut++;
         var left = hhDaysLeft(h);
-        var pillText = status==="ok" ? ("còn ~"+left+" ngày")
-          : status==="soon" ? ("sắp hết · ~"+Math.max(0,left)+" ngày")
-          : status==="het" ? "đã hết – cần mua"
-          : "chưa theo dõi";
+        var pillText = status==="ok" ? tf("hhLeftDays",{n:left})
+          : status==="soon" ? tf("hhSoonDays",{n:Math.max(0,left)})
+          : status==="het" ? t("hhOut")
+          : t("hhUnused");
         var actionBtn = (status==="het" || status==="unused")
-          ? '<button class="btn btn-hh btn-primary" data-hh-start="'+h.id+'">Bắt đầu dùng</button>'
-          : '<button class="btn btn-hh" data-hh-out="'+h.id+'">Đã hết</button>';
+          ? '<button class="btn btn-hh btn-primary" data-hh-start="'+h.id+'">'+escapeHtml(t("startUsingBtn"))+'</button>'
+          : '<button class="btn btn-hh" data-hh-out="'+h.id+'">'+escapeHtml(t("ranOutBtn"))+'</button>';
         return '<div class="hh-row">'+
-          '<div class="hh-row-top"><span class="item-name">'+escapeHtml(h.name)+'</span>'+
-            '<span class="status-pill status-'+status+'">'+pillText+'</span></div>'+
+          '<div class="hh-row-top"><span class="item-name">'+escapeHtml(ingName(h.name))+'</span>'+
+            '<span class="status-pill status-'+status+'">'+escapeHtml(pillText)+'</span></div>'+
           '<div class="hh-row-meta">'+
-            '<span class="hh-field">Khối lượng <input type="number" min="0" step="any" value="'+h.size.qty+'" data-hh-sizeqty="'+h.id+'"> <input type="text" class="hh-unit" value="'+escapeHtml(h.size.unit)+'" data-hh-sizeunit="'+h.id+'"></span>'+
-            '<span class="hh-field">Ngày bắt đầu dùng <input type="date" value="'+toDateInputValue(h.startedAt)+'" data-hh-startdate="'+h.id+'"></span>'+
+            '<span class="hh-field">'+escapeHtml(t("quantityLabel"))+' <input type="number" min="0" step="any" value="'+h.size.qty+'" data-hh-sizeqty="'+h.id+'"> <input type="text" class="hh-unit" value="'+escapeHtml(h.size.unit)+'" data-hh-sizeunit="'+h.id+'"></span>'+
+            '<span class="hh-field">'+escapeHtml(t("startDateLabel"))+' <input type="date" value="'+toDateInputValue(h.startedAt)+'" data-hh-startdate="'+h.id+'"></span>'+
           '</div>'+
           '<div class="hh-row-bottom">'+
             '<div class="hh-actions">'+actionBtn+
-              '<button class="icon-btn btn-danger-text" data-hh-del="'+h.id+'" aria-label="Xoá mục">'+TRASH_SVG+'</button></div>'+
+              '<button class="icon-btn btn-danger-text" data-hh-del="'+h.id+'" aria-label="'+escapeHtml(t("deleteItemAria"))+'">'+TRASH_SVG+'</button></div>'+
           '</div>'+
         '</div>';
       }).join("");
       group.innerHTML = '<div class="cat-head"><span class="cat-dot" style="background:'+HCATS[c].dot+'"></span>'+
-        '<strong style="color:'+HCATS[c].dot+'">'+HCATS[c].label+'</strong><span>'+items.length+' mục</span></div>'+rows;
+        '<strong style="color:'+HCATS[c].dot+'">'+hcatLabel(c)+'</strong><span>'+tf("itemsCountEntries",{count:items.length})+'</span></div>'+rows;
       householdListEl.appendChild(group);
     });
 
@@ -1600,10 +2041,10 @@
     var summaryText = document.getElementById("hhSummaryText");
     if(soonOrOut > 0){
       summary.classList.add("warn");
-      summaryText.innerHTML = '<strong>'+soonOrOut+' món sắp hết hoặc đã hết</strong>Kiểm tra bên dưới và thêm vào lần đi chợ tới.';
+      summaryText.innerHTML = '<strong>'+escapeHtml(tf("allOutTitle",{count:soonOrOut}))+'</strong>'+escapeHtml(t("allOutBody"));
     } else {
       summary.classList.remove("warn");
-      summaryText.innerHTML = '<strong>Mọi thứ đều ổn</strong>Chưa có món nào sắp hết.';
+      summaryText.innerHTML = '<strong>'+escapeHtml(t("allGoodTitle"))+'</strong>'+escapeHtml(t("allGoodBody"));
     }
     document.getElementById("householdBadge").textContent = soonOrOut;
   }
@@ -1612,13 +2053,13 @@
     var startBtn = e.target.closest("[data-hh-start]");
     if(startBtn){
       var h1 = state.household.find(function(x){ return x.id===startBtn.dataset.hhStart; });
-      if(h1){ hhStart(h1); save(); renderAll(); toast('Bắt đầu dùng "'+h1.name+'"'); }
+      if(h1){ hhStart(h1); save(); renderAll(); toast(tf("toastStartUsing",{name:ingName(h1.name)})); }
       return;
     }
     var outBtn = e.target.closest("[data-hh-out]");
     if(outBtn){
       var h2 = state.household.find(function(x){ return x.id===outBtn.dataset.hhOut; });
-      if(h2){ hhRanOut(h2); save(); renderAll(); toast('Đã đánh dấu hết "'+h2.name+'"'); }
+      if(h2){ hhRanOut(h2); save(); renderAll(); toast(tf("toastRanOut",{name:ingName(h2.name)})); }
       return;
     }
     var delBtn = e.target.closest("[data-hh-del]");
@@ -1672,7 +2113,7 @@
     state.household.push({id:uid(), name:v, cat:cat, size:{qty:qty, unit:unit}, estimateDays:30, startedAt:null, needsBuy:true});
     input.value = ""; qtyInput.value = "1"; unitInput.value = "";
     save(); renderAll();
-    toast('Đã thêm "'+v+'"');
+    toast(tf("toastAddedItem",{name:ingName(v)}));
   }
 
   // ---------- SHOPPING ----------
@@ -1690,9 +2131,9 @@
     var key = placeKeyOf(name);
     var place = state.placeByName[key];
     if(place && PLACES[place]){
-      return '<button type="button" class="place-badge place-badge-'+place+'" data-place-name="'+escapeHtml(key)+'">'+PLACES[place].label+'</button>';
+      return '<button type="button" class="place-badge place-badge-'+place+'" data-place-name="'+escapeHtml(key)+'">'+placeLabel(place)+'</button>';
     }
-    return '<button type="button" class="place-badge place-badge-unset" data-place-name="'+escapeHtml(key)+'">+ Nơi mua</button>';
+    return '<button type="button" class="place-badge place-badge-unset" data-place-name="'+escapeHtml(key)+'">'+escapeHtml(t("addPlaceBtn"))+'</button>';
   }
   // Tapping the badge cycles: chưa chọn -> Chợ -> Siêu thị -> Được cho -> chưa chọn.
   function cyclePlaceForName(key){
@@ -1716,6 +2157,8 @@
   // xoá hết), giống hệt cơ chế reset "đã mua" trước đây -- không cần field
   // top-level mới, không cần migration.
   var ITEM_STATUS_LABEL = { need:"Cần mua", bought:"Đã mua", have:"Vẫn còn", unavailable:"Không mua được" };
+  var ITEM_STATUS_KEY = { need:"statusNeed", bought:"statusBought", have:"statusHave", unavailable:"statusUnavailable" };
+  function itemStatusLabel(status){ return t(ITEM_STATUS_KEY[status]) || ITEM_STATUS_LABEL[status]; }
   var ITEM_STATUS_ORDER = ["need","bought","have","unavailable"];
   function itemStatus(key){
     var v = state.checked[key];
@@ -1758,7 +2201,7 @@
         '<div class="modal-head"><h3>'+escapeHtml(name)+'</h3></div>'+
         '<div class="sheet-actions">'+
           ITEM_STATUS_ORDER.map(function(s){
-            return '<button class="btn'+(s===current?" btn-primary":"")+'" data-pick="'+s+'">'+ITEM_STATUS_LABEL[s]+'</button>';
+            return '<button class="btn'+(s===current?" btn-primary":"")+'" data-pick="'+s+'">'+escapeHtml(itemStatusLabel(s))+'</button>';
           }).join("")+
         '</div>'+
       '</div>';
@@ -1778,13 +2221,13 @@
     var gifted = isGifted(name);
     var status = gifted ? "need" : itemStatus(key);
     var rowCls = "item-row"+(gifted?" gifted":statusRowClass(status));
-    var rightHtml = gifted ? '<span class="item-qty gifted-note">không cần mua</span>'
-      : status === "have" ? '<span class="item-qty status-note">nhà còn</span>'
-      : status === "unavailable" ? '<span class="item-qty status-note">không mua được</span>'
+    var rightHtml = gifted ? '<span class="item-qty gifted-note">'+escapeHtml(t("notNeededNote"))+'</span>'
+      : status === "have" ? '<span class="item-qty status-note">'+escapeHtml(t("stillHaveNote"))+'</span>'
+      : status === "unavailable" ? '<span class="item-qty status-note">'+escapeHtml(t("unavailableNote"))+'</span>'
       : '<span class="item-qty">'+formatQty(qty, unit)+'</span>';
     return '<div class="'+rowCls+'"'+(gifted?'':' data-check="'+key+'"')+'>'+
       checkboxHtml(status)+
-      '<span class="item-name">'+escapeHtml(name)+(nameSuffixHtml||"")+'</span>'+
+      '<span class="item-name">'+escapeHtml(ingName(name))+(nameSuffixHtml||"")+'</span>'+
       placeBadgeHtml(name)+
       rightHtml+
     '</div>';
@@ -1813,7 +2256,7 @@
     countableManual.forEach(function(m){ if(manualStatus(m) === "bought") checkedCount++; });
     countableHh.forEach(function(h){ if(itemStatus("hh||"+h.id) === "bought") checkedCount++; });
 
-    document.getElementById("progressLabel").textContent = "Đã mua "+checkedCount+"/"+totalCount;
+    document.getElementById("progressLabel").textContent = tf("boughtProgress",{checked:checkedCount, total:totalCount});
     var pct = totalCount ? Math.round(checkedCount/totalCount*100) : 0;
     document.getElementById("progressPct").textContent = pct+"%";
     document.getElementById("progressFill").style.width = pct+"%";
@@ -1831,12 +2274,12 @@
         if(!items.length) return;
         items.sort(function(a,b){ return a.name.localeCompare(b.name,"vi"); });
         var dot = p==="unset" ? "var(--text-muted)" : PLACES[p].dot;
-        var label = p==="unset" ? "Chưa chọn nơi mua" : PLACES[p].label;
+        var label = p==="unset" ? t("unsetPlaceLabel") : placeLabel(p);
         var group = document.createElement("div");
         group.className = "card cat-group";
         var rows = items.map(function(it){ return shoppingItemRowHtml(it.key, it.name, it.qty, it.unit); }).join("");
         group.innerHTML = '<div class="cat-head"><span class="cat-dot" style="background:'+dot+'"></span>'+
-          '<strong style="color:'+dot+'">'+label+'</strong><span>'+items.length+' món</span></div>'+rows;
+          '<strong style="color:'+dot+'">'+escapeHtml(label)+'</strong><span>'+tf("itemsCountDishes",{count:items.length})+'</span></div>'+rows;
         shoppingGroupsEl.appendChild(group);
       });
     } else {
@@ -1852,48 +2295,48 @@
         var rows = items.map(function(it){ return shoppingItemRowHtml(it.key, it.name, it.qty, it.unit); }).join("");
         group.innerHTML =
           '<div class="cat-head"><span class="cat-dot" style="background:'+CATS[c].dot+'"></span>'+
-            '<strong style="color:'+CATS[c].dot+'">'+CATS[c].label+'</strong>'+
-            '<span>'+items.length+' món</span></div>'+ rows;
+            '<strong style="color:'+CATS[c].dot+'">'+catLabel(c)+'</strong>'+
+            '<span>'+tf("itemsCountDishes",{count:items.length})+'</span></div>'+ rows;
         shoppingGroupsEl.appendChild(group);
       });
     }
     if(!anyItems){
       shoppingGroupsEl.innerHTML = '<div class="card empty-state">'+
         '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4H6L8.2 14.2C8.35 14.95 9.01 15.5 9.78 15.5H17.3C18.05 15.5 18.7 14.98 18.87 14.25L20.4 7.5H6.4"/><circle cx="10" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/></svg>'+
-        '<p>Chưa có nguyên liệu nào. Thêm món ăn vào tab "Tuần này" để tạo danh sách.</p></div>';
+        '<p>'+t("shoppingEmpty")+'</p></div>';
     }
 
     var hhSorted = hhNeeded.slice().sort(function(a,b){ return a.name.localeCompare(b.name,"vi"); });
     if(!hhSorted.length){
       shoppingHouseholdEl.innerHTML =
         '<div class="cat-head"><span class="cat-dot" style="background:var(--forest);"></span>'+
-          '<strong style="color:var(--forest);">Cần mua thêm</strong></div>'+
-        '<p style="margin:0;padding:14px;color:var(--text-muted);font-size:.85rem;">Chưa có đồ dùng nào sắp hết.</p>';
+          '<strong style="color:var(--forest);">'+escapeHtml(t("needToBuyTitle"))+'</strong></div>'+
+        '<p style="margin:0;padding:14px;color:var(--text-muted);font-size:.85rem;">'+escapeHtml(t("noItemsRunningLow"))+'</p>';
     } else {
       var hhRows = hhSorted.map(function(h){
-        var reason = hhStatus(h)==="het" ? "đã hết" : "sắp hết";
-        var suffix = ' <span style="color:var(--text-muted);font-weight:400;">('+reason+')</span>';
+        var reason = hhStatus(h)==="het" ? t("ranOutReason") : t("runningLowReason");
+        var suffix = ' <span style="color:var(--text-muted);font-weight:400;">('+escapeHtml(reason)+')</span>';
         return shoppingItemRowHtml("hh||"+h.id, h.name, h.size.qty, h.size.unit, suffix);
       }).join("");
       shoppingHouseholdEl.innerHTML =
         '<div class="cat-head"><span class="cat-dot" style="background:var(--rose);"></span>'+
-          '<strong style="color:var(--rose);">Cần mua thêm</strong><span>'+hhSorted.length+' món</span></div>'+hhRows;
+          '<strong style="color:var(--rose);">'+escapeHtml(t("needToBuyTitle"))+'</strong><span>'+tf("itemsCountDishes",{count:hhSorted.length})+'</span></div>'+hhRows;
     }
 
     manualListEl.innerHTML = state.manual.map(function(m){
       var gifted = isGifted(m.name);
       var status = gifted ? "need" : manualStatus(m);
       var rowCls = "manual-item"+(gifted?" gifted":statusRowClass(status));
-      var noteHtml = gifted ? '<span class="gifted-note">không cần mua</span>'
-        : status === "have" ? '<span class="status-note">nhà còn</span>'
-        : status === "unavailable" ? '<span class="status-note">không mua được</span>'
+      var noteHtml = gifted ? '<span class="gifted-note">'+escapeHtml(t("notNeededNote"))+'</span>'
+        : status === "have" ? '<span class="status-note">'+escapeHtml(t("stillHaveNote"))+'</span>'
+        : status === "unavailable" ? '<span class="status-note">'+escapeHtml(t("unavailableNote"))+'</span>'
         : '';
       return '<div class="'+rowCls+'"'+(gifted?"":' data-mcheck="'+m.id+'"')+'>'+
         checkboxHtml(status)+
-        '<span class="item-name">'+escapeHtml(m.name)+'</span>'+
+        '<span class="item-name">'+escapeHtml(ingName(m.name))+'</span>'+
         placeBadgeHtml(m.name)+
         noteHtml+
-        '<button class="icon-btn btn-danger-text" data-mdel="'+m.id+'" aria-label="Xoá mục">'+
+        '<button class="icon-btn btn-danger-text" data-mdel="'+m.id+'" aria-label="'+escapeHtml(t("deleteItemAria"))+'">'+
           '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6H16M8 6V4.5C8 4 8.4 3.5 9 3.5H11C11.6 3.5 12 4 12 4.5V6M6 6L6.6 16C6.65 16.8 7.3 17.5 8.1 17.5H11.9C12.7 17.5 13.35 16.8 13.4 16L14 6"/></svg></button>'+
       '</div>';
     }).join("");
@@ -1927,7 +2370,7 @@
     var row = e.target.closest("[data-mcheck]");
     if(row){
       var m = state.manual.find(function(x){ return x.id === row.dataset.mcheck; });
-      if(m) showStatusMenu(m.name, manualStatus(m), function(status){ setManualStatus(m.id, status); });
+      if(m) showStatusMenu(ingName(m.name), manualStatus(m), function(status){ setManualStatus(m.id, status); });
     }
   });
 
@@ -1946,51 +2389,52 @@
     var totals = computeShopping();
     var byCat = {}; CAT_ORDER.forEach(function(c){ byCat[c]=[]; });
     Object.keys(totals).forEach(function(k){ byCat[totals[k].cat].push(totals[k]); });
-    var lines = ["Danh sách đi chợ — Chip Kitchen"];
+    var lines = [t("shoppingListHeader")];
     CAT_ORDER.forEach(function(c){
       var items = byCat[c];
       if(!items.length) return;
       items.sort(function(a,b){ return a.name.localeCompare(b.name,"vi"); });
-      lines.push("", CATS[c].label+":");
-      items.forEach(function(it){ lines.push("- "+it.name+": "+formatQty(it.qty,it.unit)); });
+      lines.push("", catLabel(c)+":");
+      items.forEach(function(it){ lines.push("- "+ingName(it.name)+": "+formatQty(it.qty,it.unit)); });
     });
     var hhNeededCopy = state.household.filter(function(h){ var s=hhStatus(h); return s==="soon"||s==="het"; });
     HCAT_ORDER.forEach(function(c){
       var items = hhNeededCopy.filter(function(h){ return h.cat===c; }).sort(function(a,b){ return a.name.localeCompare(b.name,"vi"); });
       if(!items.length) return;
-      lines.push("", HCATS[c].label+":");
-      items.forEach(function(h){ lines.push("- "+h.name+": "+formatQty(h.size.qty,h.size.unit)+" ("+(hhStatus(h)==="het"?"đã hết":"sắp hết")+")"); });
+      lines.push("", hcatLabel(c)+":");
+      items.forEach(function(h){ lines.push("- "+ingName(h.name)+": "+formatQty(h.size.qty,h.size.unit)+" ("+(hhStatus(h)==="het"?t("ranOutReason"):t("runningLowReason"))+")"); });
     });
     if(state.manual.length){
-      lines.push("", "Khác:");
-      state.manual.forEach(function(m){ lines.push("- "+m.name); });
+      lines.push("", t("otherSectionLabel"));
+      state.manual.forEach(function(m){ lines.push("- "+ingName(m.name)); });
     }
     var text = lines.join("\n");
     if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(text).then(function(){ toast("Đã sao chép danh sách"); })
-        .catch(function(){ toast("Không thể sao chép — trình duyệt chặn quyền truy cập"); });
+      navigator.clipboard.writeText(text).then(function(){ toast(t("toastCopied")); })
+        .catch(function(){ toast(t("toastCopyBlocked")); });
     } else {
-      toast("Trình duyệt không hỗ trợ sao chép tự động");
+      toast(t("toastCopyUnsupported"));
     }
   });
 
   var newWeekBtn = document.getElementById("btnNewWeek");
   var newWeekArmed = false;
+  var NEW_WEEK_ICON_SVG = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10a6 6 0 1 1 1.8 4.3M4 10V6M4 10h4"/></svg> ';
   newWeekBtn.addEventListener("click", function(){
     if(!newWeekArmed){
       newWeekArmed = true;
-      newWeekBtn.textContent = "Bấm lần nữa để xác nhận";
+      newWeekBtn.textContent = t("confirmAgainBtn");
       setTimeout(function(){
         newWeekArmed = false;
-        newWeekBtn.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10a6 6 0 1 1 1.8 4.3M4 10V6M4 10h4"/></svg> Bắt đầu tuần mới';
+        newWeekBtn.innerHTML = NEW_WEEK_ICON_SVG+'<span data-i18n="newWeekBtn">'+escapeHtml(t("newWeekBtn"))+'</span>';
       }, 3000);
       return;
     }
     state.plan = []; state.checked = {}; state.manual = [];
     newWeekArmed = false;
-    newWeekBtn.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10a6 6 0 1 1 1.8 4.3M4 10V6M4 10h4"/></svg> Bắt đầu tuần mới';
+    newWeekBtn.innerHTML = NEW_WEEK_ICON_SVG+'<span data-i18n="newWeekBtn">'+escapeHtml(t("newWeekBtn"))+'</span>';
     save(); renderAll();
-    toast("Đã bắt đầu tuần mới");
+    toast(t("toastNewWeek"));
   });
 
   // ---------- RECIPE MODAL ----------
@@ -2050,24 +2494,24 @@
   function subFieldHtml(tag, currentSub){
     var cfg = SUBTAGS[tag];
     if(!cfg) return "";
-    return '<div class="field"><label for="mSub">Nhóm nhỏ</label><select id="mSub">'+
-      cfg.order.map(function(k){ return '<option value="'+k+'"'+(currentSub===k?" selected":"")+'>'+cfg.labels[k]+'</option>'; }).join("")+
+    return '<div class="field"><label for="mSub">'+escapeHtml(t("subgroupLabel"))+'</label><select id="mSub">'+
+      cfg.order.map(function(k){ return '<option value="'+k+'"'+(currentSub===k?" selected":"")+'>'+subLabel(tag,k)+'</option>'; }).join("")+
       '</select></div>';
   }
 
   function renderModal(recipe){
     var overlay = document.createElement("div");
     overlay.className = "modal-overlay";
-    var catOptions = CAT_ORDER.map(function(c){ return '<option value="'+c+'">'+CATS[c].label+'</option>'; }).join("");
+    var catOptions = CAT_ORDER.map(function(c){ return '<option value="'+c+'">'+catLabel(c)+'</option>'; }).join("");
 
     function ingRowsHtml(){
       return draftIngredients.map(function(ing, idx){
         return '<div class="ing-edit-row" data-idx="'+idx+'">'+
-          '<input type="text" placeholder="Tên nguyên liệu" data-f="name" value="'+escapeHtml(ing.name)+'">'+
-          '<input type="number" min="0" step="any" placeholder="SL" data-f="qty" value="'+(ing.qty===0?0:(ing.qty||""))+'">'+
-          '<input type="text" placeholder="đơn vị" data-f="unit" value="'+escapeHtml(ing.unit||"")+'">'+
-          '<select data-f="cat">'+CAT_ORDER.map(function(c){ return '<option value="'+c+'"'+(ing.cat===c?" selected":"")+'>'+CATS[c].label+'</option>'; }).join("")+'</select>'+
-          '<button type="button" class="icon-btn btn-danger-text" data-rmv="'+idx+'" aria-label="Xoá dòng">'+
+          '<input type="text" placeholder="'+escapeHtml(t("ingNamePlaceholder"))+'" data-f="name" value="'+escapeHtml(ing.name)+'">'+
+          '<input type="number" min="0" step="any" placeholder="'+escapeHtml(t("qtyPlaceholder"))+'" data-f="qty" value="'+(ing.qty===0?0:(ing.qty||""))+'">'+
+          '<input type="text" placeholder="'+escapeHtml(t("unitPlaceholder"))+'" data-f="unit" value="'+escapeHtml(ing.unit||"")+'">'+
+          '<select data-f="cat">'+CAT_ORDER.map(function(c){ return '<option value="'+c+'"'+(ing.cat===c?" selected":"")+'>'+catLabel(c)+'</option>'; }).join("")+'</select>'+
+          '<button type="button" class="icon-btn btn-danger-text" data-rmv="'+idx+'" aria-label="'+escapeHtml(t("deleteRowAria"))+'">'+
             '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 5L15 15M15 5L5 15"/></svg></button>'+
         '</div>';
       }).join("");
@@ -2075,34 +2519,34 @@
 
     function photoFieldHtml(){
       return '<div class="field">'+
-        '<label>Ảnh món ăn</label>'+
+        '<label>'+escapeHtml(t("photoLabel"))+'</label>'+
         '<div class="photo-picker" id="mPhotoPicker">'+
-          (draftImage ? '<img src="'+draftImage+'" alt="">' : '<span class="photo-picker-empty">+ Thêm ảnh</span>')+
+          (draftImage ? '<img src="'+draftImage+'" alt="">' : '<span class="photo-picker-empty">'+escapeHtml(t("addPhotoBtn"))+'</span>')+
         '</div>'+
-        (draftImage ? '<button type="button" class="btn btn-sm btn-danger-text" id="mPhotoRemove" style="align-self:flex-start;">Xoá ảnh</button>' : '')+
+        (draftImage ? '<button type="button" class="btn btn-sm btn-danger-text" id="mPhotoRemove" style="align-self:flex-start;">'+escapeHtml(t("removePhotoBtn"))+'</button>' : '')+
         '<input type="file" accept="image/*" id="mPhotoInput" style="display:none;">'+
       '</div>';
     }
 
     overlay.innerHTML =
       '<div class="modal">'+
-        '<div class="modal-head"><h3>'+(recipe?"Sửa món":"Thêm món mới")+'</h3>'+
-          '<button class="icon-btn" id="mClose" aria-label="Đóng">'+
+        '<div class="modal-head"><h3>'+escapeHtml(recipe?t("editRecipeTitle"):t("addRecipeTitle"))+'</h3>'+
+          '<button class="icon-btn" id="mClose" aria-label="'+escapeHtml(t("closeAria"))+'">'+
             '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 5L15 15M15 5L5 15"/></svg></button></div>'+
         '<div id="mPhotoField">'+photoFieldHtml()+'</div>'+
-        '<div class="field"><label for="mName">Tên món</label><input type="text" id="mName" value="'+(recipe?escapeHtml(recipe.name):"")+'" placeholder="Ví dụ: Canh chua cá lóc"></div>'+
+        '<div class="field"><label for="mName">'+escapeHtml(t("nameLabel"))+'</label><input type="text" id="mName" value="'+(recipe?escapeHtml(recipe.name):"")+'" placeholder="'+escapeHtml(t("nameFieldPlaceholder"))+'"></div>'+
         '<div class="field-row">'+
-          '<div class="field"><label for="mTag">Loại</label><select id="mTag">'+TAG_ORDER.map(function(tg){ return '<option value="'+tg+'"'+((recipe?recipe.tag:"man")===tg?" selected":"")+'>'+TAGS[tg].label+'</option>'; }).join("")+'</select></div>'+
-          '<div class="field"><label for="mBase">Khẩu phần cơ bản (người)</label><input type="number" id="mBase" min="1" max="20" value="'+(recipe?recipe.base:4)+'"></div>'+
+          '<div class="field"><label for="mTag">'+escapeHtml(t("typeLabel"))+'</label><select id="mTag">'+TAG_ORDER.map(function(tg){ return '<option value="'+tg+'"'+((recipe?recipe.tag:"man")===tg?" selected":"")+'>'+tagLabel(tg)+'</option>'; }).join("")+'</select></div>'+
+          '<div class="field"><label for="mBase">'+escapeHtml(t("baseServingLabel"))+'</label><input type="number" id="mBase" min="1" max="20" value="'+(recipe?recipe.base:4)+'"></div>'+
         '</div>'+
         '<div id="mSubFieldWrap">'+subFieldHtml(recipe?recipe.tag:"man", recipe?recipe.sub:null)+'</div>'+
-        '<div class="field"><label for="mGuideUrl">Link hướng dẫn (video/bài viết)</label><input type="url" id="mGuideUrl" value="'+(recipe&&recipe.guideUrl?escapeHtml(recipe.guideUrl):"")+'" placeholder="https://..."></div>'+
-        '<div class="field"><label>Nguyên liệu</label><div class="ing-rows" id="ingRows">'+ingRowsHtml()+'</div>'+
+        '<div class="field"><label for="mGuideUrl">'+escapeHtml(t("guideLinkLabel"))+'</label><input type="url" id="mGuideUrl" value="'+(recipe&&recipe.guideUrl?escapeHtml(recipe.guideUrl):"")+'" placeholder="https://..."></div>'+
+        '<div class="field"><label>'+escapeHtml(t("ingredientsLabel"))+'</label><div class="ing-rows" id="ingRows">'+ingRowsHtml()+'</div>'+
           '<button type="button" class="btn btn-sm" id="mAddIng" style="align-self:flex-start;margin-top:2px;">'+
-            '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 4V16M4 10H16"/></svg> Thêm nguyên liệu</button></div>'+
+            '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 4V16M4 10H16"/></svg> '+escapeHtml(t("addIngredientBtn"))+'</button></div>'+
         '<div class="modal-footer">'+
-          '<button class="btn" id="mCancel">Huỷ</button>'+
-          '<button class="btn btn-primary" id="mSave">Lưu món</button>'+
+          '<button class="btn" id="mCancel">'+escapeHtml(t("cancelBtn"))+'</button>'+
+          '<button class="btn btn-primary" id="mSave">'+escapeHtml(t("saveBtn"))+'</button>'+
         '</div>'+
       '</div>';
     modalRoot.innerHTML = "";
@@ -2148,7 +2592,7 @@
           photoFieldEl.innerHTML = photoFieldHtml();
           wirePhotoField();
         }).catch(function(err){
-          toast(err && err.message==="timeout" ? "Xử lý ảnh quá lâu — thử ảnh khác hoặc chụp lại ở độ phân giải thấp hơn" : "Không đọc được ảnh này");
+          toast(err && err.message==="timeout" ? t("toastImageTooSlow") : t("toastImageReadError"));
         });
       });
       var removeBtn = overlay.querySelector("#mPhotoRemove");
@@ -2164,7 +2608,7 @@
 
     overlay.querySelector("#mSave").addEventListener("click", function(){
       var name = overlay.querySelector("#mName").value.trim();
-      if(!name){ toast("Vui lòng nhập tên món"); return; }
+      if(!name){ toast(t("toastNeedName")); return; }
       var tag = overlay.querySelector("#mTag").value;
       var base = parseInt(overlay.querySelector("#mBase").value,10) || 4;
       var subSelect = overlay.querySelector("#mSub");
@@ -2174,7 +2618,7 @@
       var cleanIngredients = draftIngredients
         .filter(function(i){ return i.name && i.name.trim(); })
         .map(function(i){ return {name:i.name.trim(), qty:parseFloat(i.qty)||0, unit:(i.unit||"").trim()||"g", cat:i.cat||"rau"}; });
-      if(!cleanIngredients.length){ toast("Thêm ít nhất một nguyên liệu"); return; }
+      if(!cleanIngredients.length){ toast(t("toastNeedIngredient")); return; }
 
       var savedRecipe;
       if(editingId){
@@ -2195,7 +2639,7 @@
         if(renamedSeed) window.ChipKitchenSync.pushRecipe(tombstoneFor("x-"+slugifyName(renamedSeed), renamedSeed));
       }
       closeModal();
-      toast(editingId ? "Đã lưu thay đổi" : "Đã thêm món mới");
+      toast(editingId ? t("toastSavedChanges") : t("toastAddedRecipe"));
     });
   }
 
@@ -2207,7 +2651,7 @@
       '<div class="modal">'+
         '<div class="modal-head"><h3>'+escapeHtml(title)+'</h3></div>'+
         '<p style="margin:0;color:var(--text-muted);font-size:.9rem;">'+escapeHtml(message)+'</p>'+
-        '<div class="modal-footer"><button class="btn" id="cfCancel">Huỷ</button><button class="btn btn-primary" id="cfOk">'+escapeHtml(confirmLabel)+'</button></div>'+
+        '<div class="modal-footer"><button class="btn" id="cfCancel">'+escapeHtml(t("cancelBtn"))+'</button><button class="btn btn-primary" id="cfOk">'+escapeHtml(confirmLabel)+'</button></div>'+
       '</div>';
     modalRoot.innerHTML = "";
     modalRoot.appendChild(overlay);
@@ -2225,9 +2669,9 @@
       a.href = url; a.download = filename;
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
-      toast("Đã tải file sao lưu");
+      toast(t("toastBackupDownloaded"));
     }catch(e){
-      toast("Trình duyệt này không hỗ trợ tải file");
+      toast(t("toastDownloadUnsupported"));
     }
   }
 
@@ -2236,7 +2680,7 @@
     var filename = "chip-kitchen-"+new Date().toISOString().slice(0,10)+".json";
     if(window.claude && window.claude.downloads){
       window.claude.downloads.save({filename:filename, data:payload}).then(function(){
-        toast("Đã tải file sao lưu");
+        toast(t("toastBackupDownloaded"));
       }).catch(function(err){
         if(err && err.code === "declined") return;
         fallbackDownload(filename, payload);
@@ -2257,22 +2701,29 @@
     overlay.className = "modal-overlay";
     overlay.innerHTML =
       '<div class="modal">'+
-        '<div class="modal-head"><h3>Cài đặt</h3></div>'+
+        '<div class="modal-head"><h3>'+escapeHtml(t("settingsTitle"))+'</h3></div>'+
         '<div class="card people-row">'+
-          '<div class="label"><strong>Số người trong nhà</strong></div>'+
+          '<div class="label"><strong>'+escapeHtml(t("householdSizeLabel"))+'</strong></div>'+
           '<div class="stepper" id="peopleStepper">'+
-            '<button data-delta="-1" aria-label="Giảm">−</button>'+
+            '<button data-delta="-1" aria-label="'+escapeHtml(t("decreaseAria"))+'">−</button>'+
             '<output id="peopleValue">'+state.people+'</output>'+
-            '<button data-delta="1" aria-label="Tăng">+</button>'+
+            '<button data-delta="1" aria-label="'+escapeHtml(t("increaseAria"))+'">+</button>'+
+          '</div>'+
+        '</div>'+
+        '<div class="card people-row">'+
+          '<div class="label"><strong>'+escapeHtml(t("languageLabel"))+'</strong></div>'+
+          '<div class="sheet-actions" id="langToggle" style="margin:0;">'+
+            '<button class="btn btn-sm'+(LANG==="vi"?" btn-primary":"")+'" data-lang="vi">'+escapeHtml(t("langViBtn"))+'</button>'+
+            '<button class="btn btn-sm'+(LANG==="en"?" btn-primary":"")+'" data-lang="en">'+escapeHtml(t("langEnBtn"))+'</button>'+
           '</div>'+
         '</div>'+
         '<div class="sheet-actions">'+
           '<button class="btn" id="setExport">'+
             '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4"/><path d="M4 16v.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V16"/></svg>'+
-            ' Xuất dữ liệu</button>'+
+            ' '+escapeHtml(t("exportBtn"))+'</button>'+
           '<button class="btn" id="setImport">'+
             '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17V7M6 11l4-4 4 4"/><path d="M4 16v.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V16"/></svg>'+
-            ' Nhập dữ liệu</button>'+
+            ' '+escapeHtml(t("importBtn"))+'</button>'+
         '</div>'+
       '</div>';
     modalRoot.innerHTML = "";
@@ -2289,6 +2740,13 @@
       if(state.people > 20) state.people = 20;
       save(); renderAll();
     });
+    overlay.querySelector("#langToggle").addEventListener("click", function(e){
+      var btn = e.target.closest("[data-lang]");
+      if(!btn) return;
+      var l = btn.dataset.lang;
+      if(l !== LANG) setLang(l);
+      showSettingsMenu();
+    });
   }
   document.getElementById("btnSettings").addEventListener("click", showSettingsMenu);
 
@@ -2298,9 +2756,9 @@
     var reader = new FileReader();
     reader.onload = function(){
       var data;
-      try{ data = JSON.parse(reader.result); }catch(err){ toast("Không đọc được file — sai định dạng"); return; }
-      if(!data || !Array.isArray(data.recipes)){ toast("File không đúng định dạng dữ liệu Chip Kitchen"); return; }
-      showConfirm("Nhập dữ liệu", "Dữ liệu hiện tại trên thiết bị này sẽ bị thay thế bằng nội dung trong file đã chọn. Tiếp tục?", "Ghi đè", function(){
+      try{ data = JSON.parse(reader.result); }catch(err){ toast(t("toastBadFile")); return; }
+      if(!data || !Array.isArray(data.recipes)){ toast(t("toastWrongFormat")); return; }
+      showConfirm(t("importTitle"), t("importMsg"), t("overwriteBtn"), function(){
         state = normalizeState(data);
         save(); renderAll();
         // syncAllRecipes xoá mọi document không có trong file -- kể cả bia mộ
@@ -2309,7 +2767,7 @@
         var tombs = (state.deletedSeedNames||[]).filter(function(n){ return typeof n === "string" && n; })
           .map(function(n){ return tombstoneFor("x-"+slugifyName(n), n); });
         if(window.ChipKitchenSync && window.ChipKitchenSync.syncAllRecipes) window.ChipKitchenSync.syncAllRecipes(state.recipes.concat(tombs));
-        toast("Đã nhập dữ liệu thành công");
+        toast(t("toastImportSuccess"));
       });
     };
     reader.readAsText(file);
@@ -2318,6 +2776,7 @@
 
   // ---------- BANNER ----------
   var bannerMediaEl = document.getElementById("bannerMedia");
+  var MONTH_EN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   function getWeekRangeLabel(){
     var now = new Date();
     var day = now.getDay();
@@ -2326,6 +2785,10 @@
     var sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate()+6);
     var d1 = monday.getDate(), m1 = monday.getMonth()+1;
     var d2 = sunday.getDate(), m2 = sunday.getMonth()+1;
+    if(LANG === "en"){
+      if(m1 === m2) return MONTH_EN[m1-1]+" "+d1+"–"+d2;
+      return MONTH_EN[m1-1]+" "+d1+" – "+MONTH_EN[m2-1]+" "+d2;
+    }
     if(m1 === m2) return d1+"-"+d2+" tháng "+m1;
     return d1+" tháng "+m1+" - "+d2+" tháng "+m2;
   }
@@ -2348,6 +2811,7 @@
     renderHousehold();
     renderShopping();
   }
+  applyStaticTranslations();
   renderAll();
 
   // bannerImage is intentionally NOT here -- it's a data: URL photo, the only
@@ -2473,23 +2937,29 @@
       var code = err && err.code ? String(err.code) : "";
       var msg = err && err.message ? String(err.message) : "";
       if(code === "invalid-argument" || msg.indexOf("maximum") !== -1 || msg.indexOf("exceeds") !== -1 || msg.indexOf("1048576") !== -1){
-        toast("Không đồng bộ — dữ liệu (ảnh) vượt giới hạn 1MB của đám mây. Đã lưu trên máy này. [invalid-argument]", 6000);
+        toast(t("toastSyncLimit"), 6000);
       } else if(code === "permission-denied"){
-        toast("Không đồng bộ — bị từ chối quyền truy cập. Đã lưu trên máy này. [permission-denied]", 6000);
+        toast(t("toastSyncDenied"), 6000);
       } else {
-        toast("Không đồng bộ lên đám mây được. Đã lưu trên máy này, sẽ tự thử lại. [mã: "+(code||"unknown")+"]", 6000);
+        toast(tf("toastSyncOther",{code:code||"unknown"}), 6000);
       }
     },
     // Trước đây lỗi của 3 onSnapshot listener (metaRef/recipesCol/bannerRef)
     // chỉ console.warn -- người dùng thấy app trống trơn (dữ liệu tuần này/
     // đi chợ mất sạch) mà không có bất kỳ dấu hiệu nào là do lỗi tải dữ liệu
     // (vd hết quyền truy cập). Giờ báo rõ bằng toast để không phải đoán mò.
+    // `what` always arrives as the Vietnamese noun phrase the module script
+    // hardcodes (see its onSnapshot error callbacks) -- that call site is
+    // part of the Firestore sync machinery and is intentionally left
+    // untouched, so this just relabels the known phrases for display.
     reportReadError: function(what, err){
       var code = err && err.code ? String(err.code) : "unknown";
+      var WHAT_KEY = { "thực đơn/đi chợ":"whatPlan", "danh sách món ăn":"whatRecipes", "ảnh banner":"whatBanner" };
+      var whatDisplay = (WHAT_KEY[what] && t(WHAT_KEY[what])) || what;
       if(code === "permission-denied"){
-        toast("Không tải được "+what+" từ đám mây — bị từ chối quyền truy cập [permission-denied]. Đang hiện dữ liệu cũ trên máy này (nếu có).", 8000);
+        toast(tf("toastReadDenied",{what:whatDisplay}), 8000);
       } else {
-        toast("Không tải được "+what+" từ đám mây. Đang hiện dữ liệu cũ trên máy này (nếu có). [mã: "+code+"]", 8000);
+        toast(tf("toastReadOther",{what:whatDisplay, code:code}), 8000);
       }
     }
   };
